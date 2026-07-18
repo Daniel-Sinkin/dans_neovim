@@ -16,6 +16,15 @@ local DEFAULTS = {
   -- references: absence of `mut` means read-only. Pointer parameters remain
   -- explicit because pointee and pointer-object constness are independent axes.
   concrete_reference_const = 'const_default',
+  -- The selected semantic accent is shared by optional/expected question marks.
+  -- The owner's font rendered ∅ poorly, so std::nullopt retains its word spelling
+  -- in production while the empty-set candidate remains buffer-local (DEC-015).
+  optional_marker_accent = 'gold',
+  nullopt_spelling = 'word',
+  -- Weak pointers are non-owning pointer-like handles whose lock may fail. The
+  -- compact default shows both facts; the style lab can compare equal-width
+  -- marker variants without disturbing alignment.
+  weak_pointer_marker = 'caret_optional',
 }
 
 local VALID = {
@@ -23,6 +32,27 @@ local VALID = {
     explicit = true,
     const_default = true,
   },
+  optional_marker_accent = {
+    neutral = true,
+    cyan = true,
+    gold = true,
+    violet = true,
+  },
+  nullopt_spelling = {
+    word = true,
+    empty_set = true,
+  },
+  weak_pointer_marker = {
+    caret_optional = true,
+    tilde_optional = true,
+    caret_weak = true,
+  },
+}
+
+local OPTIONAL_HL = {
+  cyan = 'DansOptionalCyan',
+  gold = 'DansOptionalGold',
+  violet = 'DansOptionalViolet',
 }
 
 M.DEFAULTS = vim.deepcopy(DEFAULTS)
@@ -63,6 +93,20 @@ function M.profile(bufnr)
     out[key] = value
   end
   return out
+end
+
+function M.optional_marker_hl(bufnr, fallback)
+  return OPTIONAL_HL[M.get(bufnr, 'optional_marker_accent')] or fallback or 'Normal'
+end
+
+function M.weak_pointer_parts(bufnr)
+  local value = M.get(bufnr, 'weak_pointer_marker')
+  if value == 'tilde_optional' then
+    return '~', '?'
+  elseif value == 'caret_weak' then
+    return '^', 'w'
+  end
+  return '^', '?'
 end
 
 return M

@@ -8,11 +8,12 @@
   "details": [
     "view.lua owns full-line declaration overlays and delegates source analysis to parse.lua and chunk construction to render.lua.",
     "aliases.lua owns keyword aliases, function-parameter movement including packed multiline rows, changedtick-keyed C-style function layout facts, function return rewriting, and raw exact CUDA symbol transforms; parse.lua supplies the same exact tables to structured renderers.",
-    "pointer.lua owns raw pointer and CString presentation outside overlay-covered rows.",
+    "parse.lua owns the balanced recursive semantic type grammar and render.lua maps its roles to spelling and color; pointer.lua applies the same grammar to outermost raw templates outside overlay- and flipped-parameter-owned rows.",
     "designated.lua, logic.lua, macro_def.lua, special_members.lua, enum_align.lua, and arrow_align.lua own focused raw-line transforms.",
     "markers.lua owns library-prefix conceal and window-local category highlighting; highlights.lua owns shared highlight definitions.",
     "ppif.lua and fold.lua analyze platform branches and fold structure; scope.lua and overlay_hl.lua provide interaction highlighting; lint.lua reports frontend-specific hazards.",
-    "util.lua combines shared source facts, caches, reveal policy, cold-open gating, module state, and decoration lifecycle; its shared skipper owns whole-row exclusions including direct and continued include directives."
+    "util.lua combines shared source facts, caches, reveal policy, cold-open gating, module state, and decoration lifecycle; its shared skipper owns whole-row exclusions including direct and continued include directives.",
+    "aliases.lua owns whole parameter ranges, so its module toggle explicitly refreshes pointer.lua to transfer raw-template ownership without stale or overlapping extmarks."
   ],
   "scope": ["cpp-frontend", "cuda-frontend", "c-frontend"],
   "tags": ["architecture", "module-map", "rendering-pipeline", "treesitter"],
@@ -38,6 +39,11 @@
       "kind": "test",
       "reference": "tests/frontend_interaction_spec.lua",
       "claim": "Representative modules share the reveal lifecycle contract, and include ownership excludes character-changing renderers across interaction transitions."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua",
+      "claim": "Recursive type ownership is verified across aliases on/off cycles, cursor and Visual transitions, source integrity, and a generated real-render corpus."
     }
   ],
   "relations": [
@@ -58,6 +64,6 @@
   "last_verified": {
     "date": "2026-07-18",
     "revision": "current worktree",
-    "method": "Static module/namespace audit plus focused interaction coverage of shared include ownership and exact CUDA aliases."
+    "method": "Static module/namespace audit plus focused interaction coverage of shared include ownership, exact CUDA aliases, recursive semantic types, and dependent module toggles."
   }
 }

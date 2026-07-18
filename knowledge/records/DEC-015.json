@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "DEC-015",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Optional semantics use a gold question mark and readable nullopt word",
+  "summary": "Optional and expected question marks use one bold gold semantic accent, while std::nullopt retains its word spelling in production.",
+  "details": [
+    "The rule applies consistently in raw signatures, flipped parameters, structured declarations, return types, nested types, and expressions.",
+    "The exact standard sentinel std::nullopt retains its readable word spelling, as do custom::nullopt, longer identifiers, strings, comments, and include paths.",
+    "Cursor and Visual reveal continue to show original source spelling, and the presentation never changes buffer bytes or source-row count.",
+    "Gold is #e0af68 in the active palette and the semantic marker is bold.",
+    "The owner submitted the gold-empty-set candidate under catalog hash 0a4f7add82c312c0b3ffaf6e58a9904856b8c9a6ef492be01ef25ad6239627d1 with an explicit note selecting gold but rejecting the glyph; the resolved profile therefore combines gold with the word spelling."
+  ],
+  "rationale": [
+    "The former dim or path-dependent question mark read like comment noise instead of part of the type grammar.",
+    "Gold makes absence conspicuous without borrowing mutation red or library provenance colors.",
+    "The nullopt word remains legible and typographically stable in the owner's active font."
+  ],
+  "alternatives": [
+    "Keep the mixed neutral marker; rejected because the semantic punctuation was too subdued and inconsistent.",
+    "Use ∅ for std::nullopt; rejected after real-grid comparison because the glyph was ugly in the owner's font.",
+    "Use cyan or violet for the semantic marker; visually valid but not selected."
+  ],
+  "scope": ["cpp-frontend/types", "cpp-frontend/expressions", "frontend-highlighting"],
+  "tags": ["optional", "expected", "nullopt", "empty-set-rejected", "gold"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json optional-semantic-marker selection and note 2026-07-18",
+      "note": "Owner selected gold and explicitly rejected the empty-set glyph after comparing real embedded-Neovim captures."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/style.lua, render.lua, pointer.lua, aliases.lua, and highlights.lua",
+      "note": "The shared buffer-local profile and raw/structured rendering paths implement the selected spelling and accent."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py optional semantic-marker captures",
+      "claim": "Real ext_linegrid RGB runs pin the gold bold marker, word and ∅ alternatives, exact sentinel boundaries, and source integrity."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua and tests/frontend_interaction_spec.lua",
+      "claim": "Recursive type positions, expressions, cursor/Visual reveal, row identity, and exact-namespace negatives are pinned."
+    }
+  ],
+  "relations": [
+    { "type": "resolves", "target": "QST-007" },
+    { "type": "implemented_by", "target": "BHV-005" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["gold optional marker", "nullopt word", "T? color", "rejected empty set"],
+    "questions": [
+      "What color is the optional question mark?",
+      "How does std::nullopt display?",
+      "Why is optional punctuation gold?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Owner's conditional selection note normalized to gold-word, then verified through RGB, interaction, source-integrity, font-feedback, and exact-boundary assertions."
+  }
+}

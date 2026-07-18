@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "INC-007",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Smart-pointer aliases overlapped flipped constructor parameters",
+  "summary": "Generic $up/$sp aliases and whole-parameter movement both decorated std::unique_ptr and std::shared_ptr constructor parameters, producing broken mixed spellings instead of the compact ownership type.",
+  "details": [
+    "The reported std::unique_ptr<Linalg> linalg parameter displayed as a mixture containing the legacy $up shorthand rather than linalg: Linalg^.",
+    "aliases.lua owned the entire flipped parameter range while its generic alias table also placed a second extmark inside that same range.",
+    "The previous flat strip_type logic only recognized top-level unique/shared pointers, omitted weak_ptr, and did not give raw type positions the same recursive behavior.",
+    "The correction removes generic source smart-pointer aliases, preserves authoring snippets separately, and routes every type consumer through one balanced recursive semantic grammar.",
+    "Parameter ownership remains with aliases.lua; pointer.lua handles outermost raw templates only when no enclosing parameter owner exists, and dependent module toggles repaint both owners.",
+    "A headless Visual harness gap was also corrected by delivering the endpoint CursorMoved and exit lifecycle events explicitly, ensuring every selected row is validated."
+  ],
+  "scope": ["cpp-frontend/parameters", "cpp-frontend/types", "frontend-lifecycle"],
+  "tags": ["smart-pointer", "unique-ptr", "shared-ptr", "weak-ptr", "overlapping-extmarks", "regression"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 qnpeps_ctx constructor report",
+      "note": "Owner reported incorrect unique_ptr handling in a multiline constructor and requested symmetric refinement with weak_ptr and optional."
+    },
+    {
+      "kind": "code",
+      "reference": "former aliases.lua ALIASES smart-pointer entries and flat parse.lua strip_type branches",
+      "note": "Static audit and generated corpora isolated overlapping ownership plus incomplete grammar coverage."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua",
+      "claim": "The exact constructor, smart/optional pairs, 125-row generated renderer corpus, colors, Visual reveal, and aliases toggle cycles are regression-tested."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua and tests/param_flip_spec.lua",
+      "claim": "Existing golden and parameter layout coverage now expects semantic ownership spelling rather than the broken legacy alias."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "BHV-005" },
+    { "type": "relates_to", "target": "QST-008" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["unique_ptr constructor broken", "$up in parameter", "smart pointer overlap", "qnpeps ctx linalg"],
+    "questions": [
+      "Why did std::unique_ptr<Linalg> render with $up in a constructor?",
+      "How are smart pointers kept symmetric across parameters and returns?",
+      "Why does toggling aliases also refresh pointer rendering?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Reported constructor reproduced, root causes isolated with generated corpora, and the shared grammar verified through focused and full-suite interaction coverage."
+  }
+}

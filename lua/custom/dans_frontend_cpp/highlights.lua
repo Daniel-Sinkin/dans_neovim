@@ -88,6 +88,12 @@ function M.apply()
   -- Deduced-type inlay text inside the view overlays (clangd auto types) --
   -- clearly blue so it reads apart from the gray comments.
   hi('DansInlayType', { fg = '#7aa2f7' })
+  -- Style-lab candidates for the semantic `?` / `∅` optional family. These
+  -- stay distinct groups so buffer-local profiles can compare them in one
+  -- process without mutating global renderer functions.
+  hi('DansOptionalCyan', { fg = '#7dcfff', bold = true })
+  hi('DansOptionalGold', { fg = '#e0af68', bold = true })
+  hi('DansOptionalViolet', { fg = '#bb9af7', bold = true })
   -- `const` grayed wherever it stays visible (function args, trailing const, the
   -- leading const revealed on the cursor line) -- the de-emphasized default.
   hi('DansConst', { fg = '#6b7280' })

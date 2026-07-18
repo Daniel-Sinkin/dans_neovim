@@ -15,6 +15,7 @@ local M = {}
 local ns = vim.api.nvim_create_namespace 'ds_cpp_aliases'
 local vu = require 'custom.dans_frontend_cpp.util'
 local parse = require 'custom.dans_frontend_cpp.parse'
+local style = require 'custom.dans_frontend_cpp.style'
 
 -- { keyword, replacement, highlight? }  -- highlight defaults to 'Comment'.
 local ALIASES = {
@@ -30,8 +31,6 @@ local ALIASES = {
   { '[[maybe_unused]]', '' }, -- '' = hidden entirely (incl one trailing space)
   { 'static_assert', '$sa' },
   { 'std::runtime_error', '$re' },
-  { 'std::unique_ptr', '$up' },
-  { 'std::shared_ptr', '$sp' },
   { 'VK_NULL_HANDLE', 'nullptr', 'DansVulkan' },
   -- dans-core macros read as Rust-style bang-macros, kept in the macro color
   -- (DansMacro) so they still scan as macros, not as gray keyword shorthands.
@@ -50,6 +49,21 @@ M.ALIASES = ALIASES
 
 local function is_word_char(c)
   return c and c:match '[%w_]' ~= nil
+end
+
+local function exact_std_start(line, start1)
+  if start1 == 1 then
+    return true
+  end
+  local before = line:sub(start1 - 1, start1 - 1)
+  if not before:match '[%w_:]' then
+    return true
+  end
+  -- A leading global qualifier is still the standard namespace, whereas
+  -- `foo::std::` is not. Keep the boundary exact in both directions.
+  return start1 >= 3
+    and line:sub(start1 - 2, start1 - 1) == '::'
+    and (start1 == 3 or not line:sub(start1 - 3, start1 - 3):match '[%w_:]')
 end
 
 -- Whether byte column col0 (0-based) sits inside a "..." string or a // comment,
@@ -74,6 +88,38 @@ local function in_string_or_comment(line, col0)
       return true
     end
     i = e + 1
+  end
+end
+
+-- Experimental value spelling paired with the optional marker accent. Only the
+-- exact standard-library sentinel is rewritten; an unrelated identifier named
+-- nullopt remains source-verbatim.
+local function nullopt_alias(bufnr, row0, line)
+  if style.get(bufnr, 'nullopt_spelling') ~= 'empty_set' then
+    return
+  end
+  local from = 1
+  while true do
+    local s, e = line:find('std::nullopt', from, true)
+    if not s then
+      return
+    end
+    local after = e < #line and line:sub(e + 1, e + 1) or nil
+    if
+      exact_std_start(line, s)
+      and not is_word_char(after)
+      and not in_string_or_comment(line, s - 1)
+      and not vu.in_literal(bufnr, row0, s - 1)
+    then
+      local nullopt_col = s - 1 + #'std::'
+      pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row0, nullopt_col, {
+        end_col = nullopt_col + #'nullopt',
+        conceal = '',
+        virt_text = { { '∅', style.optional_marker_hl(bufnr) } },
+        virt_text_pos = 'inline',
+      })
+    end
+    from = e + 1
   end
 end
 
@@ -870,7 +916,7 @@ local function flip_param(p, bufnr)
     typ = vim.trim(main:sub(1, npos - 1))
   end
   if not typ or typ == '' then
-    return require('custom.dans_frontend_cpp.render').type_chunks(main) -- unnamed
+    return require('custom.dans_frontend_cpp.render').type_chunks(main, bufnr) -- unnamed
   end
   -- A top-level const on the pointer object (`T* const p`) belongs to the
   -- binding, not its pointee type.  Raw-line const_pointer_reorder deliberately
@@ -901,7 +947,7 @@ local function flip_param(p, bufnr)
   then
     typ = vim.trim(typ:gsub('^const%s+', '', 1))
   end
-  for _, c in ipairs(require('custom.dans_frontend_cpp.render').type_chunks(typ)) do
+  for _, c in ipairs(require('custom.dans_frontend_cpp.render').type_chunks(typ, bufnr)) do
     chunks[#chunks + 1] = c
   end
   if default then
@@ -1450,7 +1496,7 @@ local function c_style_apply(bufnr, row0, line)
       if fact.typ:match '&%s*$' and not fact.typ:match '&&%s*$' and not fact.typ:match '^const%f[%A]' then
         chunks[#chunks + 1] = { 'mut ', 'DansMarkerMut' }
       end
-      for _, chunk in ipairs(require('custom.dans_frontend_cpp.render').type_chunks(fact.typ)) do
+      for _, chunk in ipairs(require('custom.dans_frontend_cpp.render').type_chunks(fact.typ, bufnr)) do
         chunks[#chunks + 1] = chunk
       end
       pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row0, fact.icol, {
@@ -1478,6 +1524,7 @@ local function decorate_line(bufnr, row0, line)
   imgui_asserts(bufnr, row0, line)
   -- CUDA runtime calls -> snake_case (cudaMalloc -> malloc); CUDA_CHECK -> `?`.
   cuda_idents(bufnr, row0, line)
+  nullopt_alias(bufnr, row0, line)
   for _, alias in ipairs(ALIASES) do
     local keyword, replacement, hl = alias[1], alias[2], alias[3] or 'Comment'
     local start_pos = 1

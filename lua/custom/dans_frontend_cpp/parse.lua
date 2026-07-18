@@ -304,156 +304,269 @@ local TYPE_ALIAS = {
   double = 'f64',
 }
 
--- Replace every `optional<BALANCED>` with `BALANCED?`, nested ones included, so
--- `vector<optional<V>>` -> `vector<V?>` and a trailing ref/ptr is kept naturally
--- (it's just the text after the matched `>`). Word-boundary, so `my_optional<` is
--- left alone.
-local function collapse_optional(t)
-  local from = 1
-  while true do
-    local s = t:find('optional<', from, true)
-    if not s then
-      return t
-    end
-    local before = s > 1 and t:sub(s - 1, s - 1) or ''
-    if before:match '[%w_]' then
-      from = s + 8
-    else
-      local depth, close = 0, nil
-      for i = s + 8, #t do
-        local c = t:sub(i, i)
-        if c == '<' then
-          depth = depth + 1
-        elseif c == '>' then
-          depth = depth - 1
-          if depth == 0 then
-            close = i
-            break
-          end
-        end
-      end
-      if not close then
-        return t
-      end
-      t = t:sub(1, s - 1) .. t:sub(s + 9, close - 1) .. '?' .. t:sub(close + 1)
-      from = s
-    end
+-- One recursive type grammar owns spelling, width, and semantic marker roles.
+-- Renderers color these segments; alignment joins their text. Keeping both views
+-- on the same balanced parse prevents wrapper handling from diverging between
+-- declarations, parameters, returns, and nested containers.
+local PREC_UNION = 10
+local PREC_PREFIX = 15
+local PREC_SUFFIX = 20
+local PREC_ATOM = 30
+
+local KNOWN_WRAPPERS = {
+  optional = true,
+  expected = true,
+  array = true,
+  unique_ptr = true,
+  shared_ptr = true,
+  weak_ptr = true,
+}
+
+local function segment(text, role, source)
+  return { text = text, role = role or 'type', source = source }
+end
+
+local function extend(target, values)
+  for _, value in ipairs(values) do
+    target[#target + 1] = value
   end
 end
 
--- Every `array<T, N>` -> `[N]T` (Odin), at ANY nesting depth -- top level,
--- nested in another array (array<array<Color, k_width>, k_height> ->
--- [k_height][k_width]Color), or buried in some other template
--- (vector<array<f32, 3>> -> vector<[3]f32>). Word-boundary, so `my_array<` is
--- left alone; the element/count split at the top-level comma so a templated
--- element (array<pair<int, int>, 3>) isn't broken on its inner comma. After a
--- rewrite the scan resumes at the same spot, so the element of a collapsed
--- array gets its own pass.
-local function collapse_array(t)
-  local from = 1
-  while true do
-    local s = t:find('array<', from, true)
-    if not s then
-      return t
+local function split_template_args(text)
+  local args, depth, start = {}, 0, 1
+  for i = 1, #text do
+    local c = text:sub(i, i)
+    if c == '<' or c == '(' or c == '[' or c == '{' then
+      depth = depth + 1
+    elseif c == '>' or c == ')' or c == ']' or c == '}' then
+      depth = depth - 1
+    elseif c == ',' and depth == 0 then
+      args[#args + 1] = vim.trim(text:sub(start, i - 1))
+      start = i + 1
     end
-    local before = s > 1 and t:sub(s - 1, s - 1) or ''
-    if before:match '[%w_]' then
-      from = s + 6
-    else
-      local depth, close = 0, nil
-      for i = s + 5, #t do
-        local c = t:sub(i, i)
-        if c == '<' then
-          depth = depth + 1
-        elseif c == '>' then
-          depth = depth - 1
-          if depth == 0 then
-            close = i
-            break
-          end
+  end
+  args[#args + 1] = vim.trim(text:sub(start))
+  return args
+end
+
+local function outer_template(text)
+  local open = text:find('<', 1, true)
+  if not open then
+    return nil
+  end
+  local depth = 0
+  for i = open, #text do
+    local c = text:sub(i, i)
+    if c == '<' then
+      depth = depth + 1
+    elseif c == '>' then
+      depth = depth - 1
+      if depth == 0 then
+        if vim.trim(text:sub(i + 1)) ~= '' then
+          return nil
         end
-      end
-      if not close then
-        return t
-      end
-      local inner = t:sub(s + 6, close - 1)
-      local d2, comma = 0, nil
-      for i = 1, #inner do
-        local c = inner:sub(i, i)
-        if c == '<' or c == '(' or c == '[' then
-          d2 = d2 + 1
-        elseif c == '>' or c == ')' or c == ']' then
-          d2 = d2 - 1
-        elseif c == ',' and d2 == 0 then
-          comma = i
-          break
-        end
-      end
-      if not comma then
-        from = s + 6 -- `array<T>` with no count: not the std::array shape
-      else
-        local elem = vim.trim(inner:sub(1, comma - 1))
-        local n = vim.trim(inner:sub(comma + 1))
-        t = t:sub(1, s - 1) .. '[' .. n .. ']' .. elem .. t:sub(close + 1)
-        from = s
+        return vim.trim(text:sub(1, open - 1)), text:sub(open + 1, i - 1)
       end
     end
   end
+  return nil
+end
+
+local function known_wrapper(name)
+  local bare = vim.trim(name)
+  if bare:sub(1, 7) == '::std::' then
+    bare = bare:sub(8)
+  elseif bare:sub(1, 5) == 'std::' then
+    bare = bare:sub(6)
+  end
+  if KNOWN_WRAPPERS[bare] and not bare:find('::', 1, true) then
+    return bare
+  end
+  return nil
+end
+
+local function display_name(name)
+  local shown = vim.trim(name)
+  if shown:sub(1, 7) == '::std::' then
+    return shown:sub(8)
+  elseif shown:sub(1, 5) == 'std::' or shown:sub(1, 6) == 'dans::' then
+    return shown:match '^[^:]+::(.+)$'
+  end
+  return shown
+end
+
+local function wrap(segments, precedence, minimum)
+  if precedence >= minimum then
+    return segments
+  end
+  local out = { segment('(', 'punct') }
+  extend(out, segments)
+  out[#out + 1] = segment(')', 'punct')
+  return out
+end
+
+-- Optional is the one suffix that can collide with another semantic spelling:
+-- `optional<unique_ptr<T>>` must not become the same `T^?` as `weak_ptr<T>`.
+-- Group pointer-like and already-optional operands, while retaining the compact
+-- left-associative chains used for references and smart pointers (`T?&`, `T?^`).
+local function wrap_optional_operand(segments, precedence)
+  local tail = segments[#segments]
+  local collides = tail and (
+    tail.role == 'optional_marker'
+    or tail.role == 'pointer'
+    or tail.role == 'unique_marker'
+    or tail.role == 'shared_marker'
+    or tail.role == 'weak_marker'
+  )
+  if precedence >= PREC_SUFFIX and not collides then
+    return segments
+  end
+  local out = { segment('(', 'punct') }
+  extend(out, segments)
+  out[#out + 1] = segment(')', 'punct')
+  return out
+end
+
+local function wrap_expected_arm(segments, precedence)
+  if segments[#segments] and segments[#segments].role == 'optional_marker' then
+    return wrap(segments, PREC_UNION, PREC_SUFFIX)
+  end
+  return wrap(segments, precedence, PREC_SUFFIX)
+end
+
+local render_type
+render_type = function(source)
+  local text = vim.trim((source or ''):gsub('%f[%w_]OPENBLAS_CONST%f[^%w_]', 'const'))
+  while true do
+    local rest = text:match '^constexpr%s+(.+)$' or text:match '^inline%s+(.+)$'
+    if not rest then
+      break
+    end
+    text = vim.trim(rest)
+  end
+
+  -- Immutable C strings are one semantic type. Additional pointer levels remain
+  -- visible, and pointer-object const moves in front like the existing grammar.
+  local cstars, ctail = text:match '^const%s+char%s*(%*+)%s*(.-)%s*$'
+  if cstars and (ctail == '' or ctail == 'const') then
+    local out = {}
+    if ctail == 'const' then
+      out[#out + 1] = segment('const ', 'const')
+    end
+    out[#out + 1] = segment('CString', 'type', 'CString')
+    for _ = 2, #cstars do
+      out[#out + 1] = segment('^', 'pointer')
+    end
+    return out, PREC_SUFFIX, true
+  end
+
+  local qualifier, qualified = text:match '^(const)%s+(.+)$'
+  if not qualifier then
+    qualifier, qualified = text:match '^(volatile)%s+(.+)$'
+  end
+  if qualifier then
+    local inner, precedence, semantic = render_type(qualified)
+    local out = { segment(qualifier .. ' ', 'const') }
+    extend(out, inner)
+    return out, precedence, semantic
+  end
+
+  local pointer_base, object_stars = text:match '^(.-)%s*(%*+)%s+const$'
+  if pointer_base and vim.trim(pointer_base) ~= '' then
+    local inner, precedence, semantic = render_type(pointer_base)
+    local out = { segment('const ', 'const') }
+    extend(out, wrap(inner, precedence, PREC_SUFFIX))
+    for _ = 1, #object_stars do
+      out[#out + 1] = segment('^', 'pointer')
+    end
+    return out, PREC_SUFFIX, semantic
+  end
+
+  local suffix_base, suffix = text:match '^(.-)%s*([&*]+)$'
+  if suffix_base and vim.trim(suffix_base) ~= '' then
+    local inner, precedence, semantic = render_type(suffix_base)
+    local out = wrap(inner, precedence, PREC_SUFFIX)
+    for i = 1, #suffix do
+      local marker = suffix:sub(i, i)
+      out[#out + 1] = segment(marker == '*' and '^' or marker, marker == '*' and 'pointer' or 'reference')
+    end
+    return out, PREC_SUFFIX, semantic
+  end
+
+  local name, body = outer_template(text)
+  if name then
+    local args = split_template_args(body)
+    local wrapper = known_wrapper(name)
+    if wrapper == 'optional' and #args == 1 then
+      local inner, precedence = render_type(args[1])
+      local out = wrap_optional_operand(inner, precedence)
+      out[#out + 1] = segment('?', 'optional_marker')
+      return out, PREC_SUFFIX, true
+    elseif wrapper == 'expected' and #args == 2 then
+      local value, value_precedence = render_type(args[1])
+      local err, err_precedence = render_type(args[2])
+      local out = wrap_expected_arm(value, value_precedence)
+      out[#out + 1] = segment('?', 'optional_marker')
+      extend(out, wrap_expected_arm(err, err_precedence))
+      return out, PREC_UNION, true
+    elseif wrapper == 'array' and #args == 2 then
+      local inner, inner_precedence = render_type(args[1])
+      local out = { segment('[', 'punct'), segment(args[2], 'type', args[2]), segment(']', 'punct') }
+      extend(out, wrap(inner, inner_precedence, PREC_PREFIX))
+      return out, PREC_PREFIX, true
+    elseif (wrapper == 'unique_ptr' or wrapper == 'shared_ptr' or wrapper == 'weak_ptr') and #args >= 1 then
+      local inner, precedence = render_type(args[1])
+      local out = wrap(inner, precedence, PREC_SUFFIX)
+      local role = wrapper == 'unique_ptr' and 'unique_marker'
+        or wrapper == 'shared_ptr' and 'shared_marker'
+        or 'weak_marker'
+      out[#out + 1] = segment('^', role)
+      if wrapper == 'weak_ptr' then
+        out[#out + 1] = segment('?', 'optional_marker')
+      end
+      if wrapper == 'unique_ptr' and args[2] then
+        local deleter, deleter_precedence = render_type(args[2])
+        out[#out + 1] = segment(', ', 'punct')
+        extend(out, wrap(deleter, deleter_precedence, PREC_SUFFIX))
+        out[#out + 1] = segment('~', 'unique_marker')
+        return out, PREC_UNION, true
+      end
+      return out, PREC_SUFFIX, true
+    end
+
+    local shown_name = display_name(name)
+    local out = { segment(shown_name, 'type', name), segment('<', 'punct') }
+    local semantic = false
+    for index, arg in ipairs(args) do
+      if index > 1 then
+        out[#out + 1] = segment(', ', 'punct')
+      end
+      local child, _, child_semantic = render_type(arg)
+      extend(out, child)
+      semantic = semantic or child_semantic
+    end
+    out[#out + 1] = segment('>', 'punct')
+    return out, PREC_ATOM, semantic
+  end
+
+  local shown = display_name(text)
+  for from, to in pairs(TYPE_ALIAS) do
+    shown = shown:gsub('%f[%w_]' .. from .. '%f[^%w_]', to)
+  end
+  return { segment(shown, 'type', text) }, PREC_ATOM, false
+end
+
+function M.type_segments(typ)
+  local segments, _, semantic = render_type(typ)
+  return segments, semantic
 end
 
 function M.strip_type(typ)
-  -- OPENBLAS_CONST -> const first (at any position, so a nested
-  -- `OPENBLAS_CONST char*` still reads as CString below).
-  local t = typ:gsub('%f[%w_]OPENBLAS_CONST%f[%W]', 'const')
-  t = t:gsub('^constexpr%s+', ''):gsub('^inline%s+', ''):gsub('std::', ''):gsub('dans::', '')
-  for from, to in pairs(TYPE_ALIAS) do
-    t = t:gsub('%f[%w_]' .. from .. '%f[^%w_]', to)
+  local parts = {}
+  for _, item in ipairs(M.type_segments(typ)) do
+    parts[#parts + 1] = item.text
   end
-  -- std::optional<T> -> T?, at any nesting depth (vector<optional<V>> -> vector<V?>).
-  t = collapse_optional(t)
-  -- std::expected<T, E> -> T?E (value, then `?`, then the error arm), keeping any
-  -- trailing ref/ptr. Split at the top-level comma so a templated arm
-  -- (expected<vector<int>, Error>) isn't broken on its inner comma.
-  local exp_inner, exp_sig = t:match '^expected<(.+)>%s*([&*]*)$'
-  if exp_inner then
-    local depth = 0
-    for i = 1, #exp_inner do
-      local c = exp_inner:sub(i, i)
-      if c == '<' or c == '(' or c == '[' then
-        depth = depth + 1
-      elseif c == '>' or c == ')' or c == ']' then
-        depth = depth - 1
-      elseif c == ',' and depth == 0 then
-        t = vim.trim(exp_inner:sub(1, i - 1)) .. '?' .. vim.trim(exp_inner:sub(i + 1)) .. exp_sig
-        break
-      end
-    end
-  end
-  t = collapse_array(t)
-  -- const char* (an immutable C string) -> CString, wherever it appears -- incl
-  -- nested in a template (vector<const char*> -> vector<CString>). A top-level
-  -- const-char* member is handled in build_chunks (the const is peeled there, so
-  -- it never reaches here with the const attached); this catches the nested ones
-  -- the overlay would otherwise leave as `const char^`. Extra pointer levels are
-  -- kept (const char** -> CString*, then M.ptr -> CString^). Runs before M.ptr so
-  -- it can match the `*` while it is still a star.
-  t = t:gsub('const%s+char%s*(%*+)', function(stars)
-    return 'CString' .. stars:sub(2)
-  end)
-  t = M.ptr(t)
-  -- the caret binds tight: C-style `double *X` arrives as `f64 ^` -- drop the
-  -- gap so every pointer reads `T^` regardless of the source's star placement.
-  t = t:gsub('%s+%^', '^')
-  -- Reference declarator spacing belongs to the source project's convention,
-  -- not the frontend type language. Canonicalize a top-level trailing `&`/`&&`
-  -- so `T& x`, `T &x`, and `T & x` all render as `x: T&`.
-  t = t:gsub('%s+(&+)%s*$', '%1')
-  -- `const char* const` (a const pointer to const char) -> `CString const` after
-  -- the rewrites above; move the pointer-const in front, like the leading-const
-  -- rule for pointers, so it reads `const CString` (`span<const char* const>` ->
-  -- `span<const CString>`).
-  t = t:gsub('CString(%^*)%s+const%f[%W]', 'const CString%1')
-  return t
+  return table.concat(parts)
 end
 
 -- Exact CUDA numeric aliases are deliberately applied before the generic `cu`
@@ -811,44 +924,18 @@ function M.defer_close(bufnr, row0)
   return false
 end
 
--- Split `s` at the first top-level comma (templates/parens/brackets balanced):
--- returns (first, rest) or (s, nil) if there is none. Used to peel a smart
--- pointer's custom deleter off the pointee type without being fooled by the
--- commas inside a nested template like `pair<int, int>`.
-local function split_first_arg(s)
-  local depth = 0
-  for i = 1, #s do
-    local c = s:sub(i, i)
-    if c == '<' or c == '(' or c == '[' then
-      depth = depth + 1
-    elseif c == '>' or c == ')' or c == ']' then
-      depth = depth - 1
-    elseif c == ',' and depth == 0 then
-      return vim.trim(s:sub(1, i - 1)), vim.trim(s:sub(i + 1))
-    end
-  end
-  return s, nil
-end
-
--- A std smart-pointer type (after strip_type already removed std::): returns the
--- pointee type, 'unique'/'shared', and a custom deleter (or nil), else nil. Lets
--- the view render `unique_ptr<T>` as `T^` with an ownership-colored caret, and
--- `unique_ptr<T, Del>` as `T^, Del~` -- the caret on the pointee, a `~` tying the
--- deleter to it (instead of the caret landing on the deleter).
+-- A top-level smart-pointer source type. The recursive type grammar owns its
+-- actual display; this predicate lets declaration mutability distinguish an
+-- owning handle from an ordinary local value.
 function M.smart_ptr(t)
-  local inner = t:match '^unique_ptr<(.+)>$'
-  local kind
-  if inner then
-    kind = 'unique'
-  else
-    inner = t:match '^shared_ptr<(.+)>$'
-    if not inner then
-      return nil
-    end
-    kind = 'shared'
+  local name, body = outer_template(vim.trim(t))
+  local wrapper = name and known_wrapper(name) or nil
+  if wrapper ~= 'unique_ptr' and wrapper ~= 'shared_ptr' and wrapper ~= 'weak_ptr' then
+    return nil
   end
-  local pointee, deleter = split_first_arg(inner)
-  return pointee, kind, deleter
+  local args = split_template_args(body)
+  local kind = wrapper:gsub('_ptr$', '')
+  return args[1], kind, wrapper == 'unique_ptr' and args[2] or nil
 end
 
 -- For an explicit declaration that build_chunks presents as `name: type`
@@ -892,10 +979,7 @@ function M.field_dims(line, bufnr, row0)
     end
   end
   local disp = M.strip_glfw(M.strip_type(typ))
-  local inner, _, deleter = M.smart_ptr(disp)
-  if inner then
-    disp = deleter and (inner .. '^, ' .. deleter .. '~') or (inner .. '^')
-  elseif was_const and disp:match '^char%^+$' then
+  if was_const and disp:match '^char%^+$' then
     -- `const char*`(*) renders as `CString`(^); the alignment width must match
     -- what's shown, not the stripped `char^`.
     disp = 'CString' .. (disp:gsub('^char%^', ''))
@@ -936,7 +1020,7 @@ function M.field_is_mut(line, bufnr, row0)
     end
   end
   local disp = M.strip_type(typ)
-  if M.smart_ptr(disp) then
+  if M.smart_ptr(typ) then
     return false -- renders `T^` with an ownership-colored caret, never mut
   end
   local depth, caret = 0, false

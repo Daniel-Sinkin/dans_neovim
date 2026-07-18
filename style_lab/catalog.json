@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-07-11-e",
+  "catalog_revision": "2026-07-18-i",
   "title": "Dans C/C++ frontend style lab",
   "description": "Choose presentation rules from captures produced by the real Neovim frontend. Source bytes are never changed.",
   "questions": [
@@ -240,6 +240,197 @@
           },
           "lines": [
             "inline Device<vkb::BindingType::C>::Device(vkb::core::PhysicalDeviceC &gpu, VkDevice &vulkan_device, VkSurfaceKHR surface) :"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "optional-semantic-marker",
+      "factbase_record": "QST-007",
+      "status": "resolved",
+      "title": "Optional marker and empty value",
+      "prompt": "Which accent should make the semantic ? stand out, and should std::nullopt keep its word spelling or use ∅?",
+      "constraints": [
+        "The ? marker must use one consistent semantic accent in raw signatures, flipped parameters, return types, nested types, and declaration overlays.",
+        "Experimental ∅ spelling may affect only the exact std::nullopt sentinel; unrelated identifiers and all source bytes remain unchanged.",
+        "The current choice reproduces production exactly and provides a visual baseline."
+      ],
+      "choices": [
+        {
+          "id": "current",
+          "label": "Current mixed styling",
+          "tag": "previous",
+          "summary": "Keep path-dependent ? coloring and the visible nullopt word.",
+          "profile": {
+            "optional_marker_accent": "neutral",
+            "nullopt_spelling": "word"
+          }
+        },
+        {
+          "id": "cyan-empty-set",
+          "label": "Cyan ? and ∅",
+          "tag": "alternative",
+          "summary": "A cool, bright semantic accent that reads as type/control information without warning weight.",
+          "profile": {
+            "optional_marker_accent": "cyan",
+            "nullopt_spelling": "empty_set"
+          }
+        },
+        {
+          "id": "gold-empty-set",
+          "label": "Gold ? and ∅",
+          "tag": "rejected-glyph",
+          "summary": "A warm accent that makes absence conspicuous, with a slightly cautionary feel.",
+          "profile": {
+            "optional_marker_accent": "gold",
+            "nullopt_spelling": "empty_set"
+          }
+        },
+        {
+          "id": "gold-word",
+          "label": "Gold ? and nullopt",
+          "tag": "selected",
+          "summary": "Use the selected gold type marker while retaining the readable sentinel word in the owner's font.",
+          "profile": {
+            "optional_marker_accent": "gold",
+            "nullopt_spelling": "word"
+          }
+        },
+        {
+          "id": "violet-empty-set",
+          "label": "Violet ? and ∅",
+          "tag": "alternative",
+          "summary": "A syntax-oriented accent that separates the sigils from ordinary type and value colors.",
+          "profile": {
+            "optional_marker_accent": "violet",
+            "nullopt_spelling": "empty_set"
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "id": "optional-type-matrix",
+          "title": "Optional and expected type positions",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Optional type-path matrix maintained by this repository"
+          },
+          "lines": [
+            "struct Cache {",
+            "    std::optional<Widget> current{};",
+            "    std::optional<std::string> label{};",
+            "};",
+            "",
+            "auto exchange(std::optional<Widget> incoming, std::optional<Widget>& slot)",
+            "    -> std::expected<std::optional<Widget>, Error>;"
+          ]
+        },
+        {
+          "id": "optional-empty-values",
+          "title": "Empty optional values",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "std::nullopt expression matrix maintained by this repository"
+          },
+          "lines": [
+            "auto choose(bool ready) -> std::optional<Widget> {",
+            "    std::optional<Widget> result = std::nullopt;",
+            "    if (!ready) {",
+            "        return std::nullopt;",
+            "    }",
+            "    return ready ? result : std::nullopt;",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weak-pointer-marker",
+      "factbase_record": "QST-008",
+      "status": "resolved",
+      "title": "Weak-pointer marker",
+      "prompt": "Which two-character suffix should distinguish non-owning std::weak_ptr<T> from owning std::unique_ptr<T> and std::shared_ptr<T>, which both display as T^?",
+      "constraints": [
+        "All choices must preserve the pointer-like and fallible/non-owning information carried by std::weak_ptr.",
+        "The alternatives have equal display width, so parameter alignment and nested type layout remain identical.",
+        "The exact source remains unchanged, and cursor or Visual reveal still shows std::weak_ptr<T>."
+      ],
+      "choices": [
+        {
+          "id": "caret-optional",
+          "label": "Caret question",
+          "tag": "selected",
+          "summary": "T^? reads as a pointer-like handle whose target may be absent; both semantic marks use their established colors.",
+          "profile": {
+            "weak_pointer_marker": "caret_optional"
+          }
+        },
+        {
+          "id": "tilde-optional",
+          "label": "Tilde question",
+          "tag": "alternative",
+          "summary": "T~? gives non-ownership a distinct tilde while retaining the gold fallibility marker.",
+          "profile": {
+            "weak_pointer_marker": "tilde_optional"
+          }
+        },
+        {
+          "id": "caret-weak",
+          "label": "Caret w",
+          "tag": "explicit",
+          "summary": "T^w keeps pointer identity and labels weakness directly instead of borrowing optional notation.",
+          "profile": {
+            "weak_pointer_marker": "caret_weak"
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "id": "qnpeps-context",
+          "title": "Qnpeps context constructor",
+          "filetype": "cuda",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Owner-reported constructor shape with symmetric smart and optional parameters"
+          },
+          "lines": [
+            "struct ctx {",
+            "    qnpeps_ctx(",
+            "        QnpepsConfig config,",
+            "        cudaStream_t stream_handle,",
+            "        bool own_stream,",
+            "        std::unique_ptr<Linalg> linalg,",
+            "        std::shared_ptr<Cache> cache,",
+            "        std::weak_ptr<Observer> observer,",
+            "        std::optional<Policy> policy",
+            "    )",
+            "        : cfg(config), linalg_(std::move(linalg))",
+            "    {}",
+            "",
+            "    std::unique_ptr<Linalg> linalg_;",
+            "    std::shared_ptr<Cache> cache_;",
+            "    std::weak_ptr<Observer> observer_;",
+            "    std::optional<Policy> policy_;",
+            "};"
+          ]
+        },
+        {
+          "id": "nested-ownership",
+          "title": "Nested ownership and return types",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Recursive smart-pointer, optional, expected, array, and deleter matrix maintained by this repository"
+          },
+          "lines": [
+            "auto attach(std::weak_ptr<Widget> observer, std::shared_ptr<Widget> owner)",
+            "    -> std::expected<std::weak_ptr<Widget>, Error>;",
+            "std::optional<std::weak_ptr<Widget>> pending{};",
+            "std::weak_ptr<std::optional<Widget>> maybe_observer{};",
+            "std::array<std::weak_ptr<Widget>, 4> observers{};",
+            "std::unique_ptr<Widget, Deleter> custom_owner{};"
           ]
         }
       ]

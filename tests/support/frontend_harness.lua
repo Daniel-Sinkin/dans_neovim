@@ -128,6 +128,10 @@ function Session:select(kind, first_line, last_line)
   assert(key, 'unknown selection kind: ' .. tostring(kind))
   local delta = math.max(0, last_line - first_line)
   vim.cmd('normal! ' .. key .. (delta > 0 and (tostring(delta) .. 'j') or ''))
+  -- :normal completes before Neovim delivers the endpoint CursorMoved event in
+  -- headless mode. Fire the event explicitly so every row in the final Visual
+  -- range repaints, not only the anchor row.
+  vim.cmd 'doautocmd CursorMoved'
   settle()
   return self
 end
@@ -135,6 +139,11 @@ end
 function Session:escape()
   local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
   vim.api.nvim_feedkeys(esc, 'x', false)
+  -- Headless feedkeys can return before the display lifecycle sees the visual
+  -- exit.  Drive both events that production receives so assertions observe
+  -- the post-Visual view rather than the last revealed selection.
+  vim.cmd 'doautocmd ModeChanged'
+  vim.cmd 'doautocmd CursorMoved'
   settle()
   return self
 end

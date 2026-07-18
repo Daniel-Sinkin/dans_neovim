@@ -365,7 +365,7 @@ run('array of vectors', 'struct', { 'std::array<std::vector<f32>, 2> buckets{};'
 run('triple nested array', 'struct', { 'std::array<std::array<std::array<u8, 2>, 3>, 4> voxels{};' }, { 'voxels: [4][3][2]u8;' })
 run('array of optionals', 'struct', { 'std::array<std::optional<int>, 4> os{};' }, { 'os: [4]int?;' })
 run('vector of arrays', 'struct', { 'std::vector<std::array<f32, 3>> tris{};' }, { 'tris: vector<[3]f32>;' })
-run('array of unique_ptr', 'struct', { 'std::array<std::unique_ptr<Foo>, 2> owners{};' }, { 'owners: [2]unique_ptr<Foo>;' })
+run('array of unique_ptr', 'struct', { 'std::array<std::unique_ptr<Foo>, 2> owners{};' }, { 'owners: [2]Foo^;' })
 run('array of cstrings', 'struct', { 'std::array<const char*, 3> names{};' }, { 'names: [3]CString;' })
 run('unordered_map value array', 'struct', { 'std::unordered_map<u32, std::array<f32, 2>> uv{};' }, { 'uv: unordered_map<u32, [2]f32>;' })
 
@@ -432,7 +432,7 @@ run('optional const ref member', 'struct', { 'const std::optional<int>& o;' }, {
 run('optional ptr member', 'struct', { 'std::optional<int>* o{};' }, { 'o: int?^;' })
 run('expected member', 'struct', { 'std::expected<int, Error> r{};' }, { 'r: int?Error;' })
 run('expected local', 'fn', { 'std::expected<Foo, Err> r{};' }, { 'mut r: Foo?Err;' })
-run('expected const ref member', 'struct', { 'const std::expected<int, Err>& r;' }, { 'r: const int?Err&;' })
+run('expected const ref member', 'struct', { 'const std::expected<int, Err>& r;' }, { 'r: const (int?Err)&;' })
 run('expected nested arm', 'struct', { 'std::expected<std::vector<int>, Err> r{};' }, { 'r: vector<int>?Err;' })
 run('designated decl pun', 'fn', { 'const Ray r{.origin = origin, .direction = direction};' }, { 'r: Ray = origin, direction;' })
 run('designated member-access pun', 'fn', { 'const Ray r{.center = cfg.center};' }, { 'r: Ray = center;' })

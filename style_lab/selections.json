@@ -1,13 +1,26 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-07-11-e",
-  "updated_at": "2026-07-11T14:09:18.274697+00:00",
+  "catalog_revision": "2026-07-18-i",
+  "updated_at": "2026-07-18T13:39:32.868765+00:00",
   "selections": {
     "concrete-parameter-const": {
       "choice_id": "const-default",
-      "selected_at": "2026-07-11T14:09:18.274697+00:00",
-      "note": "",
-      "catalog_hash": "f4576d0ce5a2670ac704eba7741be65fe40676466e6a9859d07d8c29d966b4a2"
+      "selected_at": "2026-07-18T13:32:12.700101+00:00",
+      "note": "It's pointles to give me left/right example which are identical which a couple here are",
+      "catalog_hash": "0a4f7add82c312c0b3ffaf6e58a9904856b8c9a6ef492be01ef25ad6239627d1"
+    },
+    "optional-semantic-marker": {
+      "choice_id": "gold-word",
+      "submitted_choice_id": "gold-empty-set",
+      "selected_at": "2026-07-18T13:33:00.439127+00:00",
+      "note": "gold, but with my font the emptyset symbol is really ugly",
+      "catalog_hash": "0a4f7add82c312c0b3ffaf6e58a9904856b8c9a6ef492be01ef25ad6239627d1"
+    },
+    "weak-pointer-marker": {
+      "choice_id": "caret-optional",
+      "selected_at": "2026-07-18T13:39:32.868765+00:00",
+      "note": "symbol overlap is fine, that's why we use different colors, color information encodes semantic differences",
+      "catalog_hash": "d590b72d38e937964e3ccd006dfcf12cd65b841705d3c3174e9c38d3b353eead"
     }
   }
 }

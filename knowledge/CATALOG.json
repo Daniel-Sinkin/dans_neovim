@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "5b4cc227d44749b07495439040dfcb2389fe42023044352f1ee7505524e955aa",
-  "record_count": 56,
+  "records_sha256": "1c22a2b11312d70de0e6f2d577560a18817996395721fb6f4c201d88ae87254c",
+  "record_count": 61,
   "records": [
     {
       "id": "BHV-001",
@@ -160,7 +160,7 @@
       "kind": "behavior",
       "status": "observed",
       "title": "Type and ownership visual grammar",
-      "summary": "Type positions use compact caret, optional, expected, array, string, and smart-pointer forms while expression operators keep their ordinary meaning.",
+      "summary": "One balanced recursive grammar composes caret, optional, expected, array, string, and smart-pointer forms across every type position while expression operators keep their ordinary meaning.",
       "scope": [
         "cpp-frontend/types",
         "cuda-frontend/types",
@@ -191,6 +191,18 @@
         {
           "type": "relates_to",
           "target": "DEC-004"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-015"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-016"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-008"
         }
       ],
       "path": "records/BHV-005.json"
@@ -1555,6 +1567,82 @@
       "path": "records/DEC-014.json"
     },
     {
+      "id": "DEC-015",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Optional semantics use a gold question mark and readable nullopt word",
+      "summary": "Optional and expected question marks use one bold gold semantic accent, while std::nullopt retains its word spelling in production.",
+      "scope": [
+        "cpp-frontend/types",
+        "cpp-frontend/expressions",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "optional",
+        "expected",
+        "nullopt",
+        "empty-set-rejected",
+        "gold"
+      ],
+      "relations": [
+        {
+          "type": "resolves",
+          "target": "QST-007"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-005"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/DEC-015.json"
+    },
+    {
+      "id": "DEC-016",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Weak pointers use a color-disambiguated caret-question suffix",
+      "summary": "std::weak_ptr<T> displays as T^?, using a neutral caret for non-owning pointer identity and a bold gold question mark for possible absence.",
+      "scope": [
+        "cpp-frontend/types",
+        "cpp-frontend/ownership",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "weak-ptr",
+        "caret",
+        "optional-marker",
+        "semantic-color",
+        "ownership"
+      ],
+      "relations": [
+        {
+          "type": "resolves",
+          "target": "QST-008"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-015"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-007"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/DEC-016.json"
+    },
+    {
       "id": "INC-001",
       "kind": "incident",
       "status": "resolved",
@@ -1766,6 +1854,45 @@
         }
       ],
       "path": "records/INC-006.json"
+    },
+    {
+      "id": "INC-007",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Smart-pointer aliases overlapped flipped constructor parameters",
+      "summary": "Generic $up/$sp aliases and whole-parameter movement both decorated std::unique_ptr and std::shared_ptr constructor parameters, producing broken mixed spellings instead of the compact ownership type.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "cpp-frontend/types",
+        "frontend-lifecycle"
+      ],
+      "tags": [
+        "smart-pointer",
+        "unique-ptr",
+        "shared-ptr",
+        "weak-ptr",
+        "overlapping-extmarks",
+        "regression"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-008"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/INC-007.json"
     },
     {
       "id": "INV-001",
@@ -2040,6 +2167,84 @@
         }
       ],
       "path": "records/QST-006.json"
+    },
+    {
+      "id": "QST-007",
+      "kind": "question",
+      "status": "resolved",
+      "title": "Which accent and empty-value symbol should identify optional semantics?",
+      "summary": "Resolved in favor of a bold gold semantic question mark while retaining the std::nullopt word because ∅ rendered poorly in the owner's font.",
+      "scope": [
+        "cpp-frontend/types",
+        "cpp-frontend/expressions",
+        "style-lab",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "resolved-design",
+        "optional",
+        "expected",
+        "nullopt",
+        "empty-set-rejected",
+        "semantic-color"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "BHV-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        },
+        {
+          "type": "resolved_by",
+          "target": "DEC-015"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/QST-007.json"
+    },
+    {
+      "id": "QST-008",
+      "kind": "question",
+      "status": "resolved",
+      "title": "Which suffix should identify std::weak_ptr?",
+      "summary": "Resolved in favor of T^?: a neutral non-owning caret followed by the selected gold may-be-absent marker, with color intentionally disambiguating overlapping symbols.",
+      "scope": [
+        "cpp-frontend/types",
+        "cpp-frontend/ownership",
+        "style-lab"
+      ],
+      "tags": [
+        "resolved-design",
+        "weak-ptr",
+        "smart-pointer",
+        "ownership",
+        "type-grammar"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "BHV-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-015"
+        },
+        {
+          "type": "resolved_by",
+          "target": "DEC-016"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/QST-008.json"
     }
   ]
 }

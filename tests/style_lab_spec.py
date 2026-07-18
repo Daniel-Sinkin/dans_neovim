@@ -26,6 +26,9 @@ def display_text(result: dict) -> list[str]:
 def main() -> None:
     catalog = read_json(ROOT / "style_lab" / "catalog.json")
     validate_catalog(catalog)
+    app_source = (ROOT / "style_lab" / "web" / "app.js").read_text(encoding="utf-8")
+    assert "openQuestions.forEach" in app_source
+    assert "state.catalog.questions.forEach" not in app_source
     external = {
         scene["id"]
         for question in catalog["questions"]
@@ -56,6 +59,116 @@ def main() -> None:
     assert all("output: mut Widget&" in line for line in (explicit_text[0], compact_text[0]))
     assert all("pointer: const Widget^" in line for line in (explicit_text[0], compact_text[0]))
     assert explicit_text[1] == compact_text[1]
+
+    # The resolved optional-marker question compares the source-faithful former
+    # baseline against unified accents. Every transformed path uses the same RGB
+    # value, and only the exact std::nullopt sentinel becomes the empty-set glyph.
+    optional_source = [
+        "struct Cache {",
+        "    std::optional<Widget> current{};",
+        "};",
+        "auto choose(bool ready) -> std::optional<Widget> {",
+        "    std::optional<Widget> result = std::nullopt;",
+        "    auto other = custom::nullopt;",
+        "    return ready ? result : std::nullopt;",
+        "}",
+    ]
+    baseline = capture(
+        optional_source,
+        profile={"optional_marker_accent": "neutral", "nullopt_spelling": "word"},
+        width=110,
+    )
+    baseline_text = display_text(baseline)
+    assert baseline["source_lines"] == optional_source
+    assert any("Widget?" in line for line in baseline_text)
+    assert sum(line.count("nullopt") for line in baseline_text) == 3
+
+    accent_colors = {
+        "cyan": "#7dcfff",
+        "gold": "#e0af68",
+        "violet": "#bb9af7",
+    }
+    for accent, color in accent_colors.items():
+        accented = capture(
+            optional_source,
+            profile={"optional_marker_accent": accent, "nullopt_spelling": "empty_set"},
+            width=110,
+        )
+        accented_text = display_text(accented)
+        assert accented["source_lines"] == optional_source
+        assert sum(line.count("nullopt") for line in accented_text) == 1
+        assert sum(line.count("∅") for line in accented_text) == 2
+        semantic_runs = [
+            run
+            for row in accented["rows"]
+            for run in row["runs"]
+            if run["text"] in {"?", "∅"}
+        ]
+        assert len(semantic_runs) == 5
+        assert all(run["style"].get("fg") == color and run["style"].get("bold") for run in semantic_runs)
+
+    selected_optional = capture(
+        optional_source,
+        profile={"optional_marker_accent": "gold", "nullopt_spelling": "word"},
+        width=110,
+    )
+    selected_optional_text = display_text(selected_optional)
+    assert selected_optional["source_lines"] == optional_source
+    assert sum(line.count("nullopt") for line in selected_optional_text) == 3
+    assert all("∅" not in line for line in selected_optional_text)
+    selected_markers = [
+        run
+        for row in selected_optional["rows"]
+        for run in row["runs"]
+        if run["text"] == "?"
+    ]
+    assert len(selected_markers) == 3
+    assert all(run["style"].get("fg") == "#e0af68" and run["style"].get("bold") for run in selected_markers)
+
+    # Weak-pointer candidates are equal-width, buffer-local profiles. Recursive
+    # composition must stay unambiguous, and the non-owning head remains neutral
+    # while the fallibility/weakness tail uses the selected optional accent.
+    weak_source = [
+        "auto attach(std::weak_ptr<Widget> observer, std::shared_ptr<Widget> owner)",
+        "    -> std::expected<std::weak_ptr<Widget>, Error>;",
+        "std::optional<std::weak_ptr<Widget>> pending{};",
+        "std::weak_ptr<std::optional<Widget>> maybe_observer{};",
+        "std::array<std::weak_ptr<Widget>, 4> observers{};",
+        "std::unique_ptr<Widget, Deleter> custom_owner{};",
+    ]
+    weak_expectations = {
+        "caret_optional": ["Widget^?", "(Widget^?)?Error", "(Widget^?)?", "Widget?^?", "[4]Widget^?"],
+        "tilde_optional": ["Widget~?", "(Widget~?)?Error", "(Widget~?)?", "Widget?~?", "[4]Widget~?"],
+        "caret_weak": ["Widget^w", "(Widget^w)?Error", "(Widget^w)?", "Widget?^w", "[4]Widget^w"],
+    }
+    weak_text_by_profile: dict[str, list[str]] = {}
+    for marker, expected_rows in weak_expectations.items():
+        rendered = capture(weak_source, profile={"weak_pointer_marker": marker}, width=120)
+        text_rows = display_text(rendered)
+        weak_text_by_profile[marker] = text_rows
+        assert rendered["source_lines"] == weak_source
+        assert all(expected in text_rows[index] for index, expected in enumerate(expected_rows))
+        assert "Widget^, Deleter~" in text_rows[5]
+
+        head = "~" if marker == "tilde_optional" else "^"
+        tail = "w" if marker == "caret_weak" else "?"
+        head_runs = [
+            run
+            for row in rendered["rows"][:5]
+            for run in row["runs"]
+            if run["text"] == head and run["style"].get("fg") == "#6b7280"
+        ]
+        tail_runs = [
+            run
+            for row in rendered["rows"][:5]
+            for run in row["runs"]
+            if run["text"] == tail and run["style"].get("fg") == "#e0af68" and run["style"].get("bold")
+        ]
+        assert len(head_runs) == 5
+        assert len(tail_runs) >= 5
+
+    row_widths = zip(*(map(len, weak_text_by_profile[marker]) for marker in weak_expectations))
+    assert all(len(set(widths)) == 1 for widths in row_widths)
 
     # Cross-path visual oracle for the accepted CUDA/Qnpeps/layout/defer rules.
     # This consumes RGB ext_linegrid runs, so it pins semantic colors and not only
@@ -117,6 +230,8 @@ def main() -> None:
             encoding="utf-8",
         )
         server_catalog = copy.deepcopy(catalog)
+        for question in server_catalog["questions"]:
+            question["status"] = "resolved"
         server_catalog["questions"][0]["status"] = "open"
         state = LabState.__new__(LabState)
         state.catalog = server_catalog
@@ -151,7 +266,7 @@ def main() -> None:
             server.shutdown()
             server.server_close()
             thread.join(timeout=3)
-    print("style_lab_spec: catalog and 3 real-grid captures passed")
+    print("style_lab_spec: catalog and semantic type-marker real-grid captures passed")
 
 
 if __name__ == "__main__":

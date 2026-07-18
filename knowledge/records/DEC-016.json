@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "DEC-016",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Weak pointers use a color-disambiguated caret-question suffix",
+  "summary": "std::weak_ptr<T> displays as T^?, using a neutral caret for non-owning pointer identity and a bold gold question mark for possible absence.",
+  "details": [
+    "Unique and shared pointers continue to display as T^, with ownership semantics carried by mutation-red and copy-gold carets respectively.",
+    "The weak caret is neutral gray and the question mark uses the same selected gold accent as optional and expected semantics.",
+    "The owner explicitly accepts symbol overlap: color information encodes the semantic distinction between owning, shared, weak, and optional roles.",
+    "The recursive grammar applies this spelling uniformly in constructor parameters, declarations, returns, lambdas, arrays, ordinary containers, and nested optional/expected combinations.",
+    "Minimal parentheses prevent actual spelling collisions across nested source types: optional<weak_ptr<T>> is (T^?)?, while weak_ptr<optional<T>> is T?^?.",
+    "The selected style-lab catalog hash is d590b72d38e937964e3ccd006dfcf12cd65b841705d3c3174e9c38d3b353eead."
+  ],
+  "rationale": [
+    "Caret preserves the established pointer-like visual language.",
+    "Question mark communicates that locking a weak pointer may produce no target.",
+    "Semantic color already carries distinctions elsewhere in the frontend, so a new tilde or literal w is unnecessary."
+  ],
+  "alternatives": [
+    "T~? gives non-ownership a distinct glyph; rejected because the selected color grammar makes the extra symbol distinction unnecessary.",
+    "T^w labels weakness literally; rejected in favor of the established question-mark absence semantics."
+  ],
+  "scope": ["cpp-frontend/types", "cpp-frontend/ownership", "frontend-highlighting"],
+  "tags": ["weak-ptr", "caret", "optional-marker", "semantic-color", "ownership"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json weak-pointer-marker selection 2026-07-18",
+      "note": "After requesting the question a second time, the owner selected caret-optional and stated that symbol overlap is acceptable because colors encode semantic differences."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/style.lua, parse.lua, and render.lua",
+      "note": "Buffer-local candidate profiles feed the shared recursive grammar and semantic highlight roles."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py weak-pointer captures",
+      "claim": "Real ext_linegrid captures pin candidate text, equal widths, neutral heads, gold tails, and source integrity."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua",
+      "claim": "Direct and nested weak types are covered across 25 wrapper pairs, a 125-row rendered corpus, the reported constructor, edit cycles, Visual reveal, and module toggles."
+    }
+  ],
+  "relations": [
+    { "type": "resolves", "target": "QST-008" },
+    { "type": "implemented_by", "target": "BHV-005" },
+    { "type": "relates_to", "target": "DEC-015" },
+    { "type": "relates_to", "target": "INC-007" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["weak pointer T^?", "weak caret question", "color disambiguated ownership", "std::weak_ptr display"],
+    "questions": [
+      "How does std::weak_ptr<T> display?",
+      "What do the two colors in T^? mean?",
+      "Why does weak_ptr reuse caret and question-mark symbols?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Owner's second style-lab selection and rationale captured, then pinned with real-grid RGB and generated interaction coverage."
+  }
+}

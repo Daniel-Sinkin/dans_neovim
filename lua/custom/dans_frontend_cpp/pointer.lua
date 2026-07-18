@@ -7,10 +7,9 @@
 --   2. a leading `const` is concealed on a *value* declaration (const is the
 --      hidden default) but kept on a *pointer/reference* one, where the
 --      const-vs-mut distinction is meaningful.
---   3. `std::optional<T>` -> `T?`: `optional<` is concealed and the closing `>`
---      rewritten to `?`. Any ref/ptr suffix stays in the source, so
---      `optional<T>&` reads as `T?&`. Treesitter-scoped to the optional
---      template, so a `>` elsewhere (a comparison, another template) is safe.
+--   3. Semantic standard wrappers use the shared recursive type grammar:
+--      optional/expected, unique/shared/weak pointers, arrays, and compositions
+--      inside ordinary containers all match declaration/parameter rendering.
 --
 -- All three skip variable-declaration lines that view overlays (it renders
 -- these itself), so this mainly covers function signatures and other raw decls.
@@ -31,8 +30,9 @@ local CONST_QUERY = [[
   (field_declaration (type_qualifier) @const)
 ]]
 
--- Every `Foo<...>`; the optional pass filters to the ones named `optional`.
-local OPT_QUERY = [[
+-- Every `Foo<...>`; the shared grammar decides whether the displayed type has a
+-- semantic transformation.
+local SEMANTIC_TYPE_QUERY = [[
   (template_type) @tt
 ]]
 
@@ -257,19 +257,57 @@ local function refresh(bufnr)
     end
   end
 
-  -- 3. std::optional<T> -> T?: conceal `optional<` and rewrite the closing `>`
-  -- to `?`. A ref/ptr suffix stays in the source, so optional<T>& reads `T?&`.
-  local oko, oq = pcall(vim.treesitter.query.parse, lang, OPT_QUERY)
-  if oko and oq then
-    for _, node in oq:iter_captures(root, bufnr, s0, e0) do
-      local nm = node:field('name')[1]
-      local ar = node:field('arguments')[1]
-      if nm and ar and nm:type() == 'type_identifier' and vim.treesitter.get_node_text(nm, bufnr) == 'optional' then
-        local nsr, nsc = nm:range()
-        local asr, asc, aer, aec = ar:range()
-        if not skip.skip(nsr) and not in_reorder(nsr, nsc) and nsr == asr and not param_skip(nm) then
-          pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, nsr, nsc, { end_col = asc + 1, conceal = '' })
-          pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, aer, aec - 1, { end_col = aec, conceal = '?' })
+  -- 3. Raw semantic type templates. Render only the outermost changed template
+  -- so nested wrappers compose once instead of producing overlapping extmarks.
+  local function exact_qualifier(node)
+    local nm = node:field('name')[1]
+    if not nm then
+      return false
+    end
+    local nr, nc = nm:range()
+    local line = vim.api.nvim_buf_get_lines(bufnr, nr, nr + 1, false)[1] or ''
+    local qualifier = line:sub(1, nc):match '([%w_]+)::%s*$'
+    return qualifier == nil or qualifier == 'std'
+  end
+
+  local function changed_template(node)
+    if node:type() ~= 'template_type' or not exact_qualifier(node) then
+      return false
+    end
+    local sr, _, er = node:range()
+    if sr ~= er then
+      return false
+    end
+    local _, semantic = P.type_segments(vim.treesitter.get_node_text(node, bufnr))
+    return semantic
+  end
+
+  local okt, tq = pcall(vim.treesitter.query.parse, lang, SEMANTIC_TYPE_QUERY)
+  if okt and tq then
+    for _, node in tq:iter_captures(root, bufnr, s0, e0) do
+      if changed_template(node) then
+        local nested = false
+        local owner = node:parent()
+        while owner do
+          if changed_template(owner) then
+            nested = true
+            break
+          end
+          local kind = owner:type()
+          if kind == 'declaration' or kind == 'parameter_declaration' or kind == 'function_definition' then
+            break
+          end
+          owner = owner:parent()
+        end
+        local sr, sc, _, ec = node:range()
+        if not nested and not skip.skip(sr) and not in_reorder(sr, sc) and not param_skip(node) and not is_cstyle_return(node) then
+          local chunks = require('custom.dans_frontend_cpp.render').type_chunks(vim.treesitter.get_node_text(node, bufnr), bufnr)
+          pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, sr, sc, {
+            end_col = ec,
+            conceal = '',
+            virt_text = chunks,
+            virt_text_pos = 'inline',
+          })
         end
       end
     end

@@ -47,6 +47,13 @@ local function set_on(name, buf, on)
   else
     util().set_module(buf, name, on)
     mod(name).refresh(buf)
+    -- pointer owns raw semantic type templates only while aliases is not
+    -- replacing an entire parameter. Repaint that dependent owner whenever the
+    -- aliases gate changes so experimental module cycles cannot leave doubled
+    -- `?`/smart-pointer extmarks behind.
+    if name == 'aliases' then
+      mod('pointer').refresh(buf)
+    end
   end
 end
 

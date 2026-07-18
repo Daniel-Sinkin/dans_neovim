@@ -4,11 +4,14 @@
   "kind": "behavior",
   "status": "observed",
   "title": "Type and ownership visual grammar",
-  "summary": "Type positions use compact caret, optional, expected, array, string, and smart-pointer forms while expression operators keep their ordinary meaning.",
+  "summary": "One balanced recursive grammar composes caret, optional, expected, array, string, and smart-pointer forms across every type position while expression operators keep their ordinary meaning.",
   "details": [
     "Pointer declarator stars become carets only in type positions; multiplication and dereference stars remain stars.",
-    "std::optional<T> becomes T?, std::expected<T, E> becomes T?E, and nested std::array<T, N> becomes [N]T.",
-    "unique_ptr<T> and shared_ptr<T> are presented as T^; a custom deleter is retained as a comma-delimited tilde arm.",
+    "The same segment grammar feeds declarations, flipped parameters, C-style and trailing returns, lambdas, raw Tree-sitter templates, and nested ordinary containers.",
+    "Exact bare or std::optional<T> becomes T?, exact expected<T, E> becomes T?E, and exact array<T, N> becomes [N]T; lookalike namespaces such as foo::optional remain verbatim.",
+    "Unique and shared pointers are presented as T^ with distinct ownership colors; weak pointers use T^? with a neutral caret and gold absence marker; a unique custom deleter is retained as a comma-delimited tilde arm.",
+    "Nested suffix and prefix expressions gain minimal structural parentheses whenever omission would collapse different source types to the same spelling: optional<unique_ptr<T>> is (T^)?, unique_ptr<array<T, N>> is ([N]T)^, and expected/optional compositions group their ambiguous arms.",
+    "Optional and expected question marks use the selected bold gold accent; std::nullopt retains its word spelling because the empty-set glyph rendered poorly in the owner's font.",
     "const char* becomes CString and additional pointer levels remain carets; string, string_view, and configured zero-terminated string aliases share the string color.",
     "Integer and floating C spellings normalize to the configured short aliases such as u32, i32, f32, and f64.",
     "CUDA complex spellings follow DEC-005: cuFloatComplex and cuComplex become CUDA-colored cf32, and cuDoubleComplex becomes CUDA-colored cf64.",
@@ -21,13 +24,13 @@
   "provenance": [
     {
       "kind": "code",
-      "reference": "lua/custom/dans_frontend_cpp/parse.lua::strip_type and render.lua type/chunk paths",
-      "note": "Type normalization and semantic chunks are centralized here for overlay paths."
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua::type_segments and render.lua::type_chunks",
+      "note": "Balanced recursive parsing produces spelling plus semantic roles, and every structured renderer consumes those chunks."
     },
     {
       "kind": "code",
       "reference": "lua/custom/dans_frontend_cpp/pointer.lua and aliases.lua",
-      "note": "Raw-line declarators, CString cases, casts, and ownership aliases cover non-overlay positions."
+      "note": "The outermost raw semantic template pass reuses the shared grammar, while aliases owns whole flipped-parameter ranges without overlapping smart-pointer shorthands."
     }
   ],
   "evidence": [
@@ -40,13 +43,21 @@
       "kind": "test",
       "reference": "tests/cstring_raw_spec.lua and tests/overlay_string_types_spec.lua",
       "claim": "Raw and overlay string/CString paths agree and avoid literal corruption."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua",
+      "claim": "A 5x5 wrapper-pair matrix, 125-row rendered corpus, reported constructor, color roles, exact namespaces, module toggles, and Visual lifecycle are pinned."
     }
   ],
   "relations": [
     { "type": "constrained_by", "target": "INV-002" },
     { "type": "relates_to", "target": "DEC-002" },
     { "type": "relates_to", "target": "DEC-005" },
-    { "type": "relates_to", "target": "DEC-004" }
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "implements", "target": "DEC-015" },
+    { "type": "implements", "target": "DEC-016" },
+    { "type": "relates_to", "target": "QST-008" }
   ],
   "retrieval": {
     "aliases": ["type syntax", "optional question mark", "pointer caret", "CString", "smart pointer display"],
@@ -57,8 +68,8 @@
     ]
   },
   "last_verified": {
-    "date": "2026-07-11",
-    "revision": "worktree after 85417c9",
-    "method": "Type-normalization code and focused raw/overlay/nested-type assertions reviewed."
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Recursive grammar and every rendering consumer reviewed, then verified with focused interaction tests, a generated 125-row real-render corpus, style-lab RGB captures, and the full repository suite."
   }
 }

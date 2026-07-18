@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "QST-007",
+  "kind": "question",
+  "status": "resolved",
+  "title": "Which accent and empty-value symbol should identify optional semantics?",
+  "summary": "Resolved in favor of a bold gold semantic question mark while retaining the std::nullopt word because ∅ rendered poorly in the owner's font.",
+  "details": [
+    "Current optional markers are path-dependent: declaration overlays may color ? with the type while raw Tree-sitter conceal uses Neovim's dim Conceal color.",
+    "The proposed grammar used one accent for the ? in optional and expected type spellings and tested ∅ as a value spelling for the exact std::nullopt sentinel.",
+    "Cyan, gold, and violet accents were compared against the former production baseline across raw signatures, flipped parameters, declaration overlays, nested optionals, expected types, and value expressions.",
+    "The empty-set experiment did not rewrite source bytes or affect unrelated identifiers, but the owner rejected its appearance in the active font.",
+    "The owner selected gold for the semantic marker and explicitly retained the nullopt word on 2026-07-18; DEC-015 records the accepted production rule."
+  ],
+  "scope": ["cpp-frontend/types", "cpp-frontend/expressions", "style-lab", "frontend-highlighting"],
+  "tags": ["resolved-design", "optional", "expected", "nullopt", "empty-set-rejected", "semantic-color"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 optional styling review",
+      "note": "Owner asked for the optional question mark to be highlighted and proposed trying an empty-set symbol for std::nullopt, without choosing a color."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/pointer.lua, render.lua, aliases.lua, style.lua, and highlights.lua",
+      "note": "These paths own raw optional templates, structured type chunks, value expressions, and buffer-local experimental profiles."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py optional semantic-marker captures",
+      "claim": "Real ext_linegrid captures compare exact spelling and RGB accents while asserting source integrity."
+    },
+    {
+      "kind": "source",
+      "reference": "style_lab/catalog.json optional-semantic-marker scenes",
+      "claim": "Synthetic matrices cover optional and expected types plus std::nullopt in declaration and return expressions."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "BHV-005" },
+    { "type": "relates_to", "target": "CMP-004" },
+    { "type": "resolved_by", "target": "DEC-015" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["optional question mark color", "nullopt empty set", "T? accent", "std::nullopt symbol"],
+    "questions": [
+      "What color should the optional question mark use?",
+      "Should std::nullopt display as an empty-set symbol?",
+      "Why is the T? marker dim in raw signatures?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Owner selected gold but rejected the empty-set glyph in an explicit style-lab note; the submitted catalog hash 0a4f7add82c312c0b3ffaf6e58a9904856b8c9a6ef492be01ef25ad6239627d1 and normalized resolution are preserved in style_lab/selections.json."
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "QST-008",
+  "kind": "question",
+  "status": "resolved",
+  "title": "Which suffix should identify std::weak_ptr?",
+  "summary": "Resolved in favor of T^?: a neutral non-owning caret followed by the selected gold may-be-absent marker, with color intentionally disambiguating overlapping symbols.",
+  "details": [
+    "Unique and shared ownership both use T^, so weak pointers need a distinct suffix that communicates non-ownership and possible expiration.",
+    "The caret-question profile uses the established pointer caret plus the selected gold optional marker; tilde-question makes non-ownership more visually distinct; caret-w labels weakness explicitly.",
+    "All candidates are two columns wide and buffer-local, so parameter alignment and simultaneous comparison remain deterministic.",
+    "Nested suffix expressions use structural parentheses where omission would collapse different source types to the same display, for example optional<weak_ptr<T>> becomes (T^?)? in the caret-question profile.",
+    "The owner selected caret-question after a second review and explicitly accepted symbol overlap because color encodes the semantic difference; DEC-016 records the production rule."
+  ],
+  "scope": ["cpp-frontend/types", "cpp-frontend/ownership", "style-lab"],
+  "tags": ["resolved-design", "weak-ptr", "smart-pointer", "ownership", "type-grammar"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 smart-pointer cleanup request",
+      "note": "Owner requested symmetric unique, weak, and optional handling and examples to judge as usual."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua, render.lua, pointer.lua, and style.lua",
+      "note": "The recursive grammar and buffer-local marker profiles own the compared behavior."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py weak-pointer real-grid captures",
+      "claim": "All marker candidates are verified for exact text, equal widths, RGB roles, and source integrity."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua",
+      "claim": "The 5x5 wrapper-pair corpus and real constructor interactions pin recursive weak-pointer behavior."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "BHV-005" },
+    { "type": "relates_to", "target": "DEC-015" },
+    { "type": "resolved_by", "target": "DEC-016" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["weak pointer marker", "T^?", "T~?", "T^w", "std::weak_ptr spelling"],
+    "questions": [
+      "How should std::weak_ptr<T> display?",
+      "Which weak-pointer suffix did the owner select?",
+      "How are nested weak and optional types disambiguated?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Owner selected caret-question after a requested second comparison; selection note and catalog hash d590b72d38e937964e3ccd006dfcf12cd65b841705d3c3174e9c38d3b353eead are preserved in style_lab/selections.json."
+  }
+}

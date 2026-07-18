@@ -4,8 +4,19 @@
 -- lambda-as-function rendering toggle and the cosmetic separators).
 
 local P = require 'custom.dans_frontend_cpp.parse'
+local style = require 'custom.dans_frontend_cpp.style'
 
 local M = {}
+
+local function exact_std_start(text, start1)
+  if start1 == #'std::' + 1 then
+    return true
+  end
+  local std_start = start1 - #'std::'
+  return std_start >= 3
+    and text:sub(std_start - 2, std_start - 1) == '::'
+    and (std_start == 3 or not text:sub(std_start - 3, std_start - 3):match '[%w_:]')
+end
 
 -- Experimental: render a lambda-assigned-to-auto as a function-style decl,
 --   const auto f = [&c](int x) -> R   ->   lambda f(c& | x: int) -> R
@@ -98,7 +109,7 @@ local type_hl
 -- Split `text` into chunks: string literals colored green (contents untouched),
 -- namespace qualifiers grayed/hidden, cast keywords aliased, marker/Vk/SDL/macro
 -- words colored. Mirrors the raw-line matchadd coloring inside the overlay.
-local function colorize(text)
+local function colorize(text, bufnr)
   local out = {}
   local i, n = 1, #text
   -- A hidden namespace can carry a semantic color to the following qualified
@@ -184,6 +195,13 @@ local function colorize(text)
         if qualified_hl then
           out[#out + 1] = { P.strip_glfw(word), qualified_hl }
           qualified_hl = nil
+        elseif word == 'nullopt'
+          and s > #'std::'
+          and text:sub(s - #'std::', s - 1) == 'std::'
+          and exact_std_start(text, s)
+          and style.get(bufnr, 'nullopt_spelling') == 'empty_set'
+        then
+          out[#out + 1] = { '∅', style.optional_marker_hl(bufnr) }
         elseif alias then
           out[#out + 1] = { alias[1], alias[2] }
         elseif word:match '^VMA_' or word:match '^Vma' or word:match '^vma%u' then
@@ -227,11 +245,11 @@ local function colorize(text)
             while true do
               local star = inner:find('*', pos, true)
               if not star then
-                vim.list_extend(out, colorize(inner:sub(pos)))
+                vim.list_extend(out, colorize(inner:sub(pos), bufnr))
                 break
               end
               if star > pos then
-                vim.list_extend(out, colorize(inner:sub(pos, star - 1)))
+                vim.list_extend(out, colorize(inner:sub(pos, star - 1), bufnr))
               end
               out[#out + 1] = { '^', 'Normal' }
               pos = star + 1
@@ -298,6 +316,13 @@ function type_hl(t)
   -- underlying type so `const cuFloatComplex*` stays CUDA-colored just like
   -- `cuFloatComplex&`, and `const VkFoo*` stays Vulkan-colored.
   t = vim.trim(t:gsub('^const%s+', ''):gsub('^volatile%s+', ''))
+  if t:sub(1, 7) == '::std::' then
+    t = t:sub(8)
+  elseif t:sub(1, 5) == 'std::' then
+    t = t:sub(6)
+  elseif t:sub(1, 6) == 'dans::' then
+    t = t:sub(7)
+  end
   -- std::string (-> stripped to `string`, with an optional &/^ suffix) reads as
   -- a string: the "..."-literal green, matching the raw-line matchadd.
   if t:match '^string[&^]?$' then
@@ -409,45 +434,51 @@ end
 
 -- Render a type string into { text, hl } chunks for virt_text *outside* the
 -- overlay (the trailing-return reorder): strip_type cleans it (std::/dans::,
--- optional->?, *->^), the caret stays Normal/gray like add_type, and type_hl
--- colors the rest. A nested whole-word `string` is greened via
+-- optional->?, *->^), semantic optional markers use the selected buffer-local
+-- accent, and type_hl colors the rest. A nested whole-word `string` is greened via
 -- string_token_chunks (same as the overlay's add_type). Exposed for the pointer
 -- module.
-function M.type_chunks(t)
-  local stripped = P.strip_type(t)
-  local hl = type_hl(stripped) -- color from the std-stripped (GLFW* -> DansSDL)
-  local shown = P.strip_glfw(stripped) -- then drop the GLFW/glfw prefix
+function M.type_chunks(t, bufnr)
+  local segments, semantic = P.type_segments(t)
   local out = {}
-  -- A visible cv-qualifier is metadata, not part of the library/type color.
-  -- Keep it gray while the underlying, possibly prefix-stripped type retains
-  -- its provenance hue.
-  while true do
-    local qualifier, rest = shown:match '^(const)%s+(.+)$'
-    if not qualifier then
-      qualifier, rest = shown:match '^(volatile)%s+(.+)$'
+  local function push(text, hl)
+    local last = out[#out]
+    if last and last[2] == hl then
+      last[1] = last[1] .. text
+    else
+      out[#out + 1] = { text, hl }
     end
-    if not qualifier then
-      break
-    end
-    out[#out + 1] = { qualifier .. ' ', 'DansConst' }
-    shown = rest
   end
-  local i = 1
-  while true do
-    local c = shown:find('%^', i)
-    if not c then
-      if i <= #shown then
-        vim.list_extend(out, string_token_chunks(shown:sub(i), hl))
+  local active_hl = 'DansInlayType'
+  local weak_tail
+  for _, item in ipairs(segments) do
+    if item.role == 'type' then
+      active_hl = type_hl(item.source or item.text)
+      for _, chunk in ipairs(string_token_chunks(P.strip_glfw(item.text), active_hl)) do
+        push(chunk[1], chunk[2])
       end
-      break
+    elseif item.role == 'const' then
+      push(item.text, 'DansConst')
+    elseif item.role == 'unique_marker' then
+      push(item.text, 'DansMarkerMut')
+    elseif item.role == 'shared_marker' then
+      push(item.text, 'DansMarkerCpy')
+    elseif item.role == 'weak_marker' then
+      local head, tail = style.weak_pointer_parts(bufnr)
+      push(head, 'DansConst')
+      weak_tail = tail
+    elseif item.role == 'optional_marker' then
+      push(weak_tail or item.text, style.optional_marker_hl(bufnr, active_hl))
+      weak_tail = nil
+    elseif item.role == 'pointer' then
+      out[#out + 1] = { item.text, active_hl }
+    elseif item.role == 'reference' then
+      push(item.text, active_hl)
+    else
+      push(item.text, active_hl)
     end
-    if c > i then
-      vim.list_extend(out, string_token_chunks(shown:sub(i, c - 1), hl))
-    end
-    out[#out + 1] = { '^', hl } -- caret takes the pointee color (matches add_type)
-    i = c + 1
   end
-  return out
+  return out, semantic
 end
 
 -- Whether `cond` references `name` as a whole identifier (so the condition
@@ -521,7 +552,7 @@ local function defer_chunks(core, had_semi, bufnr, row0)
     local inner = vim.trim(brace:sub(2, -2))
     local chunks = { { 'defer ', 'DansLambda' } }
     local function addv(text)
-      for _, c in ipairs(colorize(text)) do
+      for _, c in ipairs(colorize(text, bufnr)) do
         chunks[#chunks + 1] = c
       end
     end
@@ -568,7 +599,7 @@ end
 -- capture of a simple name flips the `&` to a suffix (`&bs` -> `bs&`), matching the
 -- param ref style; everything else (by-value name, `=`, `&`, `this`, an init
 -- capture) is colorized verbatim.
-local function lambda_capture_chunks(cap)
+local function lambda_capture_chunks(cap, bufnr)
   local out = {}
   if not cap or vim.trim(cap) == '' then
     return out
@@ -586,7 +617,7 @@ local function lambda_capture_chunks(cap)
         out[#out + 1] = { refname, 'Normal' }
         out[#out + 1] = { '&', 'Normal' }
       else
-        for _, cc in ipairs(colorize(t)) do
+        for _, cc in ipairs(colorize(t, bufnr)) do
           out[#out + 1] = cc
         end
       end
@@ -619,7 +650,7 @@ local function lambda_param_chunks(params, bufnr)
           out[#out + 1] = c
         end
       else
-        for _, c in ipairs(colorize(t)) do
+        for _, c in ipairs(colorize(t, bufnr)) do
           out[#out + 1] = c
         end
       end
@@ -681,12 +712,15 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
         -- explicit-type counterpart of the auto-binding path and is especially
         -- common for CUDA pointers (`cuFloatComplex* a = byte_offset<...>()`).
         local etyp, enm, einit = core:match '^(.-)%s+([%w_]+)%s*=%s*(.+)$'
+        local _, semantic_type = P.type_segments(etyp or '')
         if etyp
           and enm ~= 'operator'
           and had_semi
-          and etyp:match '[&*]%s*$'
           and not etyp:match '^auto[&*]'
           and P.looks_like_type(etyp)
+          and P.decl_kind(bufnr, row0) ~= nil
+          and (etyp:match '[&*]%s*$' or semantic_type)
+          and not einit:match ',%s*[%w_]+%s*='
         then
           typ, nm, init = etyp, enm, einit
         else
@@ -747,34 +781,13 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
   end
   -- Append value text, coloring marker keywords inside it.
   local function add_value(text)
-    for _, c in ipairs(colorize(text)) do
+    for _, c in ipairs(colorize(text, bufnr)) do
       chunks[#chunks + 1] = c
     end
   end
-  -- Append a type, graying each `^` pointer marker (DansPointer) while the rest
-  -- keeps its type color. type_hl keys off the leading token (Vk*/SDL_*/...), so
-  -- compute it once on the whole string and reuse it for the non-`^` segments.
-  -- Each segment goes through string_token_chunks so a whole-word `string` buried
-  -- in a template (`vector<string>`) gets the green even though the outer type is
-  -- blue.
-  local function add_segment(seg, hl)
-    for _, c in ipairs(string_token_chunks(seg, hl)) do
-      add(c[1], c[2])
-    end
-  end
   local function add_type(t)
-    local hl = type_hl(t) -- color from the original (GLFW*/glfw* stay DansSDL)
-    local shown = P.strip_glfw(t) -- drop the GLFW/glfw prefix for display
-    local i = 1
-    while true do
-      local c = shown:find('%^', i)
-      if not c then
-        add_segment(shown:sub(i), hl)
-        break
-      end
-      add_segment(shown:sub(i, c - 1), hl)
-      add('^', hl) -- the caret takes the pointee's color (void^ blue, VkX^ orange)
-      i = c + 1
+    for _, chunk in ipairs(M.type_chunks(t, bufnr)) do
+      add(chunk[1], chunk[2])
     end
   end
 
@@ -857,13 +870,13 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
         add('mut ', 'DansMarkerMut')
       end
       add(name .. ': ')
-      add_type(P.strip_type(rettype))
+      add_type(rettype)
       add ' ='
     elseif lambda_render and cap ~= nil then
       add(LAMBDA_KEYWORD .. ' ', 'DansLambda')
       add(name)
       add '('
-      local cap_chunks = lambda_capture_chunks(cap)
+      local cap_chunks = lambda_capture_chunks(cap, bufnr)
       local param_chunks = lambda_param_chunks(params, bufnr)
       local has_params = #param_chunks > 0
       if #cap_chunks > 0 then
@@ -935,12 +948,10 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     -- CString, outer pointer level(s) stay as caret(s)).
     local cstring_carets = was_const and shown_typ:match '^char(%^+)$' or nil
     local is_cstring = cstring_carets ~= nil
-    local sp_inner, sp_kind, sp_del = P.smart_ptr(shown_typ)
+    local _, smart_kind = P.smart_ptr(typ)
     local disp_typ
     if is_cstring then
       disp_typ = 'CString' .. cstring_carets:sub(2)
-    elseif sp_inner then
-      disp_typ = sp_del and (sp_inner .. '^, ' .. sp_del .. '~') or (sp_inner .. '^')
     else
       disp_typ = shown_typ
     end
@@ -952,7 +963,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     -- (`const T^`) is part of the TYPE, so it stays after the colon with the type.
     local tl_caret, tl_amp = top_level_sigils(shown_typ)
     local is_mut = not is_cstring
-      and not sp_inner
+      and not smart_kind
       and not was_const
       and not is_constexpr
       and not no_init
@@ -974,25 +985,12 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
       if #cstring_carets > 1 then
         add(cstring_carets:sub(2), 'Normal') -- outer pointer level(s)
       end
-    elseif sp_inner then
-      -- smart pointer: `T^`, caret colored by ownership (unique = mut red, shared
-      -- = cpy yellow). A custom deleter renders as `T^, Del~` -- the caret stays on
-      -- the pointee, and a matching-colored `~` ties the deleter to the pointer
-      -- (the deleter keeps its own type color).
-      local mk = sp_kind == 'unique' and 'DansMarkerMut' or 'DansMarkerCpy'
-      add_type(sp_inner)
-      add('^', mk)
-      if sp_del then
-        add ', '
-        add_type(sp_del)
-        add('~', mk)
-      end
     else
       -- pointee/referent const is part of the type (`const T^`), colored like it.
       if top_level_ptr_ref(shown_typ) and was_const then
         add('const ', type_hl(shown_typ))
       end
-      add_type(shown_typ)
+      add_type(typ)
     end
     if paren then
       -- paren-init `T name(args)`: keep the parens (ctor call, not assignment).

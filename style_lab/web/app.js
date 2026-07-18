@@ -163,8 +163,8 @@ function renderAll() {
   $("#description").textContent = state.catalog.description;
   const target = $("#questions");
   target.replaceChildren();
-  state.catalog.questions.forEach((question, index) => target.append(renderQuestion(question, index)));
   const openQuestions = state.catalog.questions.filter((q) => q.status === "open");
+  openQuestions.forEach((question, index) => target.append(renderQuestion(question, index)));
   const total = openQuestions.length;
   const done = openQuestions.filter((q) => state.selections.selections[q.id]).length;
   $("#progress-label").textContent = `${done} of ${total} decisions recorded`;
