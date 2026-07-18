@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "CMP-003",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Deterministic headless frontend interaction harness",
+  "summary": "Tests can drive real Neovim cursor and mode transitions, reconstruct displayed frontend text, and verify source integrity without a GUI.",
+  "details": [
+    "tests/support/frontend_harness.lua opens scratch C, C++, or CUDA buffers through the real FileType and frontend autocmd pipeline.",
+    "The harness enters characterwise, linewise, and blockwise Visual modes using real Normal/input commands and waits for scheduled redraw work.",
+    "Display reconstruction applies ds_* extmark conceal, inline virtual text, and overlay virtual text to source rows.",
+    "tools/run_tests.py runs each spec in an isolated Neovim process and converts printed failure summaries, editor errors, timeouts, and process exits into one reliable exit status.",
+    "Outputs are ephemeral because the entire isolated suite is computationally cheap and reproducible."
+  ],
+  "rationale": [
+    "Static render functions cannot validate mode/event ordering, stale namespace state, cursor reveal, selection growth, or asynchronous repaint behavior.",
+    "Isolation prevents module globals, augroups, buffers, and window matches from leaking between specs."
+  ],
+  "scope": ["testing", "frontend-interactions"],
+  "tags": ["headless", "test-runner", "visual-mode", "display-reconstruction"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 cleanup brief",
+      "note": "Owner required an agent-friendly way to experiment with real frontend interactions."
+    },
+    {
+      "kind": "code",
+      "reference": "tests/support/frontend_harness.lua and tools/run_tests.py",
+      "note": "Current harness and isolated runner implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "python3 tools/run_tests.py",
+      "claim": "Nineteen isolated specs currently complete in approximately seven seconds on the development host."
+    }
+  ],
+  "relations": [
+    { "type": "tests", "target": "BHV-001" },
+    { "type": "tests", "target": "CMP-001" },
+    { "type": "relates_to", "target": "DEC-001" }
+  ],
+  "retrieval": {
+    "aliases": ["simulate visual mode headlessly", "frontend test API", "reliable spec runner"],
+    "questions": [
+      "How can an agent reproduce a cursor or selection interaction without Neovide?",
+      "Which command reliably runs every frontend test?",
+      "Are test result logs durable artifacts?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "All isolated specs executed through the new runner."
+  }
+}

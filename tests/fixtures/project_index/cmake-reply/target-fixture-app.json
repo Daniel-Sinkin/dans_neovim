@@ -1,0 +1,17 @@
+{
+  "name": "fixture_app",
+  "id": "fixture_app::@root",
+  "type": "EXECUTABLE",
+  "paths": { "source": ".", "build": "." },
+  "sources": [{ "path": "app/main.cpp", "compileGroupIndex": 0 }],
+  "compileGroups": [
+    {
+      "language": "CXX",
+      "compileCommandFragments": [{ "fragment": "-std=c++23" }],
+      "defines": [{ "define": "APP_ENTRY=1" }],
+      "includes": [{ "path": "include" }]
+    }
+  ],
+  "dependencies": [{ "id": "fixture_core::@root" }],
+  "artifacts": [{ "path": "fixture_app" }]
+}

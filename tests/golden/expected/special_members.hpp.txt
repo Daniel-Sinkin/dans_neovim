@@ -1,0 +1,18 @@
+class Platform
+{
+  public:
+    Platform() = default;
+    ~Platform() = default;
+    $copy = delete;
+    $copya = delete;
+    $move = delete;
+    $movea = delete;
+};
+
+struct Widget
+{
+    $copy = default;
+    $copya = default;
+    $move $ne = default;
+    ~Widget() = default;
+};

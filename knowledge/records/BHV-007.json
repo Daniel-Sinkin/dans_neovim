@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "BHV-007",
+  "kind": "behavior",
+  "status": "observed",
+  "title": "Structural sugar, alignment, platform branches, and folds",
+  "summary": "Focused modules reduce repetitive structural syntax while folds are the only feature allowed to collapse vertical source rows.",
+  "details": [
+    "Designated initializers drop the leading dot, tighten equals, and collapse .field = field or equivalent simple member access to a field pun; multiline aggregates align equals.",
+    "dans::logic::implies(P, Q) becomes (P) => (Q) through Tree-sitter argument boundaries, including nested calls.",
+    "Header trailing-return arrows and enum values align with inline padding based on rendered rather than raw widths.",
+    "Classic do/while(0) macro wrappers in headers are displayed as plain braced macro blocks without merging rows.",
+    "Platform-aware preprocessor evaluation grays and folds only branches whose known OS/compiler/attribute condition is decidable; unknown or compound conditions stay normal.",
+    "Contract blocks, consecutive static assertions, triple-slash documentation runs, and hpp outline nodes may fold; named non-detail namespaces stay open while detail/anonymous namespaces may fold.",
+    "Closed folds use a single gray summary row and are the sole authorized mechanism that changes the visible source-row mapping."
+  ],
+  "scope": ["cpp-frontend/structure", "folding", "preprocessor", "alignment"],
+  "tags": ["designated-init", "logic", "alignment", "macro", "ppif", "fold"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/designated.lua, logic.lua, arrow_align.lua, enum_align.lua, macro_def.lua, ppif.lua, fold.lua",
+      "note": "Each focused module owns one structural presentation category."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua designated/alignment/fold cases; tests/logic_spec.lua; tests/ppif_spec.lua; tests/fold_spec.lua",
+      "claim": "Structural transforms, conservative preprocessor evaluation, and fold levels are covered independently."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "CMP-002" }
+  ],
+  "retrieval": {
+    "aliases": ["designated pun", "arrow alignment", "platform dead code", "contract folds", "macro unwrap"],
+    "questions": [
+      "Which feature may collapse source rows?",
+      "How are unknown preprocessor conditions treated?",
+      "Why does header arrow alignment need a rendered-width model?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Focused module/source audit and structural, logic, preprocessor, fold, interaction, and golden tests."
+  }
+}

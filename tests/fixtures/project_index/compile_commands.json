@@ -1,0 +1,52 @@
+[
+  {
+    "directory": ".",
+    "file": "src/core/log.cpp",
+    "output": "out/core-log.o",
+    "arguments": [
+      "clang++",
+      "-std=c++23",
+      "-DPROJECT_FEATURE=1",
+      "-I",
+      "src",
+      "-I",
+      "include",
+      "-isystem",
+      "vendor",
+      "-MD",
+      "-MF",
+      "out/core-log.d",
+      "-c",
+      "src/core/log.cpp",
+      "-o",
+      "out/core-log.o"
+    ]
+  },
+  {
+    "directory": ".",
+    "file": "src/ui/widget.cpp",
+    "output": "out/ui-widget.o",
+    "command": "clang++ -std=c++23 -DPROJECT_FEATURE=1 -I src -I include -isystem vendor -c src/ui/widget.cpp -o out/ui-widget.o"
+  },
+  {
+    "directory": ".",
+    "file": "app/main.cpp",
+    "output": "out/app-main.o",
+    "arguments": [
+      "clang++",
+      "-std=c++23",
+      "-DPROJECT_FEATURE=1",
+      "-DAPP_ENTRY=1",
+      "-I",
+      "src",
+      "-I",
+      "include",
+      "-isystem",
+      "vendor",
+      "-c",
+      "app/main.cpp",
+      "-o",
+      "out/app-main.o"
+    ]
+  }
+]

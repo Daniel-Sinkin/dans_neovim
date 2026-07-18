@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "DEC-007",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Lambda-backed defer macros show defer semantics, not wrapper ceremony",
+  "summary": "DANS_DEFER and DEFER hide their macro call, capture list, and lambda wrapper; a single statement displays as defer statement and a multi-statement body displays as a defer block.",
+  "details": [
+    "DEFER([&] { free(Z); }); displays as defer free(Z);.",
+    "DANS_DEFER and DEFER are equivalent recognized spellings rather than relying on a concealed DANS_ prefix to produce accidental support.",
+    "A one-line body containing multiple statements retains braces so statement grouping stays visible.",
+    "A multiline opener becomes defer { and its Tree-sitter-confirmed closing }); becomes a bare closing brace; body rows remain on their original displayed rows.",
+    "Cursor and Visual reveal show the complete source macro and lambda wrapper."
+  ],
+  "rationale": [
+    "The macro exists to express deferred execution; its lambda capture machinery is implementation ceremony in the frontend view.",
+    "Keeping braces for multiple statements avoids changing the perceived scope of deferred work."
+  ],
+  "alternatives": [
+    "Only hide the DANS_ prefix and leave DEFER([&] { ... }); visible; rejected because it exposes the implementation rather than the semantic construct.",
+    "Flatten every body without braces; rejected because a multi-statement defer would become visually ambiguous."
+  ],
+  "scope": ["cpp-frontend/defer", "cuda-frontend/defer", "cpp-frontend/lambdas"],
+  "tags": ["DEFER", "DANS_DEFER", "lambda", "capture", "semantic-collapse"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 DEFER([&] { free(Z); }) review",
+      "note": "Owner required a single-line defer wrapper to show only the deferred semantic body rather than lambda ceremony."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/render.lua::defer_chunks and parse.lua::defer_close",
+      "note": "Structured single-line parsing and Tree-sitter-confirmed multiline closure implement both macro names."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua plain and DANS defer cases",
+      "claim": "Single-statement, multi-statement, and multiline forms for both spellings are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "style_lab/catalog.json cuda-control-flow scene and real ext-linegrid capture",
+      "claim": "Actual Neovim output shows defer free(Z); with the defer keyword highlighted as a language construct."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "BHV-006" }
+  ],
+  "retrieval": {
+    "aliases": ["DEFER lambda hidden", "defer body only", "DANS_DEFER semantic view"],
+    "questions": [
+      "How should DEFER([&] { free(Z); }) look?",
+      "Why are defer lambda captures hidden?",
+      "What happens to multiline defer source rows?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner instruction verified by focused overlay cases and actual ext-linegrid capture."
+  }
+}

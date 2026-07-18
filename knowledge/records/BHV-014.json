@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "BHV-014",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Central Dans palette and source-faithful display transitions",
+  "summary": ":Dans opens one keyboard-driven palette for display, font, authoring, analysis, project, and developer workflows; its frontend and monochrome controls produce deterministic global source-view transitions.",
+  "details": [
+    "The vertical floating palette supports j/k and arrow navigation, gg/G endpoints, Enter or Space activation, and q or Escape closure. <leader>dan opens the same UI.",
+    "Frontend off clears every aggregate frontend renderer plus documentation, macro, and scope presentation in all loaded C/C++/CUDA buffers. Newly entered language buffers receive the current global state.",
+    "With the frontend off, monochrome can switch between flattened highlighting and the active colorscheme with Tree-sitter highlighting. With the frontend on, monochrome is effective, visibly locked, and noninteractive.",
+    "A remembered normal-color request survives temporary frontend use, so the next frontend-off transition returns directly to exact source spelling with ordinary syntax colors.",
+    "Tool actions close the palette, restore the source window that opened it, and then launch against that buffer. Font input likewise runs in the restored target context and accepts only the inclusive range 8 through 32 points; rejected input preserves guifont.",
+    "The menu covers assembly, constrained function execution, structured templates, C++ formatting and generation, project/index/include inspection, macro rescanning, development-marker tidy, performance monitoring, profiling, recent-key inspection, and scope-depth configuration.",
+    "A coverage assertion fails when a newly registered Dans command has no curated menu mapping. Individual experimental frontend submodule toggles remain excluded by design."
+  ],
+  "scope": ["dans-menu", "cpp-frontend/display-mode", "tool-launching", "headless-interaction"],
+  "tags": ["Dans", "command-palette", "source-faithful", "Tree-sitter", "headless-tested"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_menu.lua and lua/custom/dans_mode.lua",
+      "note": "Palette inventory, target-window dispatch, global state transitions, buffer aggregation, and highlight lifecycle."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/dans_menu_spec.lua",
+      "claim": "Headless Neovim activates real palette rows, verifies the complete state transition matrix and module symmetry, launches a tool in the original buffer, checks accepted and rejected font boundaries, checks command coverage, and preserves source bytes."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Re-enabled presentation modules continue to satisfy raw-selection and exact restoration round trips."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "DEC-012" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "CMP-012" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["Dans command palette", "disable frontend", "restore syntax colors", "all Dans tools menu", "frontend state transition"],
+    "questions": [
+      "How do I show unmangled C++ with ordinary highlighting?",
+      "Where can I launch assembly and code generation without remembering commands?",
+      "Does a palette tool operate on the source buffer or the floating menu?",
+      "Will a newly added Dans command be forgotten by the menu?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after d7b9c75",
+    "method": "Focused menu including font boundaries, renderer, document, fold, scope, C++ tool, and project interaction specs."
+  }
+}

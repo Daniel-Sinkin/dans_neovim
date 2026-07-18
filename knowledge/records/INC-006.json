@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "INC-006",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "CUDA aliases rewrote identifiers inside include paths",
+  "summary": "The raw exact-alias pass treated angle-bracket header names as code, causing #include <cuComplex.h> to display incorrectly as #include <cf32.h>.",
+  "details": [
+    "The CUDA alias scanner excluded quoted strings and line comments but did not recognize angle-bracket system header paths.",
+    "Prefix conceal already had a Tree-sitter literal guard, but exact full-token replacements in aliases.lua bypassed that path-specific protection.",
+    "The correction classifies complete include and include_next directives in the shared util.lua skipper before any character-changing row renderer runs.",
+    "Backslash-continuation rows inherit include ownership so a header path placed on the following source row also stays verbatim.",
+    "The lexical directive fact works for macro and temporarily incomplete includes even when Tree-sitter cannot provide a usable node.",
+    "Cursor and Visual reveal continue to preserve source bytes and do not alter the directive classification."
+  ],
+  "scope": ["cpp-frontend/includes", "cuda-frontend/includes", "frontend-lifecycle"],
+  "tags": ["include", "include_next", "CUDA", "alias", "context-gate", "regression"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 #include <cuComplex.h> report",
+      "note": "Owner reported the concrete cf32.h mangling and stated that includes should not be touched in general."
+    },
+    {
+      "kind": "code",
+      "reference": "former aliases.lua::cuda_idents raw scan and util.lua::make_skipper",
+      "note": "The raw scanner had only string/comment gates, while the shared row skipper had no include ownership fact."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua CUDA library alias block",
+      "claim": "include, include_next, and continued include paths containing every exact CUDA alias remain display-verbatim while the same tokens transform in code and source bytes remain unchanged."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "BHV-009" },
+    { "type": "relates_to", "target": "DEC-014" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["cuComplex.h became cf32.h", "include path mangled", "CUDA alias inside header name"],
+    "questions": [
+      "Why did #include <cuComplex.h> display as cf32.h?",
+      "How are continued includes protected from frontend aliases?",
+      "Do library aliases apply inside include paths?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Reported failure reproduced in the interaction harness, corrected through shared directive ownership, and regression-tested across direct and continued includes."
+  }
+}

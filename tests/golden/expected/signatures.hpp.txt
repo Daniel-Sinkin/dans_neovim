@@ -1,0 +1,29 @@
+namespace lldb { struct SBEvent {}; }
+class Foo
+{
+    def EventIsTargetEvent(event: lldb::SBEvent&) -> bool;
+    def GetValue(idx: int) const -> SBValue^;
+    def run() mut $ne -> void;
+    def trailing() const -> int;
+};
+def freeFunc(x: int) -> bool;
+
+class Bar
+{
+    $nd def x() const $ne     -> int;
+    $nd def name() const $ne  -> CString;
+    def reset(n: int) mut $ne -> mut Bar&;
+};
+
+class Ops
+{
+    def operator()(window: window^) const $ne -> void;
+    def operator[](i: int) mut $ne            -> mut int&;
+    Ops& operator=(other: Ops&) mut $ne;
+    def operator==(o: Ops&) const $ne -> bool;
+};
+
+// clang-format off
+auto kept_raw(int a,    int b) -> int;
+auto and_this  (float x)       -> float;
+// clang-format on

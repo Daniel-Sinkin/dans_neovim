@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "QST-002",
+  "kind": "question",
+  "status": "open",
+  "title": "Should source-region classification become one shared soft model?",
+  "summary": "Several current modules still answer comment, literal, declaration, and rendered-width questions through separate Tree-sitter queries, text scans, and window matches.",
+  "details": [
+    "util provides shared comment, static_assert, clang-format-off, literal, and buffer-line caches, but pointer.lua retains a private naive string/comment scan and markers still combines Tree-sitter-gated prefix extmarks with regex color masks.",
+    "parse/render/view and raw-line modules sometimes derive overlapping structure independently, creating composition risk such as INC-002.",
+    "A bounded visible-region model could unify only the facts multiple consumers need; it must not become a C++ compiler or duplicate clangd.",
+    "The decision requires measurements and parity tests per migrated consumer; the existence of duplicated logic alone does not prove a new model is cheaper or safer."
+  ],
+  "scope": ["frontend-architecture", "source-classification", "performance"],
+  "tags": ["open-design", "soft-model", "treesitter", "duplication", "migration"],
+  "provenance": [
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 fresh source/lifecycle audit",
+      "note": "Current duplication and ownership boundaries were verified directly from the implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "source",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua, pointer.lua, markers.lua, parse.lua",
+      "claim": "Multiple current classification mechanisms remain observable in code."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "CMP-006" },
+    { "type": "relates_to", "target": "INC-002" }
+  ],
+  "retrieval": {
+    "aliases": ["soft C++ model", "shared region classifier", "duplicate comment detection", "model.lua"],
+    "questions": [
+      "Is a shared soft-model currently approved?",
+      "Which classification duplication still exists?",
+      "What would constrain a shared source-region model?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Fresh code comparison of current classifiers; intentionally left open."
+  }
+}

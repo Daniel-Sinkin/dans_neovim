@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "DEC-008",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Qnpeps prefixes are hidden while orchid carries provenance",
+  "summary": "qnpeps:: and the configured Qnpeps identifier prefixes are presentation noise; the remaining qualified name stays orchid so its project provenance is still visible.",
+  "details": [
+    "The hidden family is qnpeps::, Qnpeps on mixed-case types, qnpeps_ on lowercase identifiers, QNPEPS_ on macros, and the shorter qn_ project prefix.",
+    "Classification always uses the original token or qualified type before textual stripping.",
+    "The rule applies to raw code, declaration overlays, parameter and return types, templates, expressions, and trailing-arrow width calculations.",
+    "Strings, comments, includes, static_assert regions, cursor rows, and Visual reveal rows retain source-faithful text under their existing gates.",
+    "This settles Qnpeps only; QST-003 remains open for unrelated families such as SDL_."
+  ],
+  "rationale": [
+    "The repeated project prefix is high-frequency noise inside Qnpeps code, while orchid is sufficient to retain origin information.",
+    "Treating the namespace and identifier prefixes as one family avoids path-dependent spellings."
+  ],
+  "alternatives": [
+    "Keep qnpeps:: gray like a generic lowercase namespace; rejected by the owner in favor of hiding it.",
+    "Hide the prefix and recolor the remainder as a generic type or identifier; rejected by the classify-before-strip provenance rule."
+  ],
+  "scope": ["cpp-frontend/qnpeps", "cuda-frontend/qnpeps", "library-prefixes"],
+  "tags": ["Qnpeps", "namespace", "prefix-conceal", "orchid", "provenance"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 qnpeps prefix clarification",
+      "note": "Owner explicitly completed the earlier fragment with 'qnpeps:: prefix should be hidden'."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua, render.lua, markers.lua, and arrow_align.lua",
+      "note": "Structured stripping/color, raw conceal/color, and width accounting implement the same family."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua and tests/frontend_interaction_spec.lua",
+      "claim": "Parameter chunks retain DansQnpeps, raw qnpeps:: disappears, Visual round-trips restore, and source bytes stay unchanged."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py and style_lab/catalog.json qnpeps-layout scene",
+      "claim": "Actual Neovim RGB output shows hidden prefixes with orchid Config and Boundary names."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "relates_to", "target": "QST-003" },
+    { "type": "implemented_by", "target": "BHV-009" }
+  ],
+  "retrieval": {
+    "aliases": ["hide qnpeps namespace", "Qnpeps orchid", "qnpeps prefix policy"],
+    "questions": [
+      "Should qnpeps:: be visible?",
+      "Why is Boundary orchid after qnpeps:: disappears?",
+      "Which Qnpeps prefix forms are hidden?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner decision implemented across raw, structured, alignment, interaction, and actual RGB capture paths."
+  }
+}

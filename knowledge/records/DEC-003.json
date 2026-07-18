@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "DEC-003",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Concrete lvalue-reference parameters are const-default",
+  "summary": "A concrete lvalue reference without mut is read-only; writable references carry mut, matching the deduced-reference visual rule.",
+  "details": [
+    "const Foo& input is presented as input: Foo&.",
+    "Foo& output is presented as output: mut Foo&.",
+    "This decision changes only lvalue-reference parameter presentation, including lambda parameters.",
+    "Pointer pointee constness remains written after the colon, and pointer-object constness remains a const binding prefix.",
+    "Reference sigils bind tightly to the type regardless of the source project's east/west declarator spacing."
+  ],
+  "rationale": [
+    "The frontend's central model is const-by-default and exception-forward; concrete references should not be the lone common binding form that repeats the default.",
+    "The real-render comparison made the read-only versus mut contrast legible across local, CUDA, ImGui, LLVM, and GCC styles.",
+    "Keeping pointer axes explicit avoids pretending that the simpler reference rule answers the more complex pointer problem."
+  ],
+  "alternatives": [
+    "Keep written const on concrete references while deduced references remain compact; this was the previous asymmetric production rule.",
+    "Hide pointer pointee const at the same time; rejected as out of scope because no complete unambiguous pointer notation was selected."
+  ],
+  "scope": ["cpp-frontend/parameters", "cuda-frontend/parameters", "style-language"],
+  "tags": ["owner-selected", "const-default", "reference-parameters", "style-lab"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json selected_at 2026-07-11T14:09:18.274697+00:00",
+      "note": "Machine-readable owner selection chose const-default."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/style.lua::DEFAULTS",
+      "note": "The selected option is the production default, not only an experimental profile."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json",
+      "claim": "Captures the selected choice, time, and exact catalog hash shown to the owner."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py and tests/frontend_interaction_spec.lua",
+      "claim": "Both alternatives are reproducible and the selected default is isolated from explicit comparison buffers."
+    }
+  ],
+  "relations": [
+    { "type": "resolves", "target": "QST-001" },
+    { "type": "implemented_by", "target": "BHV-003" },
+    { "type": "relates_to", "target": "DEC-002" },
+    { "type": "relates_to", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["selected const style", "hide const function args", "concrete refs const default"],
+    "questions": [
+      "Which reference-parameter alternative did the owner choose?",
+      "Why is const Foo& shown without const?",
+      "Did the reference decision also hide pointer constness?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Selection provenance, production code, and post-selection render assertions agree."
+  }
+}

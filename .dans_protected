@@ -1,0 +1,7 @@
+# Paths the frontend opens read-only and the pre-commit hook refuses to commit.
+# One glob per line, relative to the project root; `*` matches across directories.
+# `#` comments and blank lines are ignored. (The standard library / system headers
+# are blocked automatically as "outside the project", no entry needed here.)
+#
+# Copy this file into each C/C++ project and list its vendored trees, e.g.:
+vendor/*

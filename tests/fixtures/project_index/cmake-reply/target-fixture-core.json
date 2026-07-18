@@ -1,0 +1,25 @@
+{
+  "name": "fixture_core",
+  "id": "fixture_core::@root",
+  "type": "STATIC_LIBRARY",
+  "paths": { "source": ".", "build": "." },
+  "sources": [
+    { "path": "include/core/log.hpp", "compileGroupIndex": 0 },
+    { "path": "src/core/log.cpp", "compileGroupIndex": 0 },
+    { "path": "include/ui/widget.hpp", "compileGroupIndex": 0 },
+    { "path": "src/ui/widget.cpp", "compileGroupIndex": 0 },
+    { "path": "include/util/id.hpp", "compileGroupIndex": 0 }
+  ],
+  "compileGroups": [
+    {
+      "language": "CXX",
+      "compileCommandFragments": [{ "fragment": "-std=c++23" }],
+      "defines": [{ "define": "PROJECT_FEATURE=1" }],
+      "includes": [
+        { "path": "include" },
+        { "path": "vendor", "isSystem": true }
+      ]
+    }
+  ],
+  "artifacts": [{ "path": "libfixture_core.a" }]
+}

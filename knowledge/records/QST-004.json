@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "QST-004",
+  "kind": "question",
+  "status": "open",
+  "title": "What should a separate visual debugger frontend become?",
+  "summary": "A custom debugger with tensor-network, mesh, graphics, and richer state visualization is deliberately deferred because its interaction model needs sustained owner-in-the-loop design and may belong outside Neovim.",
+  "details": [
+    "The existing DAP usability is not treated as an adequate design baseline for extension.",
+    "Tensor-network views, graphics/mesh rendering, and graphics-debugger integration require flexible non-text panels and coordinated state inspection.",
+    "Neovim may remain an editor/control surface, but a separate native or browser application is an open architectural option.",
+    "The function probe is not a debugger substitute: it compiles explicit invocations and returns process output, not arbitrary paused-program state.",
+    "No debugger implementation work is authorized by the current tooling pass; a future design round should begin with concrete workflows and visual prototypes."
+  ],
+  "scope": ["future-debugger", "visualization", "external-application"],
+  "tags": ["open-design", "debugger", "tensor-network", "graphics", "deferred"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 debugger discussion",
+      "note": "Owner explicitly benched debugger work because it requires more direct and subtle interaction."
+    }
+  ],
+  "evidence": [],
+  "relations": [
+    { "type": "relates_to", "target": "BHV-011" },
+    { "type": "relates_to", "target": "DEC-010" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["custom debugger", "tensor debugger", "graphics debugging UI", "debugger shelved"],
+    "questions": [
+      "Why was a new debugger not implemented in this pass?",
+      "Should the future debugger live inside Neovim?",
+      "Does DansRunFunction provide debugger state?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Direct owner scope decision; intentionally left open."
+  }
+}

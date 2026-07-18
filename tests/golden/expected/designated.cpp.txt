@@ -1,0 +1,49 @@
+auto debug_messenger_create_info() -> VkDebugUtilsMessengerCreateInfoEXT
+{
+    return MessengerCreateInfoEXT{
+        DebugUtilsMessengerCreateInfoEXT,
+        pNext           = {},
+        flags           = Flags{0},
+        messageSeverity = MESSAGE_SEVERITY_WARNING_BIT_EXT
+                          | MESSAGE_SEVERITY_ERROR_BIT_EXT,
+        messageType     = MESSAGE_TYPE_GENERAL_BIT_EXT
+                          | MESSAGE_TYPE_VALIDATION_BIT_EXT
+                          | MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        pfnUserCallback = debug_callback,
+        pUserData       = nullptr,
+    };
+}
+
+def instance_create_info() -> InstanceCreateInfo
+{
+    return InstanceCreateInfo{
+        InstanceCreateInfo,
+        pNext = nullptr,
+    };
+}
+
+def from_moves() -> InstanceCreateInfo
+{
+    return InstanceCreateInfo{
+        pApplicationInfo,
+        pUserData,
+    };
+}
+
+def with_defaults() -> InstanceConfig
+{
+    return InstanceConfig{
+        dbg_messenger_cfg,
+        alloc_cfg,
+    };
+}
+
+def from_locals() -> MessengerCreateInfoEXT
+{
+    return MessengerCreateInfoEXT{
+        messageSeverity,
+        messageType,
+        pApplicationInfo,
+        pUserData,
+    };
+}

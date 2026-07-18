@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "BHV-015",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Source-faithful Markdown and explicit LaTeX workflow",
+  "summary": "Markdown and LaTeX buffers show literal markup with conceal disabled, while LaTeX gains explicit compilation, PDF synchronization, project navigation, diagnostics, completion, and formatting tools.",
+  "details": [
+    "Markdown code fences and inline markup remain visible under ordinary navigation because both markdown_syntax_conceal and window conceallevel are zero.",
+    "Markdown, MDX, TeX, plain TeX, and BibTeX buffers reassert conceallevel zero when their FileType is established or they enter a window that may have carried another buffer's conceal setting.",
+    "VimTeX syntax highlighting remains active for LaTeX, but its command, math-symbol, delimiter, citation, and package conceal features are globally disabled.",
+    "Space-ll toggles continuous latexmk compilation; Space-lv opens the PDF or performs forward search; Space-lk stops compilation; Space-le shows errors; Space-lt opens the table of contents; Space-lc cleans auxiliary files.",
+    "VimTeX selects Skim on macOS when available, then Zathura, then Okular with source-position arguments, then MuPDF, then the system viewer. The current Fedora host selects Okular.",
+    "Texlab supplies completion, navigation, symbols, diagnostics, and explicit latexindent formatting. It uses a project marker when available and the source file's directory for a standalone document.",
+    "Saving does not start a LaTeX build and Conform does not format Markdown, LaTeX, or BibTeX on save. Explicit leader-f formatting remains available for LaTeX."
+  ],
+  "scope": ["markdown", "latex", "vimtex", "texlab", "source-integrity"],
+  "tags": ["Markdown", "LaTeX", "VimTeX", "texlab", "latexmk", "SyncTeX"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/config/options.lua, lua/config/autocmds.lua, lua/custom/plugins/vimtex.lua, lsp.lua, and conform.lua",
+      "note": "Current literal-source gates and LaTeX editing/tool lifecycle."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/markup_spec.lua",
+      "claim": "Headless Neovim verifies inherited-window reset, unchanged source, visible Markdown fences and LaTeX commands on the real screen grid, VimTeX commands and described mappings, sole syntax ownership, and texlab's no-build-on-save settings."
+    },
+    {
+      "kind": "source",
+      "reference": "VimTeX official documentation at a5949d2800c1866c878956d49c51fc8d003c6b99 and nvim-lspconfig texlab definition at b386c50cd7816f8c8a2b13b298a218af1f5a75c6",
+      "claim": "The plugin is intentionally non-lazy for inverse search; latexmk, viewer methods, conceal disable, mappings, and texlab build/formatter settings follow current upstream interfaces."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "DEC-013" },
+    { "type": "implemented_by", "target": "CMP-013" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["LaTeX support", "VimTeX keys", "texlab setup", "Markdown literal view", "latexmk PDF workflow"],
+    "questions": [
+      "How do I compile and view the current LaTeX project?",
+      "Does saving a TeX file automatically compile or reformat it?",
+      "Are LaTeX commands concealed as Unicode symbols?",
+      "What supplies LaTeX completion and diagnostics?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-16",
+    "revision": "worktree after 9e89ef9",
+    "method": "Focused real-Neovim markup contract plus installed VimTeX and texlab interface verification."
+  }
+}

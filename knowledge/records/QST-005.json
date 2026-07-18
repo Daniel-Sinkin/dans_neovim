@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "QST-005",
+  "kind": "question",
+  "status": "open",
+  "title": "What exact synthetic physical-module manifest should drive personal C++ projects?",
+  "summary": "A Lakos-inspired component/module DAG, explicit ownership, typed dependencies, code generation, and bounded escape hatches are approved in direction, while the manifest schema, module granularity, target generation policy, and migration rules remain intentionally open until the read-only index has been used on real projects.",
+  "details": [
+    "The project model is not C++20 language modules. It describes physical ownership, public/private surfaces, component grouping, dependencies, build mapping, tests, tools, generated artifacts, and external boundaries.",
+    "Production component and module include graphs should be acyclic. Tool/codegen dependencies and runtime initialization constraints need separate typed graphs rather than being collapsed into one relation.",
+    "The intended automation target is the common 90-95 percent: conventional paired/header-only units, generated build fragments, file creation/movement, include updates, self-containment checks, and diagrams. Opaque vendor/generated/legacy islands and explicit facade/re-export rules are expected escape hatches.",
+    "An existing strongly connected legacy region should normally be represented as one honest legacy island until factored, not legalized by a generic allow-cycle flag.",
+    "The read-only project index must gather experience first. No authoritative manifest or project rewrite should be generated merely from the initial inference."
+  ],
+  "scope": ["future-modules", "physical-design", "codegen", "project-manifest"],
+  "tags": ["open-design", "John-Lakos", "DAG", "manifest", "escape-hatches", "deferred-mutation"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 synthetic module request and approval",
+      "note": "Owner definitely wants the system but explicitly requires a large preparation and idea phase informed by dans-vk2 and hands-on experience."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/home/daniel/GitHub/dans-vk2 read-only audit",
+      "note": "The project supplies paired components, include strata, self-containment checking, and logical directories, but not one-target-per-module ownership."
+    }
+  ],
+  "evidence": [],
+  "relations": [
+    { "type": "motivated_by", "target": "DEC-011" },
+    { "type": "relates_to", "target": "CMP-011" },
+    { "type": "relates_to", "target": "BHV-012" }
+  ],
+  "retrieval": {
+    "aliases": ["synthetic C++ modules", "Lakos packages", "project module DAG", "physical module manifest"],
+    "questions": [
+      "Is the synthetic C++ module manifest already designed?",
+      "Will this use C++20 language modules?",
+      "How should cycles and unsupported legacy code be represented?",
+      "When may module-aware code generation begin?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after dcce577",
+    "method": "Owner-approved direction with exact schema deliberately deferred pending index experience."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "BHV-013",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Interactive read-only C++ project and include inspection",
+  "summary": "DansCppProjectIndex displays inferred components, target ownership, evidence-backed include dependencies, cycles, and diagnostics, while DansCppProjectWhy explains the direct include under the cursor without modifying source or project state.",
+  "details": [
+    "DansCppProjectIndex discovers the current project root, asynchronously rebuilds the headless index, and reuses one scratch view per root. Enter opens the first relevant component/evidence file, J exposes machine JSON, and r rescans.",
+    "DansCppProjectWhy resolves the current source row to a directly spelled include and shows its spelling, provider path and component, first-party/vendored/system classification, search route and provenance, applicable compilation profiles, condition stack, and shadowed alternatives.",
+    "DansCppProjectJson shows the most recently decoded index or performs a scan when no index is available.",
+    "A project with no compilation database or CMake reply remains inspectable from configured/conventional roots; their absence is an informational diagnostic rather than a hard failure.",
+    "All views are nofile scratch buffers. Inspection preserves the source buffer's bytes, rows, modified state, and filesystem."
+  ],
+  "scope": ["cpp-tools/project-index-ui", "include-provenance", "source-integrity"],
+  "tags": ["DansCppProjectIndex", "DansCppProjectWhy", "DansCppProjectJson", "read-only", "headless-tested"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_tools/project.lua",
+      "note": "Command registration, process lifecycle, rendering, navigation, and cursor include lookup."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/project_index_ui_spec.lua",
+      "claim": "Real asynchronous scans and cursor-dependent include explanation open in headless Neovim while the inspected source is byte-for-byte unchanged."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "CMP-011" },
+    { "type": "constrained_by", "target": "DEC-011" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["DansCppProjectIndex", "DansCppProjectWhy", "explain include", "project dependency viewer"],
+    "questions": [
+      "How do I inspect inferred C++ components and include cycles in Neovim?",
+      "How do I ask why the include under my cursor resolves to a particular header?",
+      "Does project inspection edit or configure the target repository?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after dcce577",
+    "method": "Focused headless asynchronous command and cursor-provenance interaction test."
+  }
+}

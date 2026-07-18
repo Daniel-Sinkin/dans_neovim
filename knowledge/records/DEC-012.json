@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "DEC-012",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "One global palette owns frontend and monochrome presentation",
+  "summary": "The owner controls C/C++/CUDA presentation through one Dans palette: the frontend is a global aggregate, monochrome is a separately remembered preference, and an enabled frontend forces monochrome without erasing that preference.",
+  "details": [
+    ":Dans is the canonical interactive surface and <leader>dan is an alias; lower-level Dans commands remain stable automation and compatibility APIs rather than a memorization requirement.",
+    "Frontend presentation is one global choice applied to every loaded and future C, C++, and CUDA buffer. The owner palette deliberately does not expose individual renderer toggles.",
+    "The frontend requires effective monochrome so provenance and ownership colors are not mixed with an unrelated syntax palette. Its monochrome row is therefore locked while the frontend is enabled.",
+    "Requested monochrome remains independent state. If normal colors were requested before the frontend was enabled, disabling the frontend restores normal colors immediately; otherwise raw source remains monochrome.",
+    "Disabling the frontend means source-faithful spelling, including disabling the declaration/decorator aggregate, documentation markdown, project macro coloring, scope coloring, and an active tokenizer view. It does not rewrite buffer bytes.",
+    "Font size and every owner-facing workflow otherwise registered as a Dans command are reachable from the same palette.",
+    "Font-size input accepts values from 8 through 32 points inclusive. Invalid or out-of-range input is rejected without changing guifont."
+  ],
+  "rationale": [
+    "A grid of per-feature toggles was unusable for the owner and allowed presentation modules to drift into combinations that were neither source-faithful nor the accepted frontend.",
+    "Highlight links are process-global, so a per-buffer monochrome promise would report state that Neovim cannot faithfully maintain across simultaneously visible buffers.",
+    "Separating requested from effective monochrome preserves a real owner preference while expressing the frontend's color dependency as a visible lock rather than silently destroying state.",
+    "A discoverable palette makes new tools usable without requiring command-name recall and gives tests one inventory boundary for future commands."
+  ],
+  "alternatives": [
+    "Keep the old per-module two-column toggle grid; rejected because the owner explicitly found it unusable and does not want individual feature toggles.",
+    "Keep a one-dimensional vanilla switch; rejected because source-faithful monochrome and source-faithful normal-color views are distinct useful states.",
+    "Make display state buffer-local; rejected because effective syntax highlight links are global and the menu would misrepresent mixed buffers.",
+    "Remove the underlying Dans commands; rejected because stable programmatic entry points remain useful even when they are not the human interface."
+  ],
+  "scope": ["dans-menu", "cpp-frontend/display-mode", "monochrome-highlighting", "command-discovery"],
+  "tags": ["Dans", "global-state", "frontend-toggle", "monochrome", "command-palette"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 central Dans menu request",
+      "note": "Owner required one discoverable menu, a whole-frontend toggle, locked monochrome while the frontend is active, retained font control, no individual feature toggles, and access to all Dans workflows."
+    },
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 font-size range constraint",
+      "note": "Owner selected an inclusive 8 through 32 point range and required every other size to be rejected."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-12 display-state lifecycle audit",
+      "note": "Neovim highlight definitions are global while conceal and extmark presentation is buffer-local, requiring one truthful global effective color state."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/dans_menu_spec.lua",
+      "claim": "The real menu drives frontend and color state through disable, normal-color, forced-monochrome, locked interaction, and preference-restoration transitions without changing source bytes."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "constrains", "target": "BHV-014" },
+    { "type": "constrains", "target": "CMP-012" }
+  ],
+  "retrieval": {
+    "aliases": ["turn frontend off", "normal C++ colors", "monochrome lock", "central Dans menu", "raw source mode"],
+    "questions": [
+      "Why can monochrome not be toggled while the frontend is on?",
+      "Does turning the frontend off restore normal C++ source and colors?",
+      "Why are individual frontend modules absent from the Dans menu?",
+      "Is display mode global or buffer-local?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after d7b9c75",
+    "method": "Owner decisions implemented and exercised through isolated real-Neovim menu, font-boundary, and renderer interactions."
+  }
+}

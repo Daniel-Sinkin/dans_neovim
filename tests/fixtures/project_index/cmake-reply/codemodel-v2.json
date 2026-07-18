@@ -1,0 +1,29 @@
+{
+  "kind": "codemodel",
+  "version": { "major": 2, "minor": 8 },
+  "paths": {
+    "source": ".",
+    "build": "out"
+  },
+  "configurations": [
+    {
+      "name": "Debug",
+      "targets": [
+        {
+          "directoryIndex": 0,
+          "id": "fixture_core::@root",
+          "jsonFile": "target-fixture-core.json",
+          "name": "fixture_core",
+          "projectIndex": 0
+        },
+        {
+          "directoryIndex": 0,
+          "id": "fixture_app::@root",
+          "jsonFile": "target-fixture-app.json",
+          "name": "fixture_app",
+          "projectIndex": 0
+        }
+      ]
+    }
+  ]
+}

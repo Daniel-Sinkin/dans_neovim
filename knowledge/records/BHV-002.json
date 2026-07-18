@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "BHV-002",
+  "kind": "behavior",
+  "status": "superseded",
+  "title": "Superseded asymmetric reference parameter spelling",
+  "summary": "Before DEC-003, concrete references retained written const while deduced auto references used a compact const-default binding spelling.",
+  "details": [
+    "const Foo& ro previously became ro: const Foo&.",
+    "Foo& rw became rw: mut Foo&.",
+    "const auto& ro became ro&.",
+    "auto& rw became mut rw&.",
+    "Pointer parameter constness has additional independent axes: pointee constness and pointer-object constness cannot be collapsed without a complete rule."
+  ],
+  "scope": ["cpp-frontend/parameters", "cuda-frontend/parameters"],
+  "tags": ["const", "mut", "reference-parameters", "pointer-parameters", "asymmetry"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/aliases.lua::flip_param",
+      "note": "Current concrete and auto parameter branches implement different const-default spellings."
+    },
+    {
+      "kind": "git",
+      "reference": "a0aeb6e and 0d52628",
+      "note": "History identifies the separate introductions, but legacy motivations are not treated as current authority."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua and tests/frontend_spec.lua lambda parameter cases",
+      "claim": "Current spellings are pinned for concrete and deduced references."
+    }
+  ],
+  "relations": [
+    { "type": "opens", "target": "QST-001" },
+    { "type": "superseded_by", "target": "BHV-003" },
+    { "type": "relates_to", "target": "DEC-002" }
+  ],
+  "retrieval": {
+    "aliases": ["const concrete ref versus auto ref", "parameter mutability asymmetry", "pointee const"],
+    "questions": [
+      "Why does const Foo& retain const but const auto& does not?",
+      "How are mutable reference parameters emphasized?",
+      "Is current parameter const behavior intentional or only observed?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Direct code reading and focused test execution; no legacy documentation assumed authoritative."
+  }
+}

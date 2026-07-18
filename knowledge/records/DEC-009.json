@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "DEC-009",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "C++ authoring uses one first-party engine without LuaSnip",
+  "summary": "Structured templates, dollar expressions, suggestions, context gates, include edits, and tabstop navigation have one first-party owner; Neovim's built-in snippet primitive tracks placeholders.",
+  "details": [
+    "LuaSnip, cmp_luasnip, and friendly-snippets are not dependencies of this configuration.",
+    "The first-party catalog and interaction policy are custom, but placeholder/mirror tracking delegates to vim.snippet instead of reimplementing a generic extmark session engine.",
+    "Structured templates expand explicitly on Space or Tab; rule-of-three/five templates no longer fire automatically while a token is still being typed.",
+    "An unresolved or context-invalid dollar expression is preserved with the requested space rather than deleted.",
+    "nvim-cmp remains an optional LSP/path/buffer completion surface and queries the authoring engine's live-block state instead of duplicating its grammar."
+  ],
+  "rationale": [
+    "The previous split between LuaSnip autosnippets, LuaSnip tabstop templates, a custom dollar parser, and duplicated cmp gating created competing state and brittle timing.",
+    "The project needs C++-specific context and structured edits, not the maintenance surface of two general-purpose snippet engines.",
+    "Neovim's built-in LSP snippet implementation already supplies tested tabstop selection and mirror synchronization, so rebuilding that low-level mechanism would add failure modes without adding domain behavior."
+  ],
+  "alternatives": [
+    "Retain LuaSnip only for tabstop templates; rejected because it preserves a second catalog/session owner for little benefit.",
+    "Implement placeholder extmarks and mirror propagation from scratch; rejected because the built-in primitive meets the required subset.",
+    "Use only plain text substitutions; rejected because mirrors and deterministic field navigation are important for extensive templates."
+  ],
+  "scope": ["cpp-authoring", "snippets", "completion"],
+  "tags": ["first-party", "vim.snippet", "no-luasnip", "single-owner", "non-destructive"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 first-party snippet-engine question",
+      "note": "Owner asked whether LuaSnip should be removed in favor of a broader custom authoring engine."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_authoring.lua and lua/custom/plugins/cmp.lua",
+      "note": "Current catalog/session policy and completion integration."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/authoring_spec.lua, tests/type_snippets_spec.lua, tests/snippet_format_spec.lua",
+      "claim": "Real mappings, built-in mirrors, context protection, grammar behavior, include insertion, and non-destructive failures are covered."
+    },
+    {
+      "kind": "source",
+      "reference": "lua/custom/plugins/cmp.lua and lazy-lock.json",
+      "claim": "No LuaSnip-related plugin or completion source remains."
+    }
+  ],
+  "relations": [
+    { "type": "implemented_by", "target": "CMP-009" },
+    { "type": "relates_to", "target": "CMP-002" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["remove LuaSnip", "custom snippet engine", "builtin vim snippet", "snippet stability"],
+    "questions": [
+      "Does this configuration still use LuaSnip?",
+      "Who owns C++ templates, dollar suggestions, and tabstop sessions?",
+      "What happens when a dollar shorthand is mistyped?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Dependency audit plus isolated real-insert interaction tests."
+  }
+}

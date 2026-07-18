@@ -1,0 +1,2045 @@
+{
+  "schema_version": 1,
+  "records_sha256": "5b4cc227d44749b07495439040dfcb2389fe42023044352f1ee7505524e955aa",
+  "record_count": 56,
+  "records": [
+    {
+      "id": "BHV-001",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Cursor and Visual selections reveal raw source",
+      "summary": "The cursor row and every row in a characterwise, linewise, or blockwise Visual selection display source-faithful text; rows restore immediately when they leave the reveal set.",
+      "scope": [
+        "frontend-interactions",
+        "visual-mode",
+        "cursor-reveal"
+      ],
+      "tags": [
+        "visual-selection",
+        "modechanged",
+        "cursor",
+        "repaint",
+        "raw-source"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "CMP-001"
+        },
+        {
+          "type": "resolved_by",
+          "target": "INC-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/BHV-001.json"
+    },
+    {
+      "id": "BHV-002",
+      "kind": "behavior",
+      "status": "superseded",
+      "title": "Superseded asymmetric reference parameter spelling",
+      "summary": "Before DEC-003, concrete references retained written const while deduced auto references used a compact const-default binding spelling.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters"
+      ],
+      "tags": [
+        "const",
+        "mut",
+        "reference-parameters",
+        "pointer-parameters",
+        "asymmetry"
+      ],
+      "relations": [
+        {
+          "type": "opens",
+          "target": "QST-001"
+        },
+        {
+          "type": "superseded_by",
+          "target": "BHV-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        }
+      ],
+      "path": "records/BHV-002.json"
+    },
+    {
+      "id": "BHV-003",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Current parameter const, mutability, and declarator spelling",
+      "summary": "Concrete and deduced lvalue-reference parameters are const-default, while pointer pointee and pointer-object constness stay explicit.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters",
+        "style-profile"
+      ],
+      "tags": [
+        "const-default",
+        "mut",
+        "references",
+        "pointers",
+        "canonical-spacing",
+        "multiline-colon-alignment"
+      ],
+      "relations": [
+        {
+          "type": "supersedes",
+          "target": "BHV-002"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-003"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-006"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-005"
+        }
+      ],
+      "path": "records/BHV-003.json"
+    },
+    {
+      "id": "BHV-004",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Declaration and binding visual grammar",
+      "summary": "Recognized declarations move the binding before its type, distinguish inferred from explicit types, and make mutable, constant, copied, or uninitialized state visually loud.",
+      "scope": [
+        "cpp-frontend/declarations",
+        "cuda-frontend/declarations",
+        "visual-grammar"
+      ],
+      "tags": [
+        "bindings",
+        "mut",
+        "no_init",
+        "alignment",
+        "explicit-vs-inferred"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-005"
+        }
+      ],
+      "path": "records/BHV-004.json"
+    },
+    {
+      "id": "BHV-005",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Type and ownership visual grammar",
+      "summary": "Type positions use compact caret, optional, expected, array, string, and smart-pointer forms while expression operators keep their ordinary meaning.",
+      "scope": [
+        "cpp-frontend/types",
+        "cuda-frontend/types",
+        "ownership"
+      ],
+      "tags": [
+        "pointer-caret",
+        "optional",
+        "expected",
+        "array",
+        "CString",
+        "smart-pointer",
+        "move"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        }
+      ],
+      "path": "records/BHV-005.json"
+    },
+    {
+      "id": "BHV-006",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Function, member, lambda, IIFE, and defer grammar",
+      "summary": "Functions read with def and trailing returns, member receiver mutability is explicit, lambdas read as nested functions, and immediately invoked lambdas remain distinct result-producing constructs.",
+      "scope": [
+        "cpp-frontend/functions",
+        "cpp-frontend/lambdas",
+        "cuda-frontend/functions"
+      ],
+      "tags": [
+        "def",
+        "trailing-return",
+        "member-mut",
+        "lambda",
+        "IIFE",
+        "defer",
+        "special-members"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-007"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-005"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-002"
+        }
+      ],
+      "path": "records/BHV-006.json"
+    },
+    {
+      "id": "BHV-007",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Structural sugar, alignment, platform branches, and folds",
+      "summary": "Focused modules reduce repetitive structural syntax while folds are the only feature allowed to collapse vertical source rows.",
+      "scope": [
+        "cpp-frontend/structure",
+        "folding",
+        "preprocessor",
+        "alignment"
+      ],
+      "tags": [
+        "designated-init",
+        "logic",
+        "alignment",
+        "macro",
+        "ppif",
+        "fold"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-002"
+        }
+      ],
+      "path": "records/BHV-007.json"
+    },
+    {
+      "id": "BHV-008",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Rows that remain raw or suspend presentation",
+      "summary": "Cursor/Visual rows, comments, static assertions, clang-format-off regions, macro-recording sessions, unsupported syntax, and cold large-buffer first paint deliberately avoid character-changing sugar.",
+      "scope": [
+        "frontend-gating",
+        "raw-fallback",
+        "interaction"
+      ],
+      "tags": [
+        "reveal",
+        "comments",
+        "static_assert",
+        "clang-format-off",
+        "recording",
+        "cold-open"
+      ],
+      "relations": [
+        {
+          "type": "relates_to",
+          "target": "BHV-001"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-001"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-006"
+        }
+      ],
+      "path": "records/BHV-008.json"
+    },
+    {
+      "id": "BHV-009",
+      "kind": "behavior",
+      "status": "observed",
+      "title": "Library prefix conceal and semantic color families",
+      "summary": "Configured third-party identifier families use stable semantic colors, and selected high-noise prefixes are concealed only after their category has been determined.",
+      "scope": [
+        "frontend-highlighting",
+        "library-identifiers",
+        "prefix-conceal"
+      ],
+      "tags": [
+        "palette",
+        "CUDA",
+        "Vulkan",
+        "GLFW",
+        "SDL",
+        "ImGui",
+        "prefixes"
+      ],
+      "relations": [
+        {
+          "type": "implements",
+          "target": "DEC-004"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-005"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-008"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-014"
+        },
+        {
+          "type": "opens",
+          "target": "QST-003"
+        },
+        {
+          "type": "opens",
+          "target": "QST-006"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/BHV-009.json"
+    },
+    {
+      "id": "BHV-010",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Function assembly view with persistent source color matching",
+      "summary": "DansAsm compiles the saved function under the cursor and pairs every mapped source row with its assembly rows using stable Godbolt-style colors plus active cursor synchronization.",
+      "scope": [
+        "cpp-tools/assembly",
+        "source-mapping",
+        "generated-ui"
+      ],
+      "tags": [
+        "DansAsm",
+        "Godbolt",
+        "assembly",
+        "color-matching",
+        "optimization"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "CMP-010"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/BHV-010.json"
+    },
+    {
+      "id": "BHV-011",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Constrained interactive C++ function probes",
+      "summary": "DansRunFunction executes an explicit C++ invocation expression for the saved function under the cursor in a generated temporary harness and shows compile/runtime output in a reusable result window.",
+      "scope": [
+        "cpp-tools/function-probe",
+        "interactive-execution",
+        "generated-harness"
+      ],
+      "tags": [
+        "DansRunFunction",
+        "probe",
+        "compile-run",
+        "stdin",
+        "temporary-harness"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "CMP-010"
+        },
+        {
+          "type": "constrained_by",
+          "target": "DEC-010"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-004"
+        }
+      ],
+      "path": "records/BHV-011.json"
+    },
+    {
+      "id": "BHV-012",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Preview-first parser-derived C++ code generation",
+      "summary": "C++ generation commands derive enums, fields, functions, namespaces, and target headers from Tree-sitter, render the result through the real frontend, and require an explicit apply action.",
+      "scope": [
+        "cpp-tools/codegen",
+        "headers",
+        "validity",
+        "to-string"
+      ],
+      "tags": [
+        "DansCppGenerate",
+        "Validity",
+        "enum",
+        "header-draft",
+        "preview-first"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "CMP-010"
+        },
+        {
+          "type": "constrained_by",
+          "target": "DEC-010"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-009"
+        }
+      ],
+      "path": "records/BHV-012.json"
+    },
+    {
+      "id": "BHV-013",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Interactive read-only C++ project and include inspection",
+      "summary": "DansCppProjectIndex displays inferred components, target ownership, evidence-backed include dependencies, cycles, and diagnostics, while DansCppProjectWhy explains the direct include under the cursor without modifying source or project state.",
+      "scope": [
+        "cpp-tools/project-index-ui",
+        "include-provenance",
+        "source-integrity"
+      ],
+      "tags": [
+        "DansCppProjectIndex",
+        "DansCppProjectWhy",
+        "DansCppProjectJson",
+        "read-only",
+        "headless-tested"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "CMP-011"
+        },
+        {
+          "type": "constrained_by",
+          "target": "DEC-011"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/BHV-013.json"
+    },
+    {
+      "id": "BHV-014",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Central Dans palette and source-faithful display transitions",
+      "summary": ":Dans opens one keyboard-driven palette for display, font, authoring, analysis, project, and developer workflows; its frontend and monochrome controls produce deterministic global source-view transitions.",
+      "scope": [
+        "dans-menu",
+        "cpp-frontend/display-mode",
+        "tool-launching",
+        "headless-interaction"
+      ],
+      "tags": [
+        "Dans",
+        "command-palette",
+        "source-faithful",
+        "Tree-sitter",
+        "headless-tested"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "DEC-012"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-012"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/BHV-014.json"
+    },
+    {
+      "id": "BHV-015",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Source-faithful Markdown and explicit LaTeX workflow",
+      "summary": "Markdown and LaTeX buffers show literal markup with conceal disabled, while LaTeX gains explicit compilation, PDF synchronization, project navigation, diagnostics, completion, and formatting tools.",
+      "scope": [
+        "markdown",
+        "latex",
+        "vimtex",
+        "texlab",
+        "source-integrity"
+      ],
+      "tags": [
+        "Markdown",
+        "LaTeX",
+        "VimTeX",
+        "texlab",
+        "latexmk",
+        "SyncTeX"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "DEC-013"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-013"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/BHV-015.json"
+    },
+    {
+      "id": "CMP-001",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Shared decoration lifecycle and reveal-state gate",
+      "summary": "util.on_decorate owns normalized mode, cursor, edit, and viewport lifecycle handling for participating frontend renderers.",
+      "scope": [
+        "frontend-lifecycle",
+        "decoration-modules"
+      ],
+      "tags": [
+        "autocmd",
+        "modechanged",
+        "incremental-render",
+        "dedup",
+        "viewport"
+      ],
+      "relations": [
+        {
+          "type": "implements",
+          "target": "BHV-001"
+        },
+        {
+          "type": "resolves",
+          "target": "INC-001"
+        },
+        {
+          "type": "constrains",
+          "target": "CMP-002"
+        }
+      ],
+      "path": "records/CMP-001.json"
+    },
+    {
+      "id": "CMP-002",
+      "kind": "component",
+      "status": "observed",
+      "title": "C, C++, and CUDA frontend rendering pipeline",
+      "summary": "The frontend is a module umbrella combining declaration overlays, raw-line decorations, alignment, highlighting, platform analysis, folding, and linting.",
+      "scope": [
+        "cpp-frontend",
+        "cuda-frontend",
+        "c-frontend"
+      ],
+      "tags": [
+        "architecture",
+        "module-map",
+        "rendering-pipeline",
+        "treesitter"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/CMP-002.json"
+    },
+    {
+      "id": "CMP-003",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Deterministic headless frontend interaction harness",
+      "summary": "Tests can drive real Neovim cursor and mode transitions, reconstruct displayed frontend text, and verify source integrity without a GUI.",
+      "scope": [
+        "testing",
+        "frontend-interactions"
+      ],
+      "tags": [
+        "headless",
+        "test-runner",
+        "visual-mode",
+        "display-reconstruction"
+      ],
+      "relations": [
+        {
+          "type": "tests",
+          "target": "BHV-001"
+        },
+        {
+          "type": "tests",
+          "target": "CMP-001"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-001"
+        }
+      ],
+      "path": "records/CMP-003.json"
+    },
+    {
+      "id": "CMP-004",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Real-render browser style selection lab",
+      "summary": "A localhost browser application compares per-buffer frontend profiles using Neovim's actual embedded UI grid and persists owner selections with exact provenance.",
+      "scope": [
+        "style-lab",
+        "visual-regression",
+        "owner-decisions",
+        "headless-neovim"
+      ],
+      "tags": [
+        "browser",
+        "ext-linegrid",
+        "msgpack-rpc",
+        "profiles",
+        "selection-provenance",
+        "external-corpus"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "tests",
+          "target": "DEC-003"
+        },
+        {
+          "type": "resolves",
+          "target": "INC-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/CMP-004.json"
+    },
+    {
+      "id": "CMP-005",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Typed semantic project factbase",
+      "summary": "Verified project knowledge is stored as typed JSON records with provenance, evidence, relationships, lifecycle status, lexical retrieval, embeddings, and evaluation queries.",
+      "scope": [
+        "knowledge",
+        "agent-workflow",
+        "semantic-retrieval",
+        "documentation"
+      ],
+      "tags": [
+        "factbase",
+        "RAG-prototype",
+        "provenance",
+        "supersession",
+        "FTS5",
+        "FastEmbed"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "DEC-001"
+        }
+      ],
+      "path": "records/CMP-005.json"
+    },
+    {
+      "id": "CMP-006",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Frontend performance containment and repaint coalescing",
+      "summary": "Rendering work is bounded to visible rows plus a margin, cold large-buffer parsing is deferred, repeated lifecycle events are deduplicated, and scrolling repaints once after a burst.",
+      "scope": [
+        "frontend-performance",
+        "large-buffers",
+        "event-lifecycle"
+      ],
+      "tags": [
+        "visible-range",
+        "cold-gate",
+        "changedtick-cache",
+        "debounce",
+        "incremental-repaint"
+      ],
+      "relations": [
+        {
+          "type": "implements",
+          "target": "CMP-001"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "BHV-001"
+        }
+      ],
+      "path": "records/CMP-006.json"
+    },
+    {
+      "id": "CMP-007",
+      "kind": "component",
+      "status": "superseded",
+      "title": "C++ shorthand authoring is the inverse of the read frontend",
+      "summary": "Space-triggered dollar forms expand into real C++ while the presentation frontend renders many of those stored forms back into the compact visual language.",
+      "scope": [
+        "cpp-authoring",
+        "snippets",
+        "inverse-frontend"
+      ],
+      "tags": [
+        "dollar-syntax",
+        "space-trigger",
+        "expansion",
+        "preview",
+        "authoring"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-002"
+        },
+        {
+          "type": "superseded_by",
+          "target": "CMP-009"
+        }
+      ],
+      "path": "records/CMP-007.json"
+    },
+    {
+      "id": "CMP-008",
+      "kind": "component",
+      "status": "observed",
+      "title": "First-party Neovim workflow module map",
+      "summary": "The repository is a personal Neovim system whose custom modules extend beyond the C++ frontend into authoring, diagnostics, navigation, profiling, assembly, project indexing, protection, menus, and Julia presentation.",
+      "scope": [
+        "project-layout",
+        "neovim-config",
+        "first-party-modules"
+      ],
+      "tags": [
+        "module-map",
+        "workflow",
+        "plugins",
+        "C++",
+        "Julia"
+      ],
+      "relations": [
+        {
+          "type": "relates_to",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-010"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-011"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-012"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-013"
+        }
+      ],
+      "path": "records/CMP-008.json"
+    },
+    {
+      "id": "CMP-009",
+      "kind": "component",
+      "status": "accepted",
+      "title": "First-party C++ authoring engine",
+      "summary": "cpp_authoring.lua is the sole interactive owner for structured templates, the dollar type language, live suggestions, include edits, and placeholder navigation.",
+      "scope": [
+        "cpp-authoring",
+        "cuda-authoring",
+        "snippets",
+        "completion"
+      ],
+      "tags": [
+        "catalog",
+        "dollar-language",
+        "tabstops",
+        "treesitter",
+        "autosuggestions"
+      ],
+      "relations": [
+        {
+          "type": "supersedes",
+          "target": "CMP-007"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-002"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/CMP-009.json"
+    },
+    {
+      "id": "CMP-010",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Shared C++ tooling context and process lifecycle",
+      "summary": "Assembly, probes, and generated-result UIs share compile-database discovery, argument sanitation, Tree-sitter context, latest-result-wins jobs, and scratch-window primitives.",
+      "scope": [
+        "cpp-tools",
+        "compile-commands",
+        "async-jobs",
+        "scratch-ui"
+      ],
+      "tags": [
+        "shared-context",
+        "cancellation",
+        "latest-wins",
+        "treesitter",
+        "compiler"
+      ],
+      "relations": [
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-010"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-011"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-012"
+        }
+      ],
+      "path": "records/CMP-010.json"
+    },
+    {
+      "id": "CMP-011",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Headless C++ physical-project index",
+      "summary": "A standard-library-only Python process emits deterministic JSON for project files, inferred components, compilation profiles, direct include provenance, CMake File API targets, target consumers, component dependencies, and observed cycles; Neovim is a read-only client.",
+      "scope": [
+        "cpp-tools/project-index",
+        "compile-commands",
+        "cmake-file-api",
+        "include-graph",
+        "neovim-client"
+      ],
+      "tags": [
+        "headless",
+        "deterministic-json",
+        "components",
+        "provenance",
+        "cycles",
+        "CMake"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "DEC-011"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-013"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-010"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/CMP-011.json"
+    },
+    {
+      "id": "CMP-012",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Global DANS display controller and command-palette boundary",
+      "summary": "dans_mode owns global frontend/requested-monochrome/effective-monochrome state, while dans_menu is a declarative owner-facing inventory that dispatches tools only after restoring its captured source context.",
+      "scope": [
+        "lua/custom/dans_mode.lua",
+        "lua/custom/dans_menu.lua",
+        "frontend-lifecycle",
+        "tool-dispatch"
+      ],
+      "tags": [
+        "state-owner",
+        "aggregate-controller",
+        "palette-inventory",
+        "target-context",
+        "Tree-sitter"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "DEC-012"
+        },
+        {
+          "type": "implements",
+          "target": "BHV-014"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-001"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/CMP-012.json"
+    },
+    {
+      "id": "CMP-013",
+      "kind": "component",
+      "status": "accepted",
+      "title": "LaTeX editing, compilation, and language-intelligence stack",
+      "summary": "VimTeX owns LaTeX project structure, latexmk compilation, quickfix parsing, mappings, and PDF synchronization; texlab independently owns language-server intelligence and explicit formatting.",
+      "scope": [
+        "latex-tooling",
+        "vimtex",
+        "texlab",
+        "latexmk",
+        "pdf-viewer"
+      ],
+      "tags": [
+        "VimTeX",
+        "texlab",
+        "Mason",
+        "latexmk",
+        "Okular",
+        "explicit-action"
+      ],
+      "relations": [
+        {
+          "type": "implements",
+          "target": "BHV-015"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-010"
+        }
+      ],
+      "path": "records/CMP-013.json"
+    },
+    {
+      "id": "DEC-001",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Cheap deterministic tests are rerun, not archived as experiments",
+      "summary": "Frontend test outputs are disposable; durable evidence consists of fixtures, assertions, harness code, and explicit behavior records.",
+      "scope": [
+        "testing",
+        "knowledge-workflow"
+      ],
+      "tags": [
+        "evidence",
+        "rerunnable-tests",
+        "no-test-logs"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/DEC-001.json"
+    },
+    {
+      "id": "DEC-002",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Inferred pointer declarations retain the caret on the binding",
+      "summary": "auto* bindings render as p^ := value while explicit T* bindings render as p: T^ = value.",
+      "scope": [
+        "cpp-frontend/declarations",
+        "cuda-frontend/declarations"
+      ],
+      "tags": [
+        "auto-pointer",
+        "caret",
+        "type-inference",
+        "binding-sigil"
+      ],
+      "relations": [
+        {
+          "type": "relates_to",
+          "target": "QST-001"
+        }
+      ],
+      "path": "records/DEC-002.json"
+    },
+    {
+      "id": "DEC-003",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Concrete lvalue-reference parameters are const-default",
+      "summary": "A concrete lvalue reference without mut is read-only; writable references carry mut, matching the deduced-reference visual rule.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters",
+        "style-language"
+      ],
+      "tags": [
+        "owner-selected",
+        "const-default",
+        "reference-parameters",
+        "style-lab"
+      ],
+      "relations": [
+        {
+          "type": "resolves",
+          "target": "QST-001"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/DEC-003.json"
+    },
+    {
+      "id": "DEC-004",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Hidden library prefixes preserve provenance through color",
+      "summary": "When a common library prefix is removed from visible text, the remaining identifier or type keeps that library's category color.",
+      "scope": [
+        "cpp-frontend/highlighting",
+        "cuda-frontend/highlighting",
+        "library-prefixes"
+      ],
+      "tags": [
+        "color-semantics",
+        "prefix-conceal",
+        "provenance",
+        "CUDA",
+        "Vulkan"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/DEC-004.json"
+    },
+    {
+      "id": "DEC-005",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "CUDA complex types use precision-bearing cf32 and cf64 aliases",
+      "summary": "cuFloatComplex and cuComplex display as cf32, while cuDoubleComplex displays as cf64, with CUDA provenance retained through seafoam color.",
+      "scope": [
+        "cuda-frontend/types",
+        "cuda-frontend/highlighting",
+        "library-prefixes"
+      ],
+      "tags": [
+        "CUDA",
+        "complex",
+        "cf32",
+        "cf64",
+        "precision",
+        "type-alias"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        }
+      ],
+      "path": "records/DEC-005.json"
+    },
+    {
+      "id": "DEC-006",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Multiline function parameters align their name-type colons",
+      "summary": "Concrete parameters on separate rows share one absolute visible colon column determined by the widest rendered binding prefix in their parameter list.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters",
+        "frontend-layout"
+      ],
+      "tags": [
+        "multiline",
+        "parameter",
+        "colon",
+        "alignment",
+        "virtual-text"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-003"
+        },
+        {
+          "type": "tested_by",
+          "target": "CMP-003"
+        }
+      ],
+      "path": "records/DEC-006.json"
+    },
+    {
+      "id": "DEC-007",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Lambda-backed defer macros show defer semantics, not wrapper ceremony",
+      "summary": "DANS_DEFER and DEFER hide their macro call, capture list, and lambda wrapper; a single statement displays as defer statement and a multi-statement body displays as a defer block.",
+      "scope": [
+        "cpp-frontend/defer",
+        "cuda-frontend/defer",
+        "cpp-frontend/lambdas"
+      ],
+      "tags": [
+        "DEFER",
+        "DANS_DEFER",
+        "lambda",
+        "capture",
+        "semantic-collapse"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-006"
+        }
+      ],
+      "path": "records/DEC-007.json"
+    },
+    {
+      "id": "DEC-008",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Qnpeps prefixes are hidden while orchid carries provenance",
+      "summary": "qnpeps:: and the configured Qnpeps identifier prefixes are presentation noise; the remaining qualified name stays orchid so its project provenance is still visible.",
+      "scope": [
+        "cpp-frontend/qnpeps",
+        "cuda-frontend/qnpeps",
+        "library-prefixes"
+      ],
+      "tags": [
+        "Qnpeps",
+        "namespace",
+        "prefix-conceal",
+        "orchid",
+        "provenance"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-003"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        }
+      ],
+      "path": "records/DEC-008.json"
+    },
+    {
+      "id": "DEC-009",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "C++ authoring uses one first-party engine without LuaSnip",
+      "summary": "Structured templates, dollar expressions, suggestions, context gates, include edits, and tabstop navigation have one first-party owner; Neovim's built-in snippet primitive tracks placeholders.",
+      "scope": [
+        "cpp-authoring",
+        "snippets",
+        "completion"
+      ],
+      "tags": [
+        "first-party",
+        "vim.snippet",
+        "no-luasnip",
+        "single-owner",
+        "non-destructive"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "CMP-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-002"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/DEC-009.json"
+    },
+    {
+      "id": "DEC-010",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Execution and generated-code tools expose explicit safety boundaries",
+      "summary": "Function execution requires an explicit invocation against saved source, while generated project code is previewed and applied only by a second explicit action; neither workflow claims semantic certainty it cannot derive.",
+      "scope": [
+        "cpp-tools",
+        "execution",
+        "codegen",
+        "safety"
+      ],
+      "tags": [
+        "explicit-action",
+        "saved-source",
+        "preview",
+        "no-auto-write",
+        "inference-boundary"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "BHV-011"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-012"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-004"
+        }
+      ],
+      "path": "records/DEC-010.json"
+    },
+    {
+      "id": "DEC-011",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Observed project evidence is separate from declared module architecture",
+      "summary": "The headless C++ project index reports deterministic filesystem, include, compiler-profile, component, and build-target observations without treating inferred ownership or dependencies as an authoritative synthetic module design.",
+      "scope": [
+        "cpp-tools/project-index",
+        "future-modules",
+        "include-intelligence",
+        "build-model"
+      ],
+      "tags": [
+        "observed-vs-declared",
+        "physical-design",
+        "read-only",
+        "deterministic-json",
+        "DAG"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "CMP-011"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-013"
+        },
+        {
+          "type": "opens",
+          "target": "QST-005"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-010"
+        }
+      ],
+      "path": "records/DEC-011.json"
+    },
+    {
+      "id": "DEC-012",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "One global palette owns frontend and monochrome presentation",
+      "summary": "The owner controls C/C++/CUDA presentation through one Dans palette: the frontend is a global aggregate, monochrome is a separately remembered preference, and an enabled frontend forces monochrome without erasing that preference.",
+      "scope": [
+        "dans-menu",
+        "cpp-frontend/display-mode",
+        "monochrome-highlighting",
+        "command-discovery"
+      ],
+      "tags": [
+        "Dans",
+        "global-state",
+        "frontend-toggle",
+        "monochrome",
+        "command-palette"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-014"
+        },
+        {
+          "type": "constrains",
+          "target": "CMP-012"
+        }
+      ],
+      "path": "records/DEC-012.json"
+    },
+    {
+      "id": "DEC-013",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Ordinary Markdown is displayed as literal source",
+      "summary": "Markdown files retain every source delimiter and destination on screen; syntax colors may aid reading, but concealment, rendered substitutions, and automatic save-time formatting are disabled.",
+      "scope": [
+        "markdown",
+        "conceal",
+        "source-faithful-markup",
+        "format-on-save"
+      ],
+      "tags": [
+        "Markdown",
+        "code-fences",
+        "literal-source",
+        "conceallevel",
+        "no-autoformat"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "BHV-015"
+        },
+        {
+          "type": "relates_to",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-008"
+        }
+      ],
+      "path": "records/DEC-013.json"
+    },
+    {
+      "id": "DEC-014",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Selected CUDA symbols use compact semantic aliases",
+      "summary": "Selected CUDA handles and complex helpers use compact semantic spellings, with every alias retaining CUDA seafoam provenance.",
+      "scope": [
+        "cuda-frontend/types",
+        "cuda-frontend/functions",
+        "library-prefixes"
+      ],
+      "tags": [
+        "CUDA",
+        "stream",
+        "complex",
+        "abs",
+        "conj",
+        "semantic-alias"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-005"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "QST-006"
+        }
+      ],
+      "path": "records/DEC-014.json"
+    },
+    {
+      "id": "INC-001",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Visual exit left multiline parameter rows raw until cursor contact",
+      "summary": "After a Visual selection ended, std and library-prefix presentation recovered but multiline function-parameter movement remained absent on formerly selected rows until j or k touched them.",
+      "scope": [
+        "frontend-lifecycle",
+        "multiline-parameters",
+        "visual-mode"
+      ],
+      "tags": [
+        "bug",
+        "stale-extmarks",
+        "modechanged",
+        "aliases",
+        "resolved"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-001"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-001"
+        }
+      ],
+      "path": "records/INC-001.json"
+    },
+    {
+      "id": "INC-002",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Pointer-object const parameters received overlapping transformations",
+      "summary": "T* const and const T* const parameters could display duplicated or misplaced const because raw-line reordering and parameter flipping both owned the same bytes.",
+      "scope": [
+        "cpp-frontend/parameters",
+        "renderer-ownership",
+        "style-lab"
+      ],
+      "tags": [
+        "overlapping-extmarks",
+        "pointer-const",
+        "resolved",
+        "oracle-found"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "BHV-003"
+        },
+        {
+          "type": "caused_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/INC-002.json"
+    },
+    {
+      "id": "INC-003",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Final style-lab selection reported NetworkError after persisting",
+      "summary": "The final POST was written successfully, but --wait shut down the HTTP server before the browser finished consuming its response.",
+      "scope": [
+        "style-lab/http",
+        "style-lab/browser-lifecycle"
+      ],
+      "tags": [
+        "race",
+        "NetworkError",
+        "response-flush",
+        "browser-close",
+        "resolved"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/INC-003.json"
+    },
+    {
+      "id": "INC-004",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Multiline CUDA_CHECK lost the green closing delimiter",
+      "summary": "CUDA_CHECK colored its outer parentheses with a same-line byte scan, so a closing parenthesis on a later row could never be found or restored.",
+      "scope": [
+        "cuda-frontend/macros",
+        "frontend-lifecycle",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "CUDA_CHECK",
+        "multiline",
+        "parenthesis",
+        "Tree-sitter",
+        "repaint"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        }
+      ],
+      "path": "records/INC-004.json"
+    },
+    {
+      "id": "INC-005",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "C ABI declarations broke alignment and multiline function rendering",
+      "summary": "The frontend's width and function helpers encoded C++ formatter assumptions that failed on ordinary C structs and parameter lists with several arguments on one continuation row.",
+      "scope": [
+        "c-frontend/declarations",
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters",
+        "frontend-alignment"
+      ],
+      "tags": [
+        "C-ABI",
+        "struct-fields",
+        "packed-parameters",
+        "multiline-return",
+        "alignment",
+        "Tree-sitter"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-004"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-006"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-006"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/INC-005.json"
+    },
+    {
+      "id": "INC-006",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "CUDA aliases rewrote identifiers inside include paths",
+      "summary": "The raw exact-alias pass treated angle-bracket header names as code, causing #include <cuComplex.h> to display incorrectly as #include <cf32.h>.",
+      "scope": [
+        "cpp-frontend/includes",
+        "cuda-frontend/includes",
+        "frontend-lifecycle"
+      ],
+      "tags": [
+        "include",
+        "include_next",
+        "CUDA",
+        "alias",
+        "context-gate",
+        "regression"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-014"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/INC-006.json"
+    },
+    {
+      "id": "INV-001",
+      "kind": "invariant",
+      "status": "accepted",
+      "title": "Non-folding transforms preserve source-row identity",
+      "summary": "Only folding may change which source rows are displayed; every other frontend transform preserves one displayed row per source row.",
+      "scope": [
+        "cpp-frontend",
+        "cuda-frontend",
+        "c-frontend"
+      ],
+      "tags": [
+        "line-numbers",
+        "debugging",
+        "folding",
+        "vertical-layout"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/INV-001.json"
+    },
+    {
+      "id": "INV-002",
+      "kind": "invariant",
+      "status": "accepted",
+      "title": "The language frontend is presentation-only",
+      "summary": "C, C++, and CUDA source-buffer bytes are never rewritten merely to obtain the frontend spelling.",
+      "scope": [
+        "cpp-frontend",
+        "cuda-frontend",
+        "c-frontend"
+      ],
+      "tags": [
+        "view-only",
+        "source-bytes",
+        "conceal",
+        "virtual-text"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "INV-001"
+        }
+      ],
+      "path": "records/INV-002.json"
+    },
+    {
+      "id": "QST-001",
+      "kind": "question",
+      "status": "resolved",
+      "title": "Should concrete parameter constness adopt the compact const-default model?",
+      "summary": "Resolved in favor of const-default concrete lvalue references; pointer pointee and pointer-object constness remain explicit and independent.",
+      "scope": [
+        "style-lab",
+        "cpp-frontend/parameters",
+        "cuda-frontend/parameters"
+      ],
+      "tags": [
+        "open-design",
+        "const-default",
+        "references",
+        "pointers"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "BHV-002"
+        },
+        {
+          "type": "resolved_by",
+          "target": "DEC-003"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-002"
+        }
+      ],
+      "path": "records/QST-001.json"
+    },
+    {
+      "id": "QST-002",
+      "kind": "question",
+      "status": "open",
+      "title": "Should source-region classification become one shared soft model?",
+      "summary": "Several current modules still answer comment, literal, declaration, and rendered-width questions through separate Tree-sitter queries, text scans, and window matches.",
+      "scope": [
+        "frontend-architecture",
+        "source-classification",
+        "performance"
+      ],
+      "tags": [
+        "open-design",
+        "soft-model",
+        "treesitter",
+        "duplication",
+        "migration"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-006"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-002"
+        }
+      ],
+      "path": "records/QST-002.json"
+    },
+    {
+      "id": "QST-003",
+      "kind": "question",
+      "status": "open",
+      "title": "Which external-library prefixes should be textual versus color-only?",
+      "summary": "The current policy hides many GLFW, Vulkan, CUDA, ImGui, and related prefixes but colors SDL_ without hiding it, and external corpus captures make the asymmetry visible.",
+      "scope": [
+        "style-lab",
+        "library-prefixes",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "open-design",
+        "SDL",
+        "GLFW",
+        "Vulkan",
+        "CUDA",
+        "prefix-policy"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-008"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/QST-003.json"
+    },
+    {
+      "id": "QST-004",
+      "kind": "question",
+      "status": "open",
+      "title": "What should a separate visual debugger frontend become?",
+      "summary": "A custom debugger with tensor-network, mesh, graphics, and richer state visualization is deliberately deferred because its interaction model needs sustained owner-in-the-loop design and may belong outside Neovim.",
+      "scope": [
+        "future-debugger",
+        "visualization",
+        "external-application"
+      ],
+      "tags": [
+        "open-design",
+        "debugger",
+        "tensor-network",
+        "graphics",
+        "deferred"
+      ],
+      "relations": [
+        {
+          "type": "relates_to",
+          "target": "BHV-011"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-010"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/QST-004.json"
+    },
+    {
+      "id": "QST-005",
+      "kind": "question",
+      "status": "open",
+      "title": "What exact synthetic physical-module manifest should drive personal C++ projects?",
+      "summary": "A Lakos-inspired component/module DAG, explicit ownership, typed dependencies, code generation, and bounded escape hatches are approved in direction, while the manifest schema, module granularity, target generation policy, and migration rules remain intentionally open until the read-only index has been used on real projects.",
+      "scope": [
+        "future-modules",
+        "physical-design",
+        "codegen",
+        "project-manifest"
+      ],
+      "tags": [
+        "open-design",
+        "John-Lakos",
+        "DAG",
+        "manifest",
+        "escape-hatches",
+        "deferred-mutation"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "DEC-011"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-011"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-012"
+        }
+      ],
+      "path": "records/QST-005.json"
+    },
+    {
+      "id": "QST-006",
+      "kind": "question",
+      "status": "open",
+      "title": "How should CUDA execution-space qualifiers display?",
+      "summary": "CUDA qualifiers such as __global__, __device__, and __host__ are currently source-verbatim and seafoam, while a compact semantic vocabulary has not yet been selected.",
+      "scope": [
+        "cuda-frontend/qualifiers",
+        "style-lab",
+        "frontend-highlighting"
+      ],
+      "tags": [
+        "open-design",
+        "CUDA",
+        "global",
+        "device",
+        "host",
+        "kernel",
+        "qualifiers"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-004"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-014"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        }
+      ],
+      "path": "records/QST-006.json"
+    }
+  ]
+}

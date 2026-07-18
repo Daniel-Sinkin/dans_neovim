@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "DEC-004",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Hidden library prefixes preserve provenance through color",
+  "summary": "When a common library prefix is removed from visible text, the remaining identifier or type keeps that library's category color.",
+  "details": [
+    "CUDA complex types use their accepted cf32/cf64 spellings in CUDA seafoam, including reference, pointer, template, expression, and moved-return positions.",
+    "A visible const qualifier is gray and the following prefix-stripped library type retains its provenance color.",
+    "Vk/VK_/vk, GLFW/glfw, ImGui/Im/IM_, CUDA driver/runtime, VMA, OpenGL, and other configured families follow the same classify-before-strip principle where their prefix is hidden.",
+    "Color is not decoration trivia in this visual language: it carries the origin information removed from text."
+  ],
+  "rationale": [
+    "Removing both the textual prefix and its category color would erase useful provenance and make unrelated short names indistinguishable.",
+    "Classifying the original token before stripping is deterministic and works for overlay and raw-line renderers."
+  ],
+  "alternatives": [
+    "Hide prefixes and color every resulting type as a generic blue; rejected because the hidden provenance is lost.",
+    "Retain every prefix textually; remains an open per-library choice for families whose prefixes are not currently hidden."
+  ],
+  "scope": ["cpp-frontend/highlighting", "cuda-frontend/highlighting", "library-prefixes"],
+  "tags": ["color-semantics", "prefix-conceal", "provenance", "CUDA", "Vulkan"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 CUDA style-lab review",
+      "note": "Owner stated that hiding a prefix requires retaining the library color."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/render.lua::type_hl and type_chunks",
+      "note": "Classification uses the unstripped underlying type; visible qualifiers are split into their own gray chunks."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua",
+      "claim": "CUDA concrete references and const pointers keep DansCUDA after the cu prefix is removed."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py plus style_lab real-grid captures",
+      "claim": "The browser consumes actual Neovim RGB spans rather than reconstructing category color in CSS."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["prefix hidden but color kept", "cf32 should be CUDA green", "classify before strip"],
+    "questions": [
+      "Why is cf32 green after cuFloatComplex is compacted?",
+      "What information replaces a concealed library prefix?",
+      "Should visible const share the library type color?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner review followed by chunk-level assertions and RGB ext-linegrid inspection."
+  }
+}

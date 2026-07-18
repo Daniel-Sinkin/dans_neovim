@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "CMP-009",
+  "kind": "component",
+  "status": "accepted",
+  "title": "First-party C++ authoring engine",
+  "summary": "cpp_authoring.lua is the sole interactive owner for structured templates, the dollar type language, live suggestions, include edits, and placeholder navigation.",
+  "details": [
+    "cpp_type_snippets.lua is now a grammar/formatting library: it resolves type expressions, provides candidates and previews, class context, protected-context classification, and standard-header insertion.",
+    "cpp_authoring.lua owns FileType mappings, Space and Tab dispatch, the structured catalog, preview extmarks, commands, and integration with vim.snippet.",
+    "Tree-sitter protects comments, ordinary/raw strings, and character literals; the old one-line quote scanner remains only as a parser-unavailable fallback and pure-test seam.",
+    "Catalog triggers include class/rule-of-N templates, index/range loops, println helpers, a vector initializer, a CUDA launch, and a block comment; dsk_* aliases remain compatible.",
+    "Dollar expressions and structured templates share one end-of-line suggestion surface. Tab expands an exact expression or completes a unique head; Space commits an exact expression.",
+    "Unknown expressions are left in the buffer, and Enter no longer accepts an unselected cmp candidate."
+  ],
+  "rationale": [
+    "One interaction owner makes session cleanup, suggestion gating, context rules, undo behavior, and future structured actions testable together.",
+    "The grammar remains independently pure enough for exhaustive string tests while the orchestration has real mode/mapping coverage."
+  ],
+  "scope": ["cpp-authoring", "cuda-authoring", "snippets", "completion"],
+  "tags": ["catalog", "dollar-language", "tabstops", "treesitter", "autosuggestions"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_authoring.lua and lua/custom/cpp_type_snippets.lua",
+      "note": "Current interaction and grammar boundary."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/authoring_spec.lua",
+      "claim": "Real Space/Tab mappings, mirror updates, legacy aliases, raw-string/comment gates, and typo preservation are exercised."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/type_snippets_spec.lua and tests/snippet_format_spec.lua",
+      "claim": "The compositional grammar and include/format behavior remain exhaustively pinned."
+    }
+  ],
+  "relations": [
+    { "type": "supersedes", "target": "CMP-007" },
+    { "type": "implements", "target": "DEC-009" },
+    { "type": "relates_to", "target": "CMP-002" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["authoring engine", "structured snippets", "dsk aliases", "dollar completion", "snippet catalog"],
+    "questions": [
+      "Where should a new C++ authoring template be added?",
+      "How are dollar suggestions and structured snippets coordinated?",
+      "Which tests reproduce snippet interaction failures?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Implementation boundary review and focused interaction suite."
+  }
+}

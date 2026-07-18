@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "BHV-011",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Constrained interactive C++ function probes",
+  "summary": "DansRunFunction executes an explicit C++ invocation expression for the saved function under the cursor in a generated temporary harness and shows compile/runtime output in a reusable result window.",
+  "details": [
+    "The harness includes the current translation unit, renames an existing main when necessary, and evaluates the expression exactly once through a dependent callable.",
+    "Void results print <void>; streamable results use operator<<; otherwise an ADL to_string result is attempted before an explicit unprintable marker.",
+    "The shared compile-database flags are converted from compile-only to a debug link command with function/data sections and section garbage collection; extra link flags may be configured.",
+    "The result view exposes r rerun, e edit invocation, i edit stdin, h inspect the exact generated harness, and q cleanup. Bang reruns the last invocation for the same function.",
+    "Compilation and execution are explicit user actions. The tool does not claim arbitrary isolation: unresolved project libraries, global initialization, hardware state, side effects, and process environment may prevent or invalidate a probe.",
+    "C and CUDA/device probes are rejected in the current version; debugger-state capture is not part of this tool."
+  ],
+  "scope": ["cpp-tools/function-probe", "interactive-execution", "generated-harness"],
+  "tags": ["DansRunFunction", "probe", "compile-run", "stdin", "temporary-harness"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 interactive function execution request",
+      "note": "Owner requested individually runnable functions with supplied input and output or state."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_runner.lua",
+      "note": "Current constrained probe implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/runner_spec.lua",
+      "claim": "Generated harnesses are compiled and executed for value and void results."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/runner_interaction_spec.lua",
+      "claim": "The real result lifecycle, expression edit/recompile, harness inspection, and source integrity are covered."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "CMP-010" },
+    { "type": "constrained_by", "target": "DEC-010" },
+    { "type": "relates_to", "target": "QST-004" }
+  ],
+  "retrieval": {
+    "aliases": ["run function under cursor", "C++ REPL function", "function probe", "interactive invocation"],
+    "questions": [
+      "How can I run one C++ function with chosen arguments?",
+      "What can the function probe print?",
+      "Why are CUDA functions or debugger state unsupported?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Real compiler/runtime integration and result-window interaction tests."
+  }
+}

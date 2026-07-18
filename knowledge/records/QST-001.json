@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "QST-001",
+  "kind": "question",
+  "status": "resolved",
+  "title": "Should concrete parameter constness adopt the compact const-default model?",
+  "summary": "Resolved in favor of const-default concrete lvalue references; pointer pointee and pointer-object constness remain explicit and independent.",
+  "details": [
+    "A candidate reference rule is const Foo& ro to ro: Foo& and Foo& rw to rw: mut Foo&.",
+    "The analogous pointer rule must distinguish pointer to const, const pointer object, and const pointer to const before any current spelling changes.",
+    "The real-render browser style lab compared both rules across synthetic, CUDA, ImGui, LLVM, GCC, SDL, GLFW, and Vulkan-shaped code.",
+    "The owner selected const-default references on 2026-07-11; DEC-003 records the accepted rule."
+  ],
+  "scope": ["style-lab", "cpp-frontend/parameters", "cuda-frontend/parameters"],
+  "tags": ["open-design", "const-default", "references", "pointers"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 parameter mutability discussion",
+      "note": "Owner questioned whether current concrete parameter behavior should match local-variable const-default presentation."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 source audit",
+      "note": "Current behavior is verified but the archived rationale is not accepted as a fresh design decision."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "source",
+      "reference": "knowledge/records/BHV-002.json",
+      "claim": "Describes the current asymmetry that the question may supersede."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "BHV-002" },
+    { "type": "resolved_by", "target": "DEC-003" },
+    { "type": "relates_to", "target": "DEC-002" }
+  ],
+  "retrieval": {
+    "aliases": ["hide const on arguments", "show mut only", "reference style choice"],
+    "questions": [
+      "Should const Foo& display without const?",
+      "How should pointer-to-const differ from a mutable pointer parameter?",
+      "Which unresolved style decision needs visual comparison?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner selection captured by the real-render browser lab, then promoted to the production profile and regression suite."
+  }
+}

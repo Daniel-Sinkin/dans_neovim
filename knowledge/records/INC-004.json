@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "INC-004",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Multiline CUDA_CHECK lost the green closing delimiter",
+  "summary": "CUDA_CHECK colored its outer parentheses with a same-line byte scan, so a closing parenthesis on a later row could never be found or restored.",
+  "details": [
+    "The macro token still became the CUDA-green question-mark alias and the opening parenthesis was colored, making the uncolored close easy to miss as a separate failure.",
+    "Nested calls made a broader textual scan undesirable even if it crossed lines because it would need to reimplement balanced C++ syntax.",
+    "The correction asks Tree-sitter for the CUDA_CHECK call_expression's argument_list and paints only that node's exact opening and closing boundaries.",
+    "Each row independently discovers whether its parenthesis is a CUDA_CHECK boundary, so row-scoped reveal cleanup cannot leave the close unpainted until the opener repaints.",
+    "The delimiter priority remains below the active-scope pair but above ordinary ancestor-pair highlighting."
+  ],
+  "scope": ["cuda-frontend/macros", "frontend-lifecycle", "frontend-highlighting"],
+  "tags": ["CUDA_CHECK", "multiline", "parenthesis", "Tree-sitter", "repaint"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 multiline CUDA_CHECK example",
+      "note": "Owner reported that the closing parenthesis was not found and therefore was not green."
+    },
+    {
+      "kind": "code",
+      "reference": "former aliases.lua::cuda_idents same-line depth scan",
+      "note": "The prior loop iterated only from the opener through the current line and had no cross-row state."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua multiline CUDA_CHECK block",
+      "claim": "Both exact argument-list boundaries are CUDA-highlighted; selecting and leaving only the close row removes and independently restores its highlight."
+    },
+    {
+      "kind": "test",
+      "reference": "style_lab/catalog.json cuda-control-flow scene and real ext-linegrid capture",
+      "claim": "Actual Neovim RGB output shows both outer delimiters in CUDA seafoam across separate rows."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "CMP-001" },
+    { "type": "constrained_by", "target": "INV-001" }
+  ],
+  "retrieval": {
+    "aliases": ["CUDA_CHECK closing paren not green", "multiline CUDA macro delimiter", "same-line paren scan"],
+    "questions": [
+      "Why was the closing parenthesis of a multiline CUDA_CHECK not green?",
+      "How are CUDA_CHECK delimiters restored after Visual mode?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Reported example reproduced, implementation replaced with syntax boundaries, interaction repaint tested, and real-grid colors inspected."
+  }
+}

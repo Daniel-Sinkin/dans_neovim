@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "DEC-006",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Multiline function parameters align their name-type colons",
+  "summary": "Concrete parameters on separate rows share one absolute visible colon column determined by the widest rendered binding prefix in their parameter list.",
+  "details": [
+    "Alignment is scoped to one multiline Tree-sitter parameter_list and never crosses function boundaries.",
+    "The target is an absolute display cell, so differing source indentation is included rather than assuming equal byte columns.",
+    "Alignment requires at most one complete parameter per source row; a row containing several parameters is fully flipped in compact form with no vertical padding for that list.",
+    "Pointer-object const prefixes such as const fixed participate in the visible binding width; auto-reference parameters have no colon and do not participate.",
+    "Padding is inline virtual text inserted immediately before the rendered colon. No source byte or source-row identity changes.",
+    "The list-level target is cached by buffer changedtick and style profile so repainting P parameter rows computes the list in O(P), not O(P squared).",
+    "Cursor and Visual reveal still show every row in its unaligned raw C++ form and restore the column immediately on exit."
+  ],
+  "rationale": [
+    "A stable colon column makes name-first multiline signatures scan as one table and was the owner's previously intended layout.",
+    "Aligning presentation rather than source leaves clang-format policy, debugger rows, diffs, and compiler input untouched."
+  ],
+  "alternatives": [
+    "Flip each parameter independently with the colon immediately after its name; rejected because long lists lose the intended table structure.",
+    "Rewrite source whitespace to align the transformed grammar; prohibited by the presentation-only invariant."
+  ],
+  "scope": ["cpp-frontend/parameters", "cuda-frontend/parameters", "frontend-layout"],
+  "tags": ["multiline", "parameter", "colon", "alignment", "virtual-text"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 build_dlenv_row review",
+      "note": "Owner identified missing colon alignment as inconsistent with the intended multiline function view."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/aliases.lua::parameter_list_colon_target",
+      "note": "Tree-sitter list analysis and changedtick/profile cache implement the accepted layout."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua multiline parameter block",
+      "claim": "Every colon shares a display column and Visual block reveal/restore preserves source bytes."
+    },
+    {
+      "kind": "test",
+      "reference": "style_lab/catalog.json qnpeps-layout scene and real ext-linegrid capture",
+      "claim": "The browser oracle shows the aligned columns produced by actual Neovim."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "BHV-003" },
+    { "type": "tested_by", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["align parameter colons", "multiline argument table", "build_dlenv_row colon column"],
+    "questions": [
+      "Should colons align across multiline function arguments?",
+      "Does parameter alignment alter source whitespace or line numbers?",
+      "How is multiline colon alignment cached?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after e065a0e",
+    "method": "Owner confirmation followed by one-per-row and packed-row interaction assertions plus actual ext-linegrid capture of the reported signature shapes."
+  }
+}

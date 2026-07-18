@@ -1,0 +1,11 @@
+void use()
+{
+    Clear(COLOR_BUFFER_BIT);
+    handle(SUCCESS);
+    pick(SURFACE_EXTENSION_NAME);
+    Allocator alloc;
+    CreateBuffer(alloc);
+    use(MEMORY_USAGE_GPU_ONLY);
+    window mon;
+    InputKey(mon);
+}

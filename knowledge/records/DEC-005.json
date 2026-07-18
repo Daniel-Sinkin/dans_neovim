@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "DEC-005",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "CUDA complex types use precision-bearing cf32 and cf64 aliases",
+  "summary": "cuFloatComplex and cuComplex display as cf32, while cuDoubleComplex displays as cf64, with CUDA provenance retained through seafoam color.",
+  "details": [
+    "The exact mappings are cuFloatComplex -> cf32, cuComplex -> cf32, and cuDoubleComplex -> cf64.",
+    "The mapping applies in declarations, parameters, templates, raw expressions, and moved C-style return types without changing source bytes.",
+    "Exact identifier boundaries prevent an alias from rewriting only the prefix of a longer project identifier.",
+    "CUDA's installed cuComplex.h defines cuFloatComplex from float2, cuDoubleComplex from double2, and cuComplex as a typedef of cuFloatComplex.",
+    "No corresponding cuFloat or cuDouble scalar typedefs exist in that header; ordinary C++ float and double already display as f32 and f64.",
+    "Seafoam indicates CUDA API/type provenance, not whether a particular object or value resides in device memory."
+  ],
+  "rationale": [
+    "cf32/cf64 communicate complex shape and precision in four characters, while the semantic color retains the library information removed with cu.",
+    "A single ordered alias table prevents overlay and raw-line paths from drifting."
+  ],
+  "alternatives": [
+    "FloatComplex/DoubleComplex after hiding only cu; rejected by the owner as less compact than the precision-bearing spelling.",
+    "Invent cuFloat/cuDouble scalar aliases; rejected because those CUDA typedefs do not exist and native float/double already have f32/f64 presentation."
+  ],
+  "scope": ["cuda-frontend/types", "cuda-frontend/highlighting", "library-prefixes"],
+  "tags": ["CUDA", "complex", "cf32", "cf64", "precision", "type-alias"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 CUDA alias review",
+      "note": "Owner selected cf32/cf64 and required the resulting aliases to remain CUDA green."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/usr/local/cuda/include/cuComplex.h lines 77, 186, and 299",
+      "note": "Installed CUDA header establishes the float, double, and compatibility typedef relationships and contains no scalar cuFloat/cuDouble types."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua::cuda_type_aliases",
+      "note": "The ordered exact alias table is consumed by structured and raw render paths."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua, tests/frontend_spec.lua, and tests/frontend_interaction_spec.lua",
+      "claim": "Both precisions, the compatibility alias, CUDA color, raw templates, overlays, and source integrity are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "style_lab/catalog.json cuda-api scene and real ext-linegrid capture",
+      "claim": "Actual Neovim RGB output shows cf32 in CUDA seafoam."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "implemented_by", "target": "BHV-009" }
+  ],
+  "retrieval": {
+    "aliases": ["cuFloatComplex cf32", "cuComplex cf32", "cuDoubleComplex cf64", "CUDA complex precision alias"],
+    "questions": [
+      "What does cuFloatComplex display as?",
+      "Why are cf32 and cf64 green?",
+      "Are there cuFloat and cuDouble scalar variants?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner decision, installed-header inspection, focused extmark tests, interaction round-trip, and actual ext-linegrid RGB capture."
+  }
+}

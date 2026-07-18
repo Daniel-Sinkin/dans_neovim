@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "CMP-007",
+  "kind": "component",
+  "status": "superseded",
+  "title": "C++ shorthand authoring is the inverse of the read frontend",
+  "summary": "Space-triggered dollar forms expand into real C++ while the presentation frontend renders many of those stored forms back into the compact visual language.",
+  "details": [
+    "cpp_type_snippets.lua activates only in c, cpp, and cuda buffers and expands a complete dollar block when Space is pressed.",
+    "Type atoms and templates compose in prefix or parenthesized forms; missing operands become literal dollar placeholders so underspecified expansions remain visibly incomplete, while overspecified forms are rejected.",
+    "It covers standard containers, optionals, smart pointers, arrays, casts, concept relations, and copy/move special members.",
+    "A line-end preview shows partial resolution without modifying source; DansCppFormat is a separate authoring command.",
+    "Authoring expansion changes buffer bytes intentionally and is therefore outside the presentation-only invariant's transform category."
+  ],
+  "scope": ["cpp-authoring", "snippets", "inverse-frontend"],
+  "tags": ["dollar-syntax", "space-trigger", "expansion", "preview", "authoring"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_type_snippets.lua",
+      "note": "The module documents and implements grammar, resolution, preview, formatting, mappings, and commands."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/type_snippets_spec.lua and tests/snippet_format_spec.lua",
+      "claim": "Composition, missing/extra arguments, strings, casts, special members, and formatting are pinned."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "relates_to", "target": "CMP-002" },
+    { "type": "superseded_by", "target": "CMP-009" }
+  ],
+  "retrieval": {
+    "aliases": ["dollar snippets", "write short read short", "space expansion", "inverse frontend"],
+    "questions": [
+      "How do I author the compact type syntax without storing it?",
+      "Why may snippets rewrite source when the frontend may not?",
+      "What happens when a shorthand is missing an operand?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Superseded after interaction ownership moved from cpp_type_snippets.lua into the first-party authoring engine."
+  }
+}

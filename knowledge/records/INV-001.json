@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "INV-001",
+  "kind": "invariant",
+  "status": "accepted",
+  "title": "Non-folding transforms preserve source-row identity",
+  "summary": "Only folding may change which source rows are displayed; every other frontend transform preserves one displayed row per source row.",
+  "details": [
+    "Line numbers must remain stable while navigating, debugging, stepping, and reading diagnostics.",
+    "A non-folding transform may blank a source row or radically rewrite content within it, but it may not merge that row into another displayed row or synthesize a different row mapping.",
+    "The invariant concerns vertical/source-row identity. Horizontal presentation inside one row is intentionally unconstrained."
+  ],
+  "rationale": [
+    "Debugger and diagnostic locations are expressed in source lines, so changing displayed row identity outside an explicit fold makes the frontend operationally misleading."
+  ],
+  "scope": ["cpp-frontend", "cuda-frontend", "c-frontend"],
+  "tags": ["line-numbers", "debugging", "folding", "vertical-layout"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 initial project handover",
+      "note": "Owner declared this a hard rule and requested it be persisted for all future agents."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Interaction coverage asserts that reveal transitions do not change source-buffer lines."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "CMP-002" },
+    { "type": "relates_to", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["stable line numbers", "one displayed row per source row", "horizontal line identity"],
+    "questions": [
+      "May a frontend feature combine two source lines?",
+      "Why must line numbers remain unchanged while stepping?",
+      "Which feature is allowed to collapse displayed rows?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner statement checked against current conceal and virtual-text implementation."
+  }
+}

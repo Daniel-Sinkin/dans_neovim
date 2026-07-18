@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "BHV-006",
+  "kind": "behavior",
+  "status": "observed",
+  "title": "Function, member, lambda, IIFE, and defer grammar",
+  "summary": "Functions read with def and trailing returns, member receiver mutability is explicit, lambdas read as nested functions, and immediately invoked lambdas remain distinct result-producing constructs.",
+  "details": [
+    "A function declaration's leading auto becomes green def; C-style leading return types are moved to a trailing arrow on the row containing the closing parenthesis, including multiline C declarations, without changing source rows.",
+    "Parameters move to name: type and follow BHV-003; default arguments remain visible.",
+    "A non-const non-static member gains mut after its parameter list; const and static members do not.",
+    "A mutable lvalue-reference return gains a mut marker before its type; a read-only reference return retains explicit const under the current return-type rule.",
+    "A lambda assigned to auto becomes lambda name(captures | parameters); by-reference capture ampersands move to name suffixes and the separator appears only when captures exist.",
+    "A multiline IIFE assigned to a binding is rendered as a result declaration using its explicit return type, while the lambda body and invocation rows remain distinct; ambiguous single-line/deduced-return IIFEs remain raw.",
+    "DANS_DEFER and DEFER lambda wrappers become defer statements or blocks: a one-statement body is shown directly after defer, while a multi-statement body keeps braces and one displayed row for every source row.",
+    "Copy/move constructor and assignment ceremony can collapse to $copy, $move, $copya, and $movea; default constructors and destructors remain named."
+  ],
+  "scope": ["cpp-frontend/functions", "cpp-frontend/lambdas", "cuda-frontend/functions"],
+  "tags": ["def", "trailing-return", "member-mut", "lambda", "IIFE", "defer", "special-members"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/aliases.lua and render.lua",
+      "note": "Function signature movement, member markers, parameter chunks, lambdas, IIFEs, and defer are implemented here."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/special_members.lua",
+      "note": "Copy/move signature collapsing is a focused raw-line renderer."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua lambda, defer, function, and special-member cases",
+      "claim": "Supported and deliberately raw function-shaped forms are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua and tests/golden/expected/signatures.hpp.txt",
+      "claim": "Parameter colors and integrated function/member spellings agree."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "implements", "target": "DEC-007" },
+    { "type": "relates_to", "target": "BHV-003" },
+    { "type": "relates_to", "target": "INC-005" },
+    { "type": "implemented_by", "target": "CMP-002" }
+  ],
+  "retrieval": {
+    "aliases": ["function syntax", "lambda separator", "IIFE distinction", "member mut", "defer", "DEFER lambda body only"],
+    "questions": [
+      "How are lambdas visually separated from IIFEs?",
+      "Where is member-function receiver mutability displayed?",
+      "Why do default constructors remain named while copy constructors collapse?",
+      "How does DEFER([&] { free(Z); }) render?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after e065a0e",
+    "method": "Function/lambda render branches, special-member module, C ABI multiline cases, focused cases, and header goldens reviewed."
+  }
+}

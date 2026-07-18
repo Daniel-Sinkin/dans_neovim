@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dans frontend style lab</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">NEOVIM · REAL RENDER CAPTURE</p>
+        <h1 id="title">Frontend style lab</h1>
+        <p id="description" class="lede"></p>
+      </div>
+      <div class="progress-wrap">
+        <span id="progress-label">Loading…</span>
+        <div class="progress"><span id="progress-bar"></span></div>
+      </div>
+    </header>
+
+    <main id="questions" aria-live="polite"></main>
+
+    <template id="question-template">
+      <section class="question">
+        <div class="question-head">
+          <div>
+            <p class="question-index"></p>
+            <h2></h2>
+            <p class="prompt"></p>
+          </div>
+          <span class="state-badge">OPEN</span>
+        </div>
+        <ul class="constraints"></ul>
+        <div class="choices"></div>
+        <div class="note-row">
+          <label>
+            Optional decision note
+            <textarea rows="2" placeholder="What made this option feel right or wrong?"></textarea>
+          </label>
+          <button class="save-note" type="button">Save note</button>
+          <span class="save-state" role="status"></span>
+        </div>
+      </section>
+    </template>
+
+    <template id="choice-template">
+      <article class="choice" tabindex="0" role="radio" aria-checked="false">
+        <div class="choice-head">
+          <div>
+            <span class="choice-tag"></span>
+            <h3></h3>
+            <p></p>
+          </div>
+          <span class="selector" aria-hidden="true"></span>
+        </div>
+        <div class="scenes"></div>
+      </article>
+    </template>
+
+    <template id="scene-template">
+      <section class="scene">
+        <div class="scene-head">
+          <h4></h4>
+          <a class="provenance" target="_blank" rel="noreferrer"></a>
+        </div>
+        <div class="code-frame"><div class="code"></div></div>
+        <details>
+          <summary>Raw C/C++ source</summary>
+          <pre class="raw-source"></pre>
+        </details>
+      </section>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "INC-002",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Pointer-object const parameters received overlapping transformations",
+  "summary": "T* const and const T* const parameters could display duplicated or misplaced const because raw-line reordering and parameter flipping both owned the same bytes.",
+  "details": [
+    "The browser semantic matrix initially rendered const fixed_ptr: T^ const and even a duplicated constconst form.",
+    "aliases.const_pointer_reorder handled raw declarations while aliases.flip_param independently concealed and replaced an entire function parameter.",
+    "The fix makes raw const-pointer reordering defer inside parameter_declaration nodes and gives flip_param sole ownership there.",
+    "The resulting complete forms are const fixed: T^ and const fixed_ro: const T^."
+  ],
+  "scope": ["cpp-frontend/parameters", "renderer-ownership", "style-lab"],
+  "tags": ["overlapping-extmarks", "pointer-const", "resolved", "oracle-found"],
+  "provenance": [
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 first style-lab semantic-matrix capture",
+      "note": "The actual embedded UI exposed composition that isolated helper output did not."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua production/comparison profile matrix",
+      "claim": "Both pointer const axes are rendered once and source bytes remain unchanged."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "BHV-003" },
+    { "type": "caused_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["constconst pointer argument", "fixed_ptr duplicated const", "overlapping parameter extmarks"],
+    "questions": [
+      "Why did const T* const duplicate const in the style lab?",
+      "Which renderer owns pointer-object const inside a parameter?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Failing real-grid output corrected and pinned by integrated parameter assertions."
+  }
+}

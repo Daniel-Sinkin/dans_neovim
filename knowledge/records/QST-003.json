@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "QST-003",
+  "kind": "question",
+  "status": "open",
+  "title": "Which external-library prefixes should be textual versus color-only?",
+  "summary": "The current policy hides many GLFW, Vulkan, CUDA, ImGui, and related prefixes but colors SDL_ without hiding it, and external corpus captures make the asymmetry visible.",
+  "details": [
+    "Prefix conceal is a visual-language choice, not a correctness repair, as long as classify-before-strip preserves provenance.",
+    "SDL_Renderer currently remains SDL_Renderer in parameter overlay output while GLFWmonitor becomes monitor, VkSurfaceKHR becomes SurfaceKHR, and CUDA complex types become cf32/cf64.",
+    "The owner has explicitly selected hiding qnpeps:: and the existing Qnpeps/qnpeps_/QNPEPS_/qn_ identifier families; that subcase is no longer open.",
+    "A future style-lab round should compare representative SDL, GLFW, Vulkan C/Vulkan-Hpp, CUDA, and ImGui code before changing families in bulk.",
+    "Any selected hiding rule must apply consistently to raw matches, overlay expressions, type chunks, return movement, alignment width models, and snippet inverses where relevant."
+  ],
+  "scope": ["style-lab", "library-prefixes", "frontend-highlighting"],
+  "tags": ["open-design", "SDL", "GLFW", "Vulkan", "CUDA", "prefix-policy"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 request to mix SDL, GLFW, and Vulkan code into the lab",
+      "note": "Owner requested cross-style examples while reviewing CUDA prefix conceal and color."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 real-grid external-corpus render",
+      "note": "The current family asymmetry is directly visible in actual output."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "source",
+      "reference": "style_lab/catalog.json pinned SDL/GLFW/Vulkan/CUDA scenes",
+      "claim": "A reproducible comparison corpus now exists for a later decision."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "relates_to", "target": "DEC-008" },
+    { "type": "relates_to", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["hide SDL prefix", "prefix policy inconsistency", "GLFW versus SDL naming"],
+    "questions": [
+      "Should SDL_ be hidden like GLFW?",
+      "Which external prefix decision remains open?",
+      "What corpus should be used to choose library prefix rules?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Current strip/match code and pinned real-grid external corpus compared; no owner choice inferred."
+  }
+}

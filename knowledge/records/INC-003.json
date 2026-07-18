@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "INC-003",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Final style-lab selection reported NetworkError after persisting",
+  "summary": "The final POST was written successfully, but --wait shut down the HTTP server before the browser finished consuming its response.",
+  "details": [
+    "The server log and style_lab/selections.json proved the owner's const-default selection had persisted despite the browser error.",
+    "LabState now records response completion only after the handler writes and flushes the acknowledgement.",
+    "The wait loop holds the server through response delivery and a short browser grace period.",
+    "The final acknowledgement tells the page to close; the default launcher uses an isolated Chrome app window whose process can be closed without touching the owner's normal browser session.",
+    "If no Chromium-family browser is available, the system-browser fallback attempts window.close but may be restricted by browser policy."
+  ],
+  "scope": ["style-lab/http", "style-lab/browser-lifecycle"],
+  "tags": ["race", "NetworkError", "response-flush", "browser-close", "resolved"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 after const-default selection",
+      "note": "Owner reported the visible NetworkError and requested final-tab closure."
+    },
+    {
+      "kind": "analysis",
+      "reference": "style-lab server log and persisted selections",
+      "note": "POST returned server-side 200 and persisted before the wait thread terminated serving."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py final-submit HTTP regression",
+      "claim": "A real localhost POST receives parseable complete JSON before response_finished_at is signaled."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["style lab NetworkError", "selection saved but fetch failed", "close final selection tab"],
+    "questions": [
+      "Why did the style lab report NetworkError even though the choice was saved?",
+      "How does the style lab close without killing normal browser tabs?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Reproduced from logs and guarded with a live ThreadingHTTPServer/urllib acknowledgement test."
+  }
+}

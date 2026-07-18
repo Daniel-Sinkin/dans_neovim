@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "CMP-012",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Global DANS display controller and command-palette boundary",
+  "summary": "dans_mode owns global frontend/requested-monochrome/effective-monochrome state, while dans_menu is a declarative owner-facing inventory that dispatches tools only after restoring its captured source context.",
+  "details": [
+    "dans_mode defines effective monochrome as frontend_enabled OR monochrome_requested and exposes the lock directly instead of scattering equivalent conditions across menu and colorscheme code.",
+    "Applying frontend state terminates tokenizer mode first, then drives every umbrella renderer, doc markdown, discovered-macro coloring, and scope coloring through explicit idempotent per-buffer setters.",
+    "Normal-color mode restarts the Tree-sitter highlighter; effective monochrome stops only highlighting while leaving parsers available to presentation and tooling. The Tree-sitter plugin's flatten/disable callbacks consult the same controller.",
+    "FileType and BufWinEnter hooks apply the current global state to future C/C++/CUDA buffers, while an explicit transition updates all loaded language buffers.",
+    "dans_menu builds one list of sections and actions, captures the originating window and buffer, and closes before invoking any workflow that expects a source context.",
+    "COMMAND_COVERAGE is a test-visible inventory boundary for registered Dans commands. Aggregated low-level renderer commands map to the frontend item; dedicated generators map to the generation chooser.",
+    "dans_vanilla delegates to the new controller solely for compatibility and is no longer an independent state owner."
+  ],
+  "rationale": [
+    "One state owner prevents menu labels, extmark modules, Tree-sitter highlighting, and colorscheme flattening from reporting different modes.",
+    "Idempotent aggregate application makes startup, newly opened buffers, toggles, and compatibility calls share one lifecycle path.",
+    "Separating declarative menu inventory from target-context dispatch keeps future tools discoverable without teaching each one about floating-window state."
+  ],
+  "scope": ["lua/custom/dans_mode.lua", "lua/custom/dans_menu.lua", "frontend-lifecycle", "tool-dispatch"],
+  "tags": ["state-owner", "aggregate-controller", "palette-inventory", "target-context", "Tree-sitter"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_mode.lua, lua/custom/dans_menu.lua, lua/custom/dans_vanilla.lua, lua/custom/plugins/treesitter.lua",
+      "note": "Current display ownership, compatibility, menu, and highlighting integration."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-12 aggregate lifecycle audit",
+      "note": "The first interaction run exposed asymmetric nil-default setters in doc, macro, and scope modules; explicit branches and re-enable assertions now pin symmetry."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/dans_menu_spec.lua",
+      "claim": "Controller state, module aggregation, highlighting, remembered preference, locked interaction, target dispatch, font input, and command inventory are exercised through the real UI."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "DEC-012" },
+    { "type": "implements", "target": "BHV-014" },
+    { "type": "relates_to", "target": "CMP-001" },
+    { "type": "relates_to", "target": "CMP-002" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["display state owner", "dans_mode", "dans_menu architecture", "frontend aggregate", "command coverage"],
+    "questions": [
+      "Which module owns whether the frontend and monochrome are active?",
+      "How is the current display choice applied to a newly opened C++ buffer?",
+      "Why does the menu close before launching assembly or project inspection?",
+      "Where must a new Dans command be added so the palette exposes it?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 078d352",
+    "method": "Source audit plus focused headless display-mode and command-palette interaction coverage."
+  }
+}

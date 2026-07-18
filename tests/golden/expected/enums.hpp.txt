@@ -1,0 +1,18 @@
+enum class ErrorGLFW : i32
+{
+    no_error              = NO_ERROR,
+    not_initialized       = NOT_INITIALIZED,
+    no_current_context    = NO_CURRENT_CONTEXT,
+    invalid_enum          = INVALID_ENUM,
+    invalid_value         = INVALID_VALUE,
+    out_of_memory         = OUT_OF_MEMORY,
+    api_unavailable       = API_UNAVAILABLE,
+    version_unavailable   = VERSION_UNAVAILABLE,
+    platform_error        = PLATFORM_ERROR,
+    format_unavailable    = FORMAT_UNAVAILABLE,
+    no_window_context     = NO_WINDOW_CONTEXT,
+    cursor_unavailable    = CURSOR_UNAVAILABLE,
+    feature_unavailable   = FEATURE_UNAVAILABLE,
+    feature_unimplemented = FEATURE_UNIMPLEMENTED,
+    platform_unavailable  = PLATFORM_UNAVAILABLE,
+};

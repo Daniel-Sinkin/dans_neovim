@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "CMP-011",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Headless C++ physical-project index",
+  "summary": "A standard-library-only Python process emits deterministic JSON for project files, inferred components, compilation profiles, direct include provenance, CMake File API targets, target consumers, component dependencies, and observed cycles; Neovim is a read-only client.",
+  "details": [
+    "tools/cpp_project_index discovers an optional .dans-project.json, compile_commands.json, and an existing CMake File API codemodel reply without writing query or build artifacts.",
+    "Compilation commands are normalized by removing source, output, dependency-generation, compile-only, and PCH-injection arguments while preserving semantic flags, forced includes, and ordered include roots. Equivalent commands share a content-derived profile ID.",
+    "First-party C/C++/CUDA headers, sources, and module-interface extensions are grouped by logical stem across configured source/include roots. Explicit component overrides are supported for exceptions.",
+    "Every directly spelled include records its source line, delimiter, preprocessor branch stack, resolved provider, classification, search-root provenance, applicable profiles, shadowed alternatives, and provider component when known. Macro includes remain explicit unknowns.",
+    "Existing CMake File API replies contribute target type, sources, dependencies, artifacts, definitions, and include roots. Declared target ownership remains separate from downstream consumer targets propagated through includes.",
+    "Component include edges retain line-level evidence and distinguish interface from implementation origins. Tarjan strongly-connected-component analysis reports observed cycles without blessing or rewriting them.",
+    "lua/custom/cpp_tools/project.lua discovers roots, runs the process through latest-result-wins jobs, renders the component/dependency/diagnostic view, explains the include under the cursor, and can expose the raw JSON."
+  ],
+  "rationale": [
+    "Header synchronization, include/build intelligence, object-flow analysis, ABI inspection, and a future module DAG all require the same stable project identity and provenance substrate.",
+    "A standalone deterministic protocol is testable without Neovim and isolates future compiler/CMake implementation changes from editor presentation.",
+    "Standard-library-only scanning keeps bootstrap cost low; semantic symbol provenance can later enrich the same versioned protocol through a native compiler sidecar."
+  ],
+  "scope": ["cpp-tools/project-index", "compile-commands", "cmake-file-api", "include-graph", "neovim-client"],
+  "tags": ["headless", "deterministic-json", "components", "provenance", "cycles", "CMake"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "tools/cpp_project_index.py and lua/custom/cpp_tools/project.lua",
+      "note": "Headless evidence engine and Neovim client."
+    },
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 accepted implementation ordering",
+      "note": "Owner approved beginning with a headless shared project index before header synchronization and module code generation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/project_index_spec.py",
+      "claim": "Determinism, command normalization, cross-root component pairing, profiles, real-shaped CMake replies, ownership/consumption, include conditions, vendored providers, macro unknowns, edges, and cycles are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/project_index_ui_spec.lua",
+      "claim": "Root discovery, asynchronous indexing, summary rendering, cursor-line include explanation, conditional provenance, and source-byte preservation are exercised in headless Neovim."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "DEC-011" },
+    { "type": "constrains", "target": "BHV-013" },
+    { "type": "relates_to", "target": "CMP-010" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["C++ project index", "physical component graph", "include provenance", "CMake codemodel index", "why include"],
+    "questions": [
+      "Where does header synchronization get project file and target ownership?",
+      "How can an agent inspect direct include edges and component cycles headlessly?",
+      "Does the C++ project scanner parse or configure CMake?",
+      "How are target ownership and target consumption distinguished?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after dcce577",
+    "method": "Synthetic project protocol tests, headless Neovim interaction, py_compile, and read-only dans-vk2 scan."
+  }
+}

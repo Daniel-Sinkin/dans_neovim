@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "BHV-003",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Current parameter const, mutability, and declarator spelling",
+  "summary": "Concrete and deduced lvalue-reference parameters are const-default, while pointer pointee and pointer-object constness stay explicit.",
+  "details": [
+    "const Foo& input becomes input: Foo&; absence of mut means read-only.",
+    "Foo& output becomes output: mut Foo&.",
+    "const auto& input becomes input&, while auto& output becomes mut output&.",
+    "const T* input remains input: const T^ and T* output remains output: T^; pointer pointee mutability is not inferred into the binding marker.",
+    "T* const fixed becomes const fixed: T^ and const T* const fixed becomes const fixed: const T^, preserving pointer-object and pointee constness as separate axes.",
+    "Reference spacing is canonicalized: T& x, T &x, and T & x all render as x: T&.",
+    "Concrete name: type parameters in a multiline parameter list align every colon to the widest absolute visible binding column; auto-reference parameters have no colon and do not participate.",
+    "If a continuation row contains several parameters, every complete parameter on that row is flipped compactly; list-wide vertical colon padding is disabled because several colons cannot share one absolute column.",
+    "An explicit-const comparison profile remains available only for scratch style-lab buffers; ordinary source uses const_default."
+  ],
+  "scope": ["cpp-frontend/parameters", "cuda-frontend/parameters", "style-profile"],
+  "tags": ["const-default", "mut", "references", "pointers", "canonical-spacing", "multiline-colon-alignment"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json::concrete-parameter-const",
+      "note": "The owner selected the const-default rendering after viewing actual Neovim captures."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/style.lua and aliases.lua::flip_param",
+      "note": "The production profile and parameter renderer implement the complete current rule."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/param_flip_spec.lua and tests/frontend_interaction_spec.lua",
+      "claim": "Concrete/deduced references, pointer const axes, source-spacing normalization, and buffer-local comparison profiles are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/golden/expected/params.hpp.txt and tests/golden/expected/signatures.hpp.txt",
+      "claim": "Integrated header rendering uses the selected const-default spelling."
+    }
+  ],
+  "relations": [
+    { "type": "supersedes", "target": "BHV-002" },
+    { "type": "implements", "target": "DEC-003" },
+    { "type": "implements", "target": "DEC-006" },
+    { "type": "relates_to", "target": "DEC-002" },
+    { "type": "relates_to", "target": "INC-005" }
+  ],
+  "retrieval": {
+    "aliases": ["current parameter spelling", "const reference hides const", "pointer object const", "T amp spacing", "align multiline argument colons"],
+    "questions": [
+      "How do const and mutable reference arguments render now?",
+      "How are const T*, T* const, and const T* const distinguished?",
+      "Does LLVM-style T &name keep its whitespace?",
+      "Where do colons align in a multiline function argument list?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after e065a0e",
+    "method": "Owner-selected profile plus aligned and packed-row layouts verified by focused, interaction, golden, and real-grid captures."
+  }
+}

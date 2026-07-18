@@ -1,0 +1,50 @@
+// nesting.hpp -- eye-reviewed scenario: deep template nesting and member
+// alignment blocks with wildly different widths. Arrays collapse at every
+// depth, pointer members carry no mut, the reference member does, and the
+// constexpr constants split into their own group.
+#pragma once
+// StdLib
+#include <array>
+#include <expected>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
+//
+namespace vk {
+
+struct FrameResources
+{
+    k_max_frames: u32 : 2;
+    k_max_sets  : u32 : 16;
+        transform     : [4][4]f32;
+        family_indices: [8]u32?;
+        positions     : vector<[3]f32>;
+        lookup        : unordered_map<string, vector<pair<int, int>>>;
+        device        : Device^, DeviceDeleter~;
+        debug_name    : string?;
+        spirv         : vector<u32>?Error;
+        raw_device    : Device^;
+        instance      : const Instance^;
+    mut graphics_queue: Queue&;
+};
+
+def build_lut() -> void
+{
+    k_w: usize : 4;
+    k_h: usize : 2;
+    mut lut: [2][4]Color;
+        first := lut[0][0];
+    mut row&  := lut[0];
+    for (cell& : row)
+    {
+        use(cell);
+    }
+    if let found := lookup.find(key)
+    {
+        use(*found);
+    }
+}
+
+} // namespace dans::vk

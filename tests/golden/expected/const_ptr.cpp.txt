@@ -1,0 +1,6 @@
+// const pointer reorder
+def f() -> void
+{
+    const auto^ create = make();
+    const Foo^ handle = get();
+}

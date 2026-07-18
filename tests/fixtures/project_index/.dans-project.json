@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "source_roots": ["src", "include", "app"],
+  "exclude_roots": ["vendor", "out", ".git"],
+  "include_roots": [
+    { "path": "src", "classification": "first_party" },
+    { "path": "include", "classification": "first_party" },
+    { "path": "vendor", "classification": "vendored" }
+  ]
+}

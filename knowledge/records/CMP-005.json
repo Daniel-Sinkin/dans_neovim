@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "CMP-005",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Typed semantic project factbase",
+  "summary": "Verified project knowledge is stored as typed JSON records with provenance, evidence, relationships, lifecycle status, lexical retrieval, embeddings, and evaluation queries.",
+  "details": [
+    "knowledge/records is canonical; CATALOG.json and CATALOG.md are generated views and the SQLite/embedding artifacts under knowledge/.cache are disposable.",
+    "Record kinds distinguish invariants, decisions, observed behaviors, components, incidents, questions, and history instead of flattening every statement into prose.",
+    "Status and supersession preserve what used to be true without presenting it as current consensus.",
+    "Every record carries provenance, evidence, explicit relations, retrieval aliases/questions, and a last-verification method.",
+    "tools/knowledge.py validates a schema subset, builds catalogs and FTS5, creates optional FastEmbed vectors, combines lexical and semantic ranking with reciprocal-rank fusion, expands one-hop relationships, and always injects mandatory invariants.",
+    "Evaluation cases test workflow-oriented retrieval questions rather than embedding throughput or large-scale performance.",
+    "The prototype transfers provenance/status discipline from the read-only tensor-network-cluster thesis repository without copying its expensive SLURM experiment ceremony into a cheap-test project."
+  ],
+  "scope": ["knowledge", "agent-workflow", "semantic-retrieval", "documentation"],
+  "tags": ["factbase", "RAG-prototype", "provenance", "supersession", "FTS5", "FastEmbed"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 semantic encoding workflow discussion",
+      "note": "Owner requested a workflow/schema prototype here to inform a possible later thesis-repository implementation."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/home/daniel/GitHub/tensor-network-cluster read-only structure review",
+      "note": "Facts, reports, research questions, experiment provenance, and registry patterns informed the schema; no writes were made there."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "knowledge/evaluation/queries.json via tools/knowledge eval lexical and semantic",
+      "claim": "Task-style queries retrieve their expected records."
+    },
+    {
+      "kind": "source",
+      "reference": "knowledge/schema/record.schema.json and knowledge/config.json",
+      "claim": "The typed contract and retrieval policy are versioned with the repository."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "DEC-001" }
+  ],
+  "retrieval": {
+    "aliases": ["semantic docs prototype", "RAG schema", "project fact retrieval", "why JSON records"],
+    "questions": [
+      "How is durable project knowledge organized?",
+      "What did the thesis repository contribute to this workflow?",
+      "Which files are canonical versus generated or disposable?",
+      "How are old decisions superseded?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Schema validation, catalog build, lexical evaluation, semantic evaluation, and representative hybrid queries."
+  }
+}

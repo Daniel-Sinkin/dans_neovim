@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "BHV-001",
+  "kind": "behavior",
+  "status": "observed",
+  "title": "Cursor and Visual selections reveal raw source",
+  "summary": "The cursor row and every row in a characterwise, linewise, or blockwise Visual selection display source-faithful text; rows restore immediately when they leave the reveal set.",
+  "details": [
+    "The reveal set is calculated from the current buffer cursor, current mode, and the Visual anchor.",
+    "Entering, extending, shrinking, swapping, or leaving a Visual selection is a presentation-state transition even when the changedtick is unchanged.",
+    "Every character-changing renderer must clear decorations on rows entering the reveal set and restore decorations on rows leaving it.",
+    "A row remaining under the cursor after Escape remains raw because cursor reveal still applies; all other formerly selected rows restore immediately."
+  ],
+  "rationale": [
+    "Selections, edits, copying, and precise cursor work must operate against unambiguous source text rather than shifted display columns."
+  ],
+  "scope": ["frontend-interactions", "visual-mode", "cursor-reveal"],
+  "tags": ["visual-selection", "modechanged", "cursor", "repaint", "raw-source"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 visual-block bug report",
+      "note": "Owner confirmed that Visual selection should reveal every selected row and Escape should restore presentation immediately."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua::reveal_set",
+      "note": "The shared helper defines cursor and Visual selection rows."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Character, line, and block selections plus a cross-module matrix verify raw reveal and immediate restoration."
+    }
+  ],
+  "relations": [
+    { "type": "implemented_by", "target": "CMP-001" },
+    { "type": "resolved_by", "target": "INC-001" },
+    { "type": "tested_by", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["selected code is unmangled", "escape restores frontend", "reveal set"],
+    "questions": [
+      "What should happen to virtual text during Visual block selection?",
+      "Which rows restore after pressing Escape?",
+      "Why does touching a stale row with j or k repair it?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Real headless mode transitions across all three Visual modes and representative renderers."
+  }
+}

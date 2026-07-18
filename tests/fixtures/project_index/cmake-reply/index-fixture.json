@@ -1,0 +1,9 @@
+{
+  "reply": {
+    "codemodel-v2": {
+      "jsonFile": "codemodel-v2.json",
+      "kind": "codemodel",
+      "version": { "major": 2, "minor": 8 }
+    }
+  }
+}

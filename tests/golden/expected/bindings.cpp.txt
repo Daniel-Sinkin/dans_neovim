@@ -1,0 +1,12 @@
+void use(int x)
+{
+    mut a        := compute();
+        b        := compute();
+    mut r&       := a;
+        cr&      := a;
+    mut p^       := &x;
+        cp^      := get_ptr();
+        version^ := GetVersionString();
+    auto&& fwd = make();
+    throw $re("oops");
+}

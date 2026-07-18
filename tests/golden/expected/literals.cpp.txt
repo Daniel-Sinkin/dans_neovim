@@ -1,0 +1,15 @@
+// header: VkResult std::vector glfwInit in a line comment stay raw
+#pragma once
+//
+namespace test
+{
+names: CString = "VkResult glfwInit std::vector stay verbatim";
+/* block: VkResult std::vector glfwPollEvents stay raw too */
+def resolve() -> void
+{
+    a := CreateInstance(&info);
+    Result status = check();
+    fn^ := GetProcAddress("vkGetDeviceProcAddr");
+    char marker = 'V';
+}
+}  // namespace dans::test

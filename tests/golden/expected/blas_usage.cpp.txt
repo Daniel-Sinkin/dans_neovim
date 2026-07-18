@@ -1,0 +1,27 @@
+// blas_usage.cpp -- eye-reviewed scenario: OpenBLAS-flavored numeric code.
+// constexpr dimension blocks (own alignment group, no mut column), paren-init
+// vectors (mut locals), a cblas call left raw, and an OPENBLAS_CONST prototype
+// whose params flip exactly like const ones.
+// Externals
+#include <cblas.h>
+// StdLib
+#include <vector>
+//
+namespace app {
+
+def gemm_example() -> void
+{
+    m    : blasint : 2;
+    k    : blasint : 3;
+    n    : blasint : 2;
+    alpha: f64     : 1.0;
+    beta : f64     : 0.0;
+    mut a: vector<f64>($scast<usize>(m * k));
+    mut b: vector<f64>($scast<usize>(k * n));
+    mut c: vector<f64>($scast<usize>(m * n));
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, alpha, a.data(), k, b.data(), n, beta, c.data(), n);
+}
+
+def cblas_dscal(N: const blasint, alpha: const f64, X: f64^, incX: const blasint) -> void;
+
+} // namespace dans::app

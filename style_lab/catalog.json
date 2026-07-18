@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "catalog_revision": "2026-07-11-e",
+  "title": "Dans C/C++ frontend style lab",
+  "description": "Choose presentation rules from captures produced by the real Neovim frontend. Source bytes are never changed.",
+  "questions": [
+    {
+      "id": "concrete-parameter-const",
+      "factbase_record": "QST-001",
+      "status": "resolved",
+      "title": "Concrete reference parameter constness",
+      "prompt": "Should a concrete const reference keep its written const, or use the same const-default visual rule as deduced references?",
+      "constraints": [
+        "Non-const lvalue references must remain conspicuously mut.",
+        "Pointer pointee constness remains explicit in both choices; its independent notation is not being decided here.",
+        "The default choice reproduces the current production view exactly."
+      ],
+      "choices": [
+        {
+          "id": "explicit",
+          "label": "Written const",
+          "tag": "previous",
+          "summary": "Concrete references retain const; deduced auto references remain compact.",
+          "profile": {
+            "concrete_reference_const": "explicit"
+          }
+        },
+        {
+          "id": "const-default",
+          "label": "Const-default references",
+          "tag": "selected",
+          "summary": "A bare concrete reference is read-only; only writable references carry mut.",
+          "profile": {
+            "concrete_reference_const": "const_default"
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "id": "semantic-matrix",
+          "title": "Reference and pointer matrix",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Minimal semantic matrix maintained by this repository"
+          },
+          "lines": [
+            "struct Packet {};",
+            "",
+            "auto transfer(",
+            "    const Packet& input,",
+            "    Packet& output,",
+            "    Packet value,",
+            "    const Packet* read_ptr,",
+            "    Packet* write_ptr,",
+            "    Packet* const fixed_ptr,",
+            "    const Packet* const fixed_read_ptr",
+            ") -> void;"
+          ]
+        },
+        {
+          "id": "cuda-api",
+          "title": "CUDA-flavored multiline API",
+          "filetype": "cuda",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "CUDA spelling stress case maintained by this repository"
+          },
+          "lines": [
+            "auto permute_complex(",
+            "    const cuFloatComplex& scale,",
+            "    cuFloatComplex& accumulator,",
+            "    const cuFloatComplex* input,",
+            "    cuFloatComplex* output,",
+            "    usize count",
+            ") -> cudaError_t;"
+          ]
+        },
+        {
+          "id": "qnpeps-layout",
+          "title": "Qnpeps multiline layout",
+          "filetype": "cuda",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Namespace conceal and parameter-column stress case maintained by this repository"
+          },
+          "lines": [
+            "auto build_dlenv_row(",
+            "    Linalg& la,",
+            "    const QnpepsConfig& cfg,",
+            "    const qnpeps::Boundary& boundary,",
+            "    int row,",
+            "    int maxdim,",
+            "    const void* device_peps_row,",
+            "    const void* device_env_below,",
+            "    void* dlenv_row_out,",
+            "    f64* row_log_out",
+            ") -> int;"
+          ]
+        },
+        {
+          "id": "cuda-control-flow",
+          "title": "CUDA error and defer wrappers",
+          "filetype": "cuda",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Multiline macro and lambda-wrapper stress case maintained by this repository"
+          },
+          "lines": [
+            "DEFER([&] { free(Z); });",
+            "",
+            "CUDA_CHECK(",
+            "    cudaMemcpy(scales.data(), device_scales, num_cols * sizeof(f64), cudaMemcpyDeviceToHost)",
+            ");"
+          ]
+        },
+        {
+          "id": "deduced-control",
+          "title": "Deduced-reference control",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Control case: both choices must leave deduced spellings identical"
+          },
+          "lines": [
+            "auto visit(const auto& item, auto& scratch, auto&& forwarded) -> void;",
+            "",
+            "const auto apply = [](const Packet& input, Packet& output) -> bool {",
+            "    return input.size() == output.size();",
+            "};"
+          ]
+        },
+        {
+          "id": "imgui",
+          "title": "Dear ImGui declaration",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "Dear ImGui · imgui_internal.h@b62bfd6 · MIT",
+            "url": "https://github.com/ocornut/imgui/blob/b62bfd6b06de958e4630b715225b7e8409bfd0f9/imgui_internal.h#L555",
+            "revision": "b62bfd6b06de958e4630b715225b7e8409bfd0f9",
+            "license": "MIT"
+          },
+          "lines": [
+            "IMGUI_API ImVec2     ImLineClosestPoint(const ImVec2& a, const ImVec2& b, const ImVec2& p);"
+          ]
+        },
+        {
+          "id": "llvm",
+          "title": "LLVM definition",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "LLVM · IRBuilder.h@9d5d883 · Apache-2.0 WITH LLVM-exception",
+            "url": "https://github.com/llvm/llvm-project/blob/9d5d8834793da9efe297620db3ef39633688f830/llvm/include/llvm/IR/IRBuilder.h#L221-L225",
+            "revision": "9d5d8834793da9efe297620db3ef39633688f830",
+            "license": "Apache-2.0 WITH LLVM-exception",
+            "adaptation": "Two explanatory comment rows were elided; code rows are unchanged."
+          },
+          "lines": [
+            "  void SetCurrentDebugLocation(const DebugLoc &L) {",
+            "    StoredDL = L;",
+            "  }"
+          ]
+        },
+        {
+          "id": "nvidia-cuda-samples",
+          "title": "NVIDIA CUDA Samples kernel",
+          "filetype": "cuda",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "NVIDIA cuda-samples · vectorAdd.cu@b7c5481 · BSD-3-Clause",
+            "url": "https://github.com/NVIDIA/cuda-samples/blob/b7c5481c556c3fe98db060207ecaa41a4b9a9abc/cpp/0_Introduction/vectorAdd/vectorAdd.cu#L47-L49",
+            "revision": "b7c5481c556c3fe98db060207ecaa41a4b9a9abc",
+            "license": "BSD-3-Clause",
+            "adaptation": "The kernel body was elided; the declaration rows are unchanged."
+          },
+          "lines": [
+            "__global__ void vectorAdd(const float *A, const float *B, float *C, int numElements)",
+            "{",
+            "}"
+          ]
+        },
+        {
+          "id": "gcc",
+          "title": "GCC operator spacing",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "GCC · tree.h@1646ca5 · GPL-3.0-or-later",
+            "url": "https://github.com/gcc-mirror/gcc/blob/1646ca5c7323d6ddce15a3fc859adc212c919e0a/gcc/tree.h#L99",
+            "revision": "1646ca5c7323d6ddce15a3fc859adc212c919e0a",
+            "license": "GPL-3.0-or-later"
+          },
+          "lines": [
+            "  bool operator== (const code_helper &other) { return rep == other.rep; }"
+          ]
+        },
+        {
+          "id": "sdl",
+          "title": "SDL 3 C API declaration",
+          "filetype": "c",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "SDL · SDL_render.h@9149eca · Zlib",
+            "url": "https://github.com/libsdl-org/SDL/blob/9149eca2077940bdfa29e743a7cf3aafbf10e3dc/include/SDL3/SDL_render.h#L601",
+            "revision": "9149eca2077940bdfa29e743a7cf3aafbf10e3dc",
+            "license": "Zlib"
+          },
+          "lines": [
+            "extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderOutputSize(SDL_Renderer *renderer, int *w, int *h);"
+          ]
+        },
+        {
+          "id": "glfw",
+          "title": "GLFW C API declaration",
+          "filetype": "c",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "GLFW · glfw3.h@ed6452b · Zlib",
+            "url": "https://github.com/glfw/glfw/blob/ed6452b13c76f7b4da216a9952bc7837aeb0f031/include/GLFW/glfw3.h#L2631",
+            "revision": "ed6452b13c76f7b4da216a9952bc7837aeb0f031",
+            "license": "Zlib"
+          },
+          "lines": [
+            "GLFWAPI void glfwGetMonitorPos(GLFWmonitor* monitor, int* xpos, int* ypos);"
+          ]
+        },
+        {
+          "id": "vulkan",
+          "title": "Khronos Vulkan Samples constructor",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "external_excerpt",
+            "label": "Khronos Vulkan-Samples · device.h@3834711 · Apache-2.0",
+            "url": "https://github.com/KhronosGroup/Vulkan-Samples/blob/383471195757abdd43339c464db60449619d4f84/framework/core/device.h#L195",
+            "revision": "383471195757abdd43339c464db60449619d4f84",
+            "license": "Apache-2.0",
+            "adaptation": "The constructor initializer and body were elided; the signature row is unchanged."
+          },
+          "lines": [
+            "inline Device<vkb::BindingType::C>::Device(vkb::core::PhysicalDeviceC &gpu, VkDevice &vulkan_device, VkSurfaceKHR surface) :"
+          ]
+        }
+      ]
+    }
+  ]
+}

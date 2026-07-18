@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "DEC-002",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Inferred pointer declarations retain the caret on the binding",
+  "summary": "auto* bindings render as p^ := value while explicit T* bindings render as p: T^ = value.",
+  "details": [
+    "auto* p = value becomes mut p^ := value for a mutable local.",
+    "const auto* p = value becomes p^ := value.",
+    "T* p = value becomes mut p: T^ = value.",
+    "The caret on an inferred binding records the source-level auto* deduction constraint; it is not pretending to be the complete deduced type.",
+    "Equals remains the explicit-type initializer marker and colon-equals remains the inferred-type initializer marker."
+  ],
+  "rationale": [
+    "Dropping the caret would hide that auto* rejects non-pointer deduction even though plain auto accepts it.",
+    "Type-side partial spellings such as p: ^ := value and split spellings such as mut p^: T = value were rejected as visually unacceptable."
+  ],
+  "alternatives": [
+    "mut p := value hides the auto* constraint.",
+    "p: ^ := value preserves information but was rejected by the owner as visually unacceptable.",
+    "mut p^: T = value splits one type across both sides of the colon."
+  ],
+  "scope": ["cpp-frontend/declarations", "cuda-frontend/declarations"],
+  "tags": ["auto-pointer", "caret", "type-inference", "binding-sigil"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 auto pointer spelling litigation",
+      "note": "Owner explicitly selected the existing p^ := spelling after reviewing alternatives."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua::auto* ptr and const auto* ptr",
+      "claim": "Focused render assertions pin inferred pointer spellings."
+    }
+  ],
+  "relations": [
+    { "type": "relates_to", "target": "QST-001" }
+  ],
+  "retrieval": {
+    "aliases": ["p caret colon equals", "auto star display", "pointer deduction constraint"],
+    "questions": [
+      "Why is the caret attached to an auto pointer variable?",
+      "Should auto* and T* declarations render identically?",
+      "Why not hide the pointer marker when the initializer is obvious?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner decision matched against focused frontend assertions."
+  }
+}

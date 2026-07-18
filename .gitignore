@@ -1,0 +1,7 @@
+lazy-lock.json
+private/
+knowledge/.cache/
+style_lab/.cache/
+__pycache__/
+*.py[cod]
+*.bak-*

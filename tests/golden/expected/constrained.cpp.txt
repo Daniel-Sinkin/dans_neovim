@@ -1,0 +1,15 @@
+// constrained template params
+<A ~> bool, B ~= int>
+def f() -> void;
+
+concept<A ~> bool>
+Boolish = A;
+
+concept<T>
+Convertible = true;
+
+<A~BoolLike, B ~> bool>
+def g() -> void;
+
+<T~BoolLike, S~Convertible<T>>
+def h() -> void;

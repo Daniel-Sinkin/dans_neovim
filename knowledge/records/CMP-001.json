@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "CMP-001",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Shared decoration lifecycle and reveal-state gate",
+  "summary": "util.on_decorate owns normalized mode, cursor, edit, and viewport lifecycle handling for participating frontend renderers.",
+  "details": [
+    "ModeChanged is mandatory and added centrally even if a module's registration list omits it.",
+    "The lifecycle stores the prior reveal set and diffs it against the new reveal set on cursor or mode transitions.",
+    "Renderers with a row callback repaint only rows whose revealed/decorated state changed; other renderers receive a full visible-range refresh.",
+    "Paint signatures deduplicate equivalent full passes and include content tick, cursor, viewport, mode, diagnostics generation, recording state, and cold-open state.",
+    "WinScrolled is debounced into the DansViewportSettled User event so scroll bursts cause one repaint."
+  ],
+  "rationale": [
+    "Reveal behavior is a cross-cutting presentation contract. Letting each feature choose its own transition events caused feature-specific stale rows.",
+    "Reveal-set diffs preserve the existing cursor-motion performance optimization while extending it correctly to Visual selections."
+  ],
+  "scope": ["frontend-lifecycle", "decoration-modules"],
+  "tags": ["autocmd", "modechanged", "incremental-render", "dedup", "viewport"],
+  "provenance": [
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 frontend lifecycle audit",
+      "note": "Compared every setup registration and reproduced stale aliases after Visual exit."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua::on_decorate",
+      "note": "Current implementation centralizes mandatory ModeChanged subscription and reveal delta calculation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Fifty interaction assertions cover visual modes and representative frontend modules."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/incremental_spec.lua",
+      "claim": "Incremental row repaint matches a full refresh for cursor reveal transitions."
+    }
+  ],
+  "relations": [
+    { "type": "implements", "target": "BHV-001" },
+    { "type": "resolves", "target": "INC-001" },
+    { "type": "constrains", "target": "CMP-002" }
+  ],
+  "retrieval": {
+    "aliases": ["decoration event gate", "frontend repaint coordinator", "on_decorate"],
+    "questions": [
+      "Where are frontend mode transitions coordinated?",
+      "How are only changed reveal rows repainted?",
+      "Why must modules not independently choose whether ModeChanged matters?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Source audit, real mode-transition regression, and complete headless suite."
+  }
+}

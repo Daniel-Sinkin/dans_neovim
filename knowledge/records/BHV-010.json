@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "BHV-010",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Function assembly view with persistent source color matching",
+  "summary": "DansAsm compiles the saved function under the cursor and pairs every mapped source row with its assembly rows using stable Godbolt-style colors plus active cursor synchronization.",
+  "details": [
+    "The compile command comes from the shared compile database layer or an available C/C++/CUDA compiler fallback; the source buffer must be saved.",
+    "DWARF and CodeView file/line directives, Clang Lfunc and GCC LFB/LFE function markers, and ELF, Mach-O, and Windows labels are parsed; locations in inlined headers are visible but deliberately unpaired.",
+    "One reusable assembly buffer exists per source buffer. Results cache by command, source changedtick, function range, and optimization; bang or r bypasses the cache.",
+    "Source rows and corresponding assembly rows receive one of eight stable background/number colors. The cursor's current mapping uses a separate stronger highlight and synchronized scrolling.",
+    "n toggles compiler directives and blank noise in the generated assembly buffer, o chooses O0/O1/O2/O3/Os/Oz/Og, r recompiles, and writes auto-refresh an open view by default.",
+    "Assembly presentation never changes source bytes or source row identity."
+  ],
+  "scope": ["cpp-tools/assembly", "source-mapping", "generated-ui"],
+  "tags": ["DansAsm", "Godbolt", "assembly", "color-matching", "optimization"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 assembly-view request",
+      "note": "Owner requested a function-scoped Godbolt-like source/assembly view."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_asm.lua",
+      "note": "Current parser, renderer, cache, and interaction implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/asm_spec.lua",
+      "claim": "Clang/GCC and cross-platform parsing, block selection, argument cleanup, noise display, palette stability, and inline-header unpairing are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/asm_interaction_spec.lua",
+      "claim": "A real compiler run opens the split, produces paired extmarks and active sync, toggles noise, and preserves source bytes/rows."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "CMP-010" },
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "relates_to", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["Godbolt view", "assembly colors", "function disassembly", "source asm sync", "DansAsm optimization"],
+    "questions": [
+      "How do I view and color-match one function's assembly?",
+      "Why must the source be saved before DansAsm?",
+      "How do I change optimization or hide assembly directives?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Fixture parsing plus real asynchronous compile and cursor interaction."
+  }
+}

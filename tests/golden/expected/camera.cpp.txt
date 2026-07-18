@@ -1,0 +1,261 @@
+// dans/camera/camera.cpp
+//
+#include "dans/camera/camera.hpp"
+// Externals
+#include <glm/gtc/matrix_transform.hpp>
+// StdLib
+#include <algorithm>
+#include <cmath>
+//
+
+namespace camera
+{
+using linalg::Vec4;
+using linalg::k_axis_x;
+using linalg::k_axis_y;
+using linalg::k_axis_z;
+using linalg::normalize_or;
+
+def Camera::configure(config: CameraConfig&) $ne -> mut Camera&
+{
+    pivot_ = config.pivot;
+    distance_ = config.distance;
+    yaw_ = config.yaw;
+    pitch_ = config.pitch;
+    fov_y_ = config.fov_y;
+    orbit_sensitivity_ = config.orbit_sensitivity;
+    pivot_sensitivity_ = config.pivot_sensitivity;
+    zoom_sensitivity_ = config.zoom_sensitivity;
+    z_near_ = config.z_near;
+    z_far_ = config.z_far;
+    allow_pivot_move_ = config.allow_pivot_move;
+    clamp_position_z_min_ = config.clamp_position_z_min;
+    min_position_z_ = config.min_position_z;
+    projection_mode_ = config.projection_mode;
+    apply_constraints();
+    return *this;
+}
+
+// clang-format off
+auto Camera::pivot() const noexcept                  -> const Vec3&     { return pivot_; }
+auto Camera::distance() const noexcept               -> f32             { return distance_; }
+auto Camera::yaw() const noexcept                    -> f32             { return yaw_; }
+auto Camera::pitch() const noexcept                  -> f32             { return pitch_; }
+auto Camera::fov_y() const noexcept                  -> f32             { return fov_y_; }
+auto Camera::orbit_sensitivity() const noexcept      -> f32             { return orbit_sensitivity_; }
+auto Camera::pivot_sensitivity() const noexcept      -> f32             { return pivot_sensitivity_; }
+auto Camera::zoom_sensitivity() const noexcept       -> f32             { return zoom_sensitivity_; }
+auto Camera::z_near() const noexcept                 -> f32             { return z_near_; }
+auto Camera::z_far() const noexcept                  -> f32             { return z_far_; }
+auto Camera::allow_pivot_move() const noexcept       -> bool            { return allow_pivot_move_; }
+auto Camera::clamp_position_z_min() const noexcept   -> bool            { return clamp_position_z_min_; }
+auto Camera::min_position_z() const noexcept         -> f32             { return min_position_z_; }
+auto Camera::projection_mode() const noexcept        -> ProjectionMode  { return projection_mode_; }
+// clang-format on
+
+def Camera::set_pivot(pivot: const Vec3) $ne -> mut Camera&
+{
+    pivot_ = pivot;
+    apply_constraints();
+    return *this;
+}
+
+def Camera::translate_pivot(offset: const Vec3) $ne -> mut Camera&
+{
+    return set_pivot(pivot_ + offset);
+}
+
+def Camera::set_distance(distance: const f32) $ne -> mut Camera&
+{
+    distance_ = distance;
+    apply_constraints();
+    return *this;
+}
+
+def Camera::set_yaw(yaw: const f32) $ne -> mut Camera&
+{
+    yaw_ = yaw;
+    return *this;
+}
+
+def Camera::set_pitch(pitch: const f32) $ne -> mut Camera&
+{
+    pitch_ = pitch;
+    apply_constraints();
+    return *this;
+}
+
+def Camera::set_fov_y(fov_y: const f32) $ne -> mut Camera&
+{
+    fov_y_ = fov_y;
+    return *this;
+}
+
+def Camera::set_orbit_sensitivity(sensitivity: const f32) $ne -> mut Camera&
+{
+    orbit_sensitivity_ = sensitivity;
+    return *this;
+}
+
+def Camera::set_pivot_sensitivity(sensitivity: const f32) $ne -> mut Camera&
+{
+    pivot_sensitivity_ = sensitivity;
+    return *this;
+}
+
+def Camera::set_zoom_sensitivity(sensitivity: const f32) $ne -> mut Camera&
+{
+    zoom_sensitivity_ = sensitivity;
+    return *this;
+}
+
+def Camera::set_z_near(z_near: const f32) $ne -> mut Camera&
+{
+    z_near_ = z_near;
+    return *this;
+}
+
+def Camera::set_z_far(z_far: const f32) $ne -> mut Camera&
+{
+    z_far_ = z_far;
+    return *this;
+}
+
+def Camera::set_allow_pivot_move(allow: const bool) $ne -> mut Camera&
+{
+    allow_pivot_move_ = allow;
+    return *this;
+}
+
+def Camera::set_clamp_position_z_min(clamp: const bool) $ne -> mut Camera&
+{
+    clamp_position_z_min_ = clamp;
+    apply_constraints();
+    return *this;
+}
+
+def Camera::set_min_position_z(min_z: const f32) $ne -> mut Camera&
+{
+    min_position_z_ = min_z;
+    apply_constraints();
+    return *this;
+}
+
+def Camera::set_projection_mode(projection_mode: const ProjectionMode) $ne -> mut Camera&
+{
+    projection_mode_ = projection_mode;
+    return *this;
+}
+
+def Camera::apply_constraints() $ne -> void
+{
+    if (!clamp_position_z_min_)
+    {
+        return;
+    }
+    min_offset_z := min_position_z_ - pivot_.z;
+    if (min_offset_z <= -distance_)
+    {
+        return;
+    }
+    auto min_pitch =
+        asin(clamp(min_offset_z / max(distance_, 0.001f), -1.0f, 1.0f));
+    pitch_ = max(pitch_, min_pitch);
+}
+
+def Camera::position() const $ne -> Vec3
+{
+    cos_pitch := cos(pitch_);
+    Vec3 offset{
+        distance_ * cos_pitch * cos(yaw_),
+        distance_ * cos_pitch * sin(yaw_),
+        distance_ * sin(pitch_),
+    };
+    return pivot_ + offset;
+}
+
+def Camera::view_matrix() const $ne -> Mat4
+{
+    return glm::lookAt(position(), pivot_, k_axis_z);
+}
+
+def Camera::projection_matrix(aspect: f32) const $ne -> Mat4
+{
+    clamped_aspect := max(0.01f, aspect);
+    switch (projection_mode_)
+    {
+        case ProjectionMode::orthographic:
+            {
+                half_height := 0.5f * view_height();
+                half_width  := half_height * clamped_aspect;
+                auto proj = glm::orthoRH_ZO(
+                    -half_width, half_width, -half_height, half_height, z_near_, z_far_
+                );
+                proj[1][1] *= -1.0f;
+                return proj;
+            }
+        case ProjectionMode::perspective:
+            {
+                mut proj := glm::perspective(fov_y_, clamped_aspect, z_near_, z_far_);
+                proj[1][1] *= -1.0f;
+                return proj;
+            }
+    }
+    return Mat4{1.0f};
+}
+
+def Camera::view_projection_matrix(aspect: f32) const $ne -> Mat4
+{
+    return projection_matrix(aspect) * view_matrix();
+}
+
+def Camera::right() const $ne -> Vec3
+{
+    forward := normalize_or(pivot_ - position(), -k_axis_y);
+    return normalize_or(glm::cross(forward, k_axis_z), k_axis_x);
+}
+
+def Camera::up() const $ne -> Vec3
+{
+    forward := normalize_or(pivot_ - position(), -k_axis_y);
+    return normalize_or(glm::cross(right(), forward), k_axis_z);
+}
+
+def Camera::view_height() const $ne -> f32
+{
+    return 2.0f * distance_ * tan(0.5f * fov_y_);
+}
+
+def Camera::units_per_pixel_y(viewport_height_px: f32) const $ne -> f32
+{
+    return view_height() / max(1.0f, viewport_height_px);
+}
+
+def Camera::pan_offset_world(dx_px: f32, dy_px: f32, viewport_height_px: f32) const $ne -> Vec3
+{
+    units := units_per_pixel_y(viewport_height_px);
+    return (-dx_px * units) * right() + (dy_px * units) * up();
+}
+
+def make_camera_ray(camera: Camera&, cursor_logical_px: Vec2, viewport_logical_px: Vec2) $ne
+    -> Ray
+{
+    viewport                := glm::max(viewport_logical_px, Vec2{1.0f});
+    ndc_x                   := 2.0f * cursor_logical_px.x / viewport.x - 1.0f;
+    ndc_y                   := 2.0f * cursor_logical_px.y / viewport.y - 1.0f;
+    aspect                  := viewport.x / viewport.y;
+    inverse_view_projection := glm::inverse(camera.view_projection_matrix(aspect));
+    near_clip: Vec4 = ndc_x, ndc_y, 0.0f, 1.0f;
+    far_clip : Vec4 = ndc_x, ndc_y, 1.0f, 1.0f;
+    mut near_world := inverse_view_projection * near_clip;
+    mut far_world  := inverse_view_projection * far_clip;
+    near_world /= near_world.w;
+    far_world /= far_world.w;
+    origin: Vec3 = near_world;
+    return Ray{
+        origin,
+        direction = normalize_or(Vec3{far_world - near_world}, -k_axis_z),
+    };
+}
+
+}  // namespace dans::camera

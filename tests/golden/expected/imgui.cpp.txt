@@ -1,0 +1,10 @@
+void ui()
+{
+    Begin("x");
+    Text("hi");
+    set(COL32(255, 0, 0, 255));
+    assert(ptr);
+    static_assert(ok);
+    assert_user_error(x);
+    draw(Vec2(), Rect());
+}

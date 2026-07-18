@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "BHV-008",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Rows that remain raw or suspend presentation",
+  "summary": "Cursor/Visual rows, comments, static assertions, clang-format-off regions, macro-recording sessions, unsupported syntax, and cold large-buffer first paint deliberately avoid character-changing sugar.",
+  "details": [
+    "The shared reveal set is described by BHV-001 and applies to frontend prefix conceals and triple-slash markdown as well as core declaration modules.",
+    "Rows whose first nonblank token belongs to a comment are treated as prose and left out of the C++ character transforms.",
+    "Every row covered by a static_assert declaration remains verbatim and is merely grayed so compile-time checks can be inspected without shorthand.",
+    "clang-format off through clang-format on is treated as intentionally hand-laid-out data and remains raw.",
+    "While a macro records, character-shifting presentation is suspended so recorded motions use real source columns; folding may remain active.",
+    "Large cold buffers show raw source until the deferred parser warm-up completes.",
+    "When parsing or balancing is uncertain, the renderer prefers raw source over a plausible but misleading transform."
+  ],
+  "scope": ["frontend-gating", "raw-fallback", "interaction"],
+  "tags": ["reveal", "comments", "static_assert", "clang-format-off", "recording", "cold-open"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua::make_skipper and cold_gate",
+      "note": "Shared raw-row sets and cold state are computed centrally."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/init.lua recording hooks",
+      "note": "Recording enter/leave suspends and repaints the frontend stack."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua, comment_color_spec.lua, frontend_spec.lua static_assert/clang-format golden cases",
+      "claim": "Reveal transitions and representative raw exclusions are regression-tested."
+    }
+  ],
+  "relations": [
+    { "type": "relates_to", "target": "BHV-001" },
+    { "type": "implemented_by", "target": "CMP-001" },
+    { "type": "relates_to", "target": "CMP-006" }
+  ],
+  "retrieval": {
+    "aliases": ["why row is raw", "frontend exclusions", "clang format off", "macro recording suspension"],
+    "questions": [
+      "Which rows deliberately bypass the frontend?",
+      "Why does macro recording temporarily show raw code?",
+      "What does the renderer do when syntax is ambiguous?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Shared skipper, recording, cold gate, raw-fallback branches, and related tests reviewed."
+  }
+}

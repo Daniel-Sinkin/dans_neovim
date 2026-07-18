@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "CMP-010",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Shared C++ tooling context and process lifecycle",
+  "summary": "Assembly, probes, and generated-result UIs share compile-database discovery, argument sanitation, Tree-sitter context, latest-result-wins jobs, and scratch-window primitives.",
+  "details": [
+    "cpp_tools/context.lua locates compile_commands.json upward, caches decoded databases by file metadata, resolves relative entries, and provides compiler fallbacks.",
+    "Assembly and link modes strip the original input, output, dependency, compile-only, and optimization flags before adding deterministic mode-specific tails.",
+    "The same Tree-sitter ancestry identifies source functions, qualified namespace names, structs/classes, and enums for all higher-level tools.",
+    "cpp_tools/jobs.lua cancels an older keyed process and ignores stale callbacks, so slow compilation cannot overwrite newer user intent.",
+    "cpp_tools/scratch.lua owns reusable nofile result buffers, split creation, immutable content replacement, and close/action mappings."
+  ],
+  "rationale": [
+    "Independent compile_commands and syntax-context implementations had already diverged inside the assembly module and would have multiplied with each new tool.",
+    "A narrow shared layer leaves domain policy in assembly, runner, and code generation while centralizing high-risk lifecycle mechanics."
+  ],
+  "scope": ["cpp-tools", "compile-commands", "async-jobs", "scratch-ui"],
+  "tags": ["shared-context", "cancellation", "latest-wins", "treesitter", "compiler"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_tools/context.lua, jobs.lua, scratch.lua",
+      "note": "Reusable tooling foundation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/cpp_tools_spec.lua",
+      "claim": "Quoted commands, compile/link sanitation, qualified syntax context, and stale-process suppression are pinned."
+    }
+  ],
+  "relations": [
+    { "type": "relates_to", "target": "CMP-008" },
+    { "type": "constrains", "target": "BHV-010" },
+    { "type": "constrains", "target": "BHV-011" },
+    { "type": "constrains", "target": "BHV-012" }
+  ],
+  "retrieval": {
+    "aliases": ["shared compile database", "cancellable C++ jobs", "latest compile wins", "C++ tool context"],
+    "questions": [
+      "Where should a new C++ tool obtain compiler flags and function context?",
+      "How are stale compiler callbacks prevented?",
+      "Which module owns reusable result splits?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Focused pure and asynchronous process tests."
+  }
+}

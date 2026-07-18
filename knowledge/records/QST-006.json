@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "QST-006",
+  "kind": "question",
+  "status": "open",
+  "title": "How should CUDA execution-space qualifiers display?",
+  "summary": "CUDA qualifiers such as __global__, __device__, and __host__ are currently source-verbatim and seafoam, while a compact semantic vocabulary has not yet been selected.",
+  "details": [
+    "The qualifiers carry execution semantics and should not disappear through a generic underscore-conceal rule.",
+    "A leading candidate is __global__ -> kernel, __device__ -> device, and __host__ -> host, which keeps __host__ __device__ visibly dual-target as host device.",
+    "A more mechanical alternative removes only the double-underscore fences and displays global, device, and host.",
+    "Related qualifiers need an intentional family policy: __shared__, __constant__, __managed__, __restrict__, __forceinline__, __noinline__, and __launch_bounds__ do not all describe execution space.",
+    "Any choice must work in raw CUDA declarations, structured function rendering, alignment width calculation, cursor/Visual reveal, module toggles, and actual ext_linegrid output.",
+    "The existing pinned NVIDIA CUDA Samples scene supplies a real __global__ kernel declaration for a style-lab comparison."
+  ],
+  "scope": ["cuda-frontend/qualifiers", "style-lab", "frontend-highlighting"],
+  "tags": ["open-design", "CUDA", "global", "device", "host", "kernel", "qualifiers"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 CUDA spelling review",
+      "note": "Owner asked whether __global__, __device__, and related qualifiers should be mangled in some way but did not yet select a spelling."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/markers.lua and highlights.lua",
+      "note": "The current frontend colors these source spellings as CUDA but does not conceal or replace them."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "source",
+      "reference": "style_lab/catalog.json pinned nvidia-cuda-samples scene",
+      "claim": "A revision-pinned real kernel declaration is available for comparing qualifier spellings through Neovim's ext_linegrid."
+    }
+  ],
+  "relations": [
+    { "type": "motivated_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "relates_to", "target": "DEC-014" },
+    { "type": "relates_to", "target": "CMP-004" }
+  ],
+  "retrieval": {
+    "aliases": ["hide __global__", "CUDA kernel qualifier spelling", "device host display"],
+    "questions": [
+      "Should __global__ display as kernel?",
+      "How should __host__ __device__ display?",
+      "Which CUDA qualifier spelling decision is still open?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Current highlight/conceal paths inspected and owner uncertainty preserved as an open style-lab question."
+  }
+}

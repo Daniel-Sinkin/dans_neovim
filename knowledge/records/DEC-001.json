@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "DEC-001",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Cheap deterministic tests are rerun, not archived as experiments",
+  "summary": "Frontend test outputs are disposable; durable evidence consists of fixtures, assertions, harness code, and explicit behavior records.",
+  "details": [
+    "The full isolated suite costs seconds of ordinary CPU time and can be regenerated on demand.",
+    "The repository does not create per-run directories, preserve ordinary logs, hash every runner, or maintain an experiment ledger for routine frontend validation.",
+    "Platform-specific or expensive performance observations may be recorded when they cannot be reconstructed cheaply, but that is an exception."
+  ],
+  "rationale": [
+    "The thesis repository's experiment ceremony exists because cluster results are expensive and scarce; copying it here would create maintenance cost without preserving scarce evidence.",
+    "Committed tests provide stronger and cheaper evidence for this real-time utility."
+  ],
+  "alternatives": [
+    "Mirror the thesis repository's QUESTION, ANSWER, out, and LEDGER structure for every validation run; rejected as cost-model cargo culting.",
+    "Keep chat transcripts or ad hoc logs as evidence; rejected because they are neither canonical nor needed for rerunnable tests."
+  ],
+  "scope": ["testing", "knowledge-workflow"],
+  "tags": ["evidence", "rerunnable-tests", "no-test-logs"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 thesis workflow comparison",
+      "note": "Owner distinguished expensive SLURM experiments from cheap real-time frontend tests."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "python3 tools/run_tests.py",
+      "claim": "The complete current suite is cheap enough to rerun routinely."
+    }
+  ],
+  "relations": [
+    { "type": "implemented_by", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["do not preserve routine test logs", "experiments do not transfer", "cheap evidence"],
+    "questions": [
+      "Should every frontend test run get an experiment directory?",
+      "What test evidence is durable in this repository?",
+      "Why are ordinary headless outputs disposable?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Owner ruling plus measured isolated suite cost."
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "CMP-006",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Frontend performance containment and repaint coalescing",
+  "summary": "Rendering work is bounded to visible rows plus a margin, cold large-buffer parsing is deferred, repeated lifecycle events are deduplicated, and scrolling repaints once after a burst.",
+  "details": [
+    "util.visible_range limits normal decoration scans to the screen plus 40 rows; background buffers fall back to their whole content because no window range exists.",
+    "util.buf_lines shares a changedtick-keyed whole-buffer snapshot among consumers that genuinely need one.",
+    "Buffers with at least 400 lines enter a 40 ms cold gate: raw source paints immediately, Tree-sitter is warmed asynchronously, and one settled repaint decorates the stack.",
+    "treesitter-context is suspended across cold parsing so it cannot defeat the deferred first-paint budget.",
+    "util.on_decorate compares a paint signature including changedtick, cursor, viewport, mode, diagnostics generation, recording state, and cold state.",
+    "Cursor/mode events with unchanged text diff reveal sets and use row callbacks where available; horizontal moves that change no row presentation are skipped.",
+    "WinScrolled only arms a 100 ms timer; DansViewportSettled drives one repaint after scrolling stops."
+  ],
+  "scope": ["frontend-performance", "large-buffers", "event-lifecycle"],
+  "tags": ["visible-range", "cold-gate", "changedtick-cache", "debounce", "incremental-repaint"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua",
+      "note": "Shared range, cold-open, cache, signature, reveal-delta, and scroll logic live here."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 event and performance audit",
+      "note": "Participating modules and bespoke exceptions were mapped and interaction-tested."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/incremental_spec.lua and tests/frontend_interaction_spec.lua",
+      "claim": "Incremental edits and cursor/mode transitions remain correct."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/perf_probe.lua",
+      "claim": "A reproducible 4437-line probe exercises cold, deferred, redraw, re-entry, and header paths; routine timings are not archived."
+    }
+  ],
+  "relations": [
+    { "type": "implements", "target": "CMP-001" },
+    { "type": "relates_to", "target": "DEC-001" },
+    { "type": "constrained_by", "target": "BHV-001" }
+  ],
+  "retrieval": {
+    "aliases": ["frontend performance", "cold open large cpp", "scroll debounce", "visible margin"],
+    "questions": [
+      "Why does a large file show raw briefly on first open?",
+      "How is work bounded while scrolling?",
+      "Which state participates in decoration deduplication?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Static lifecycle audit plus focused incremental/interaction specs and a disposable large-buffer probe."
+  }
+}

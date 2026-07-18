@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "DEC-011",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Observed project evidence is separate from declared module architecture",
+  "summary": "The headless C++ project index reports deterministic filesystem, include, compiler-profile, component, and build-target observations without treating inferred ownership or dependencies as an authoritative synthetic module design.",
+  "details": [
+    "A paired header/source stem is an inferred physical component; it is not automatically a user-approved project module.",
+    "CMake target membership and downstream target consumption are recorded separately because a target may aggregate several logical modules and a header may be consumed by targets that do not own it.",
+    "Direct spelled includes produce evidence-backed component edges. Their interface/implementation origin, conditional preprocessor context, provider resolution route, and source line remain inspectable.",
+    "The future module manifest may accept, split, merge, or override inferred components and edges. Generated indexes remain rebuildable views rather than competing sources of truth.",
+    "The index process is read-only. It never configures CMake, creates a File API query, edits a project, or claims that an absent compile database/codemodel is an error in the inspected project."
+  ],
+  "rationale": [
+    "The owner wants a rigid Lakos-inspired physical module DAG, but only after a substantial inspection and idea phase grounded in real personal projects.",
+    "Filesystem layout, include spelling, and build targets are strong evidence but each can disagree with intended ownership; silently promoting heuristics would make later code generation dangerous.",
+    "Keeping observation and declaration separate lets the first index support include intelligence and header synchronization before the module schema is settled."
+  ],
+  "alternatives": [
+    "Treat each directory as a module; rejected because directories may contain several cohesive units or only organizational groupings.",
+    "Treat each CMake target as a module; rejected because dans-vk2 currently aggregates all first-party implementation files into one executable target.",
+    "Write an inferred manifest during scanning; rejected because ambiguous architecture requires an explicit later decision and preview."
+  ],
+  "scope": ["cpp-tools/project-index", "future-modules", "include-intelligence", "build-model"],
+  "tags": ["observed-vs-declared", "physical-design", "read-only", "deterministic-json", "DAG"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 project module discussion",
+      "note": "Owner approved a Lakos-inspired, codegen-heavy synthetic module system after a preparatory project audit and accepted the proposed staged ordering."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/home/daniel/GitHub/dans-vk2 read-only physical-structure audit",
+      "note": "Paired components and include strata exist while first-party CMake target granularity remains a single executable, demonstrating why these concepts must be separate."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/project_index_spec.py",
+      "claim": "The index separately pins target ownership, consumer targets, compilation profiles, direct include edges, conditional provenance, vendored providers, and cycles."
+    },
+    {
+      "kind": "source",
+      "reference": "tools/cpp_project_index.py",
+      "claim": "Scanning emits JSON only and contains no project mutation or CMake configuration path."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "CMP-011" },
+    { "type": "constrains", "target": "BHV-013" },
+    { "type": "opens", "target": "QST-005" },
+    { "type": "relates_to", "target": "DEC-010" }
+  ],
+  "retrieval": {
+    "aliases": ["observed project graph", "declared module graph", "physical project evidence", "module inference boundary"],
+    "questions": [
+      "Does the project index decide which files form a synthetic module?",
+      "Is a CMake target treated as one project module?",
+      "Can scanning silently write an inferred module manifest?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after dcce577",
+    "method": "Owner-approved architecture followed by deterministic fixture and real-project read-only scans."
+  }
+}

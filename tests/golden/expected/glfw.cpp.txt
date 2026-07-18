@@ -1,0 +1,8 @@
+void use()
+{
+    PollEvents();
+    handle(TRUE);
+    pick(KEY_ESCAPE);
+    use_mine(glfw_foo);
+    window win;
+}

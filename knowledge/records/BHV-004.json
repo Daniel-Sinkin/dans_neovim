@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "BHV-004",
+  "kind": "behavior",
+  "status": "observed",
+  "title": "Declaration and binding visual grammar",
+  "summary": "Recognized declarations move the binding before its type, distinguish inferred from explicit types, and make mutable, constant, copied, or uninitialized state visually loud.",
+  "details": [
+    "A mutable local int x{7} becomes mut x: int = 7; a const local becomes x: int = 7.",
+    "An inferred mutable local auto x = value becomes mut x := value; const auto becomes x := value.",
+    "Explicit type initialization uses equals, inferred type initialization uses colon-equals, and constexpr replaces equals with a second colon.",
+    "Members do not receive mut merely for being assignable object state; mutable reference members do receive mut because they expose a mutable borrow.",
+    "Uninitialized members and arrays use a red no_init prefix; uninitialized scalar locals remain raw because deferred initialization is a common local idiom.",
+    "Structured bindings and range-for bindings retain reference/pointer sigils on the binding names and surface mutability.",
+    "Declaration runs align mut, names, types, and initializers with inline padding; bare uninitialized C/C++ struct fields participate in the same contiguous block as pointer/reference fields rather than forming accidental sub-runs.",
+    "Ambiguous or unsupported forms such as multi-declarators, function pointers, incomplete multiline right-hand sides, and most-vexing-parse function declarations remain raw."
+  ],
+  "scope": ["cpp-frontend/declarations", "cuda-frontend/declarations", "visual-grammar"],
+  "tags": ["bindings", "mut", "no_init", "alignment", "explicit-vs-inferred"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua, render.lua, view.lua",
+      "note": "Parsing/classification, chunk construction, alignment, and overlay application implement this grammar."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua declaration, auto, members, alignment, and edge-case sections",
+      "claim": "The supported grammar and explicit raw fallbacks are assertion-driven."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/golden/expected/*.txt",
+      "claim": "Representative full-file composition is snapshotted."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "DEC-002" },
+    { "type": "relates_to", "target": "INC-005" }
+  ],
+  "retrieval": {
+    "aliases": ["binding syntax", "name colon type", "mut locals", "no_init", "colon equals", "align C struct fields"],
+    "questions": [
+      "How are explicit and inferred declarations distinguished?",
+      "Why do members and locals receive different mut markers?",
+      "Which declarations deliberately stay raw?",
+      "Do bare scalar and pointer fields align in one C struct block?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after e065a0e",
+    "method": "Current parse/render/view code matched against focused, C ABI interaction, and golden declaration tests."
+  }
+}

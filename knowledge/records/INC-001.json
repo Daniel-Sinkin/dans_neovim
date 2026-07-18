@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "INC-001",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Visual exit left multiline parameter rows raw until cursor contact",
+  "summary": "After a Visual selection ended, std and library-prefix presentation recovered but multiline function-parameter movement remained absent on formerly selected rows until j or k touched them.",
+  "details": [
+    "Multiline parameter movement is rendered by aliases.lua through flip_param_line.",
+    "Visual cursor events correctly cleared aliases extmarks for selected rows.",
+    "view.lua subscribed to ModeChanged, but aliases.lua and other raw-line modules selected their own event lists and omitted ModeChanged.",
+    "Escape therefore restored the overlay module only; a later CursorMoved event repaired aliases one row at a time.",
+    "The correction makes ModeChanged a mandatory shared lifecycle event and diffs reveal sets centrally. Arrow alignment was migrated from bespoke cursor-only state to the same reveal lifecycle."
+  ],
+  "rationale": [
+    "This incident is retained because it exposed an architectural ownership error rather than merely a missing case in the parameter parser."
+  ],
+  "scope": ["frontend-lifecycle", "multiline-parameters", "visual-mode"],
+  "tags": ["bug", "stale-extmarks", "modechanged", "aliases", "resolved"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 visual-block selection report",
+      "note": "Owner supplied the exact interaction and observed partial recovery behavior."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 event and namespace audit",
+      "note": "The report mapped directly to aliases missing ModeChanged while view handled it."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "The pre-fix regression failed identically for character, line, and block selection; it now passes all modes and the module matrix."
+    },
+    {
+      "kind": "source",
+      "reference": "lua/custom/dans_frontend_cpp/util.lua::on_decorate",
+      "claim": "Mandatory ModeChanged and reveal delta logic provide the fix."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-001" },
+    { "type": "relates_to", "target": "BHV-001" }
+  ],
+  "retrieval": {
+    "aliases": ["multiline arguments do not reset", "rows repair when cursor touches them", "visual escape stale view"],
+    "questions": [
+      "Why did function arguments stay unmangled after Escape?",
+      "Why did j and k repair one stale line at a time?",
+      "Which bug motivated centralized reveal lifecycle handling?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Failing regression captured before fix, then passed across all Visual modes and representative modules."
+  }
+}

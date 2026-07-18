@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "embedding_model": "BAAI/bge-small-en-v1.5",
+  "mandatory_kinds": ["invariant"],
+  "default_result_limit": 8,
+  "default_context_word_budget": 1800,
+  "rrf_constant": 60
+}

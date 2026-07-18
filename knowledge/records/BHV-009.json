@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "BHV-009",
+  "kind": "behavior",
+  "status": "observed",
+  "title": "Library prefix conceal and semantic color families",
+  "summary": "Configured third-party identifier families use stable semantic colors, and selected high-noise prefixes are concealed only after their category has been determined.",
+  "details": [
+    "Vulkan and OpenGL use muted orange, first-party Vulkan wrappers use brighter orange, VMA uses darker orange, and reconstructed Vulkan structure names use a bold light orange.",
+    "CUDA runtime/driver types and calls use seafoam; cuBLAS/cuSOLVER/cuSPARSE/cuFFT reuse the graphics orange as a separate math-library family.",
+    "GLFW and SDL share teal, Dear ImGui uses bordeaux, STB uses cyan-green, BLAS/LAPACK uses yellow-green, Qnpeps uses orchid, LLDB uses orange, strings use muted green, concepts use bright cyan, and generic macros use purple.",
+    "std::, dans::, and qnpeps:: plus configured ranges/views segments are hidden; many GLFW, Vulkan, CUDA, VMA, OpenGL, ImGui, and Qnpeps identifier prefixes are also stripped.",
+    "cuFloatComplex and its cuComplex typedef alias display as cf32, while cuDoubleComplex displays as cf64; these short names remain CUDA seafoam.",
+    "Selected exact CUDA symbols use semantic spellings before generic prefix conceal: cudaStream_t displays as Stream, cudaGraph_t as Graph, cudaGraphExec_t as GraphExec, cuCabsf as abs, and cuConjf as conj, all in CUDA seafoam.",
+    "SDL_ currently receives the SDL color but remains textual in parameter overlay types; whether it should be hidden like GLFW is an open cross-library policy question.",
+    "String, char, comment, and static_assert contexts are protected from prefix removal or category leakage by Tree-sitter gates and masking priorities; complete include/include_next directives and their continuation rows are excluded by the shared row skipper.",
+    "Overlay rendering classifies the original type before prefix stripping and splits visible const/volatile qualifiers into gray chunks.",
+    "The CUDA color expresses API/type provenance; it does not claim that a value itself resides in device memory."
+  ],
+  "scope": ["frontend-highlighting", "library-identifiers", "prefix-conceal"],
+  "tags": ["palette", "CUDA", "Vulkan", "GLFW", "SDL", "ImGui", "prefixes"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/highlights.lua, markers.lua, parse.lua exact alias tables/strip_glfw, render.lua::type_hl, and util.lua::include_lines",
+      "note": "Palette, raw matches/conceals, exact semantic aliases, overlay category selection, and shared include ownership are split across these files."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/cuda_raw_spec.lua, frontend_interaction_spec.lua, frontend_spec.lua, comment_color_spec.lua, frontend_leak_spec.lua, param_flip_spec.lua, and style_lab real-grid captures",
+      "claim": "CUDA spelling/color, include exclusion, interaction round-trips, context isolation, cross-buffer leak prevention, and classify-before-strip behavior are covered."
+    }
+  ],
+  "relations": [
+    { "type": "implements", "target": "DEC-004" },
+    { "type": "implements", "target": "DEC-005" },
+    { "type": "implements", "target": "DEC-008" },
+    { "type": "implements", "target": "DEC-014" },
+    { "type": "opens", "target": "QST-003" },
+    { "type": "opens", "target": "QST-006" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["library palette", "which prefixes hidden", "CUDA green", "SDL teal", "Vulkan orange", "cf32 cf64", "cudaStream_t Stream", "cudaGraph_t Graph", "cudaGraphExec_t GraphExec", "cuCabsf abs", "cuConjf conj", "hide qnpeps namespace"],
+    "questions": [
+      "Which color identifies CUDA or Vulkan after a prefix is hidden?",
+      "Which third-party prefixes are concealed?",
+      "Is SDL_ currently hidden?",
+      "How do CUDA complex types, Stream/Graph handles, cuCabsf, cuConjf, and qnpeps:: render?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Palette/matcher/stripper audit, exact CUDA alias tests, include interaction regression, chunk-level tests, and existing actual RGB ext-linegrid inspection."
+  }
+}

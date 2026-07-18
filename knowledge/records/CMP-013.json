@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "CMP-013",
+  "kind": "component",
+  "status": "accepted",
+  "title": "LaTeX editing, compilation, and language-intelligence stack",
+  "summary": "VimTeX owns LaTeX project structure, latexmk compilation, quickfix parsing, mappings, and PDF synchronization; texlab independently owns language-server intelligence and explicit formatting.",
+  "details": [
+    "lua/custom/plugins/vimtex.lua loads lervag/vimtex eagerly at the plugin-manager level as required for VimtexInverseSearch, while VimTeX itself defers substantive work through filetype and autoload mechanisms.",
+    "VimTeX uses the installed latexmk backend in continuous mode only after an explicit compile action. It parses compiler results and owns table-of-contents, cleanup, project-main-file, and viewer integration.",
+    "Viewer selection is executable- and platform-aware. Okular receives --unique and SyncTeX source-position arguments on the current host; no repository code edits the viewer's external inverse-search preference.",
+    "nvim-lspconfig configures texlab for tex, plaintex, and bib buffers. Mason tool installer owns the texlab executable; project root markers fall back to a standalone file's directory.",
+    "Texlab's build-on-save and forward-search-after-build paths are disabled to prevent overlap with VimTeX. ChkTeX runs only on open/save when the executable exists, not on every edit.",
+    "latexindent is exposed through explicit LSP/Conform formatting with line-break modification disabled. Conform returns no save-time format request for Markdown, TeX, plain TeX, or BibTeX.",
+    "The markup FileType/BufWinEnter gate is separate from both tools and enforces literal-source window options even when a window was previously used by the concealing C++ frontend.",
+    "Tree-sitter highlighting and indentation are disabled for tex, plaintex, and bib so VimTeX remains the sole syntax/indent owner and no redundant LaTeX parser is auto-installed."
+  ],
+  "rationale": [
+    "VimTeX handles multi-file TeX compilation, log parsing, main-document discovery, and SyncTeX more completely than rebuilding those workflows locally.",
+    "Texlab adds structural language intelligence without needing to become a second compiler owner.",
+    "Explicit build and format actions avoid surprising process launches and large document rewrites on an ordinary save."
+  ],
+  "scope": ["latex-tooling", "vimtex", "texlab", "latexmk", "pdf-viewer"],
+  "tags": ["VimTeX", "texlab", "Mason", "latexmk", "Okular", "explicit-action"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-16 LaTeX setup request",
+      "note": "Owner requested LaTeX support after establishing literal-source Markdown presentation."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-16 host and upstream audit",
+      "note": "The host already provided latexmk, pdflatex, latexindent, chktex, biber, SyncTeX, MuPDF, and Okular; texlab and editor integration were absent. Official VimTeX and texlab interfaces were verified before implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/markup_spec.lua",
+      "claim": "Plugin commands, buffer mappings, literal-source settings, texlab configuration, root-independent setup, and no-build-on-save behavior are pinned in isolated Neovim."
+    },
+    {
+      "kind": "source",
+      "reference": "lua/custom/plugins/vimtex.lua and lua/custom/plugins/lsp.lua",
+      "claim": "Compilation/viewing and language intelligence have separate explicit owners and no save-triggered build path."
+    }
+  ],
+  "relations": [
+    { "type": "implements", "target": "BHV-015" },
+    { "type": "relates_to", "target": "CMP-008" },
+    { "type": "relates_to", "target": "DEC-010" }
+  ],
+  "retrieval": {
+    "aliases": ["LaTeX architecture", "VimTeX versus texlab", "PDF forward search", "latexmk integration", "LaTeX formatter"],
+    "questions": [
+      "Which component compiles LaTeX and which one provides completion?",
+      "Why is VimTeX not lazy-loaded through lazy.nvim?",
+      "How is the PDF viewer selected?",
+      "Why does texlab not build or format on save?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-16",
+    "revision": "worktree after 9e89ef9",
+    "method": "Host executable inventory, pinned official upstream documentation, installed-plugin inspection, and focused headless contract."
+  }
+}

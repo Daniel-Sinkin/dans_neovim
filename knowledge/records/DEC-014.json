@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "DEC-014",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Selected CUDA symbols use compact semantic aliases",
+  "summary": "Selected CUDA handles and complex helpers use compact semantic spellings, with every alias retaining CUDA seafoam provenance.",
+  "details": [
+    "The exact mappings are cudaStream_t -> Stream, cudaGraph_t -> Graph, cudaGraphExec_t -> GraphExec, cuCabsf -> abs, and cuConjf -> conj.",
+    "Exact semantic aliases run before generic cuda/cu prefix conceal, avoiding mechanically shortened spellings such as Stream_t, Graph_t, GraphExec_t, Cabsf, and Conjf.",
+    "The mappings apply in raw code and structured declaration rendering; handle types also remain consistent in parameters and moved C-style returns.",
+    "Exact identifier boundaries prevent partial rewrites inside longer project identifiers.",
+    "All displayed aliases remain CUDA seafoam because classification uses the source token before its spelling changes.",
+    "Include and include_next directives are excluded from every character-changing frontend pass, so the same strings remain verbatim when they occur in header paths.",
+    "CUDA execution-space qualifier spellings remain an open design question rather than being changed as part of these symbol aliases."
+  ],
+  "rationale": [
+    "Stream, Graph, and GraphExec communicate handle roles without the runtime prefix or C typedef suffix.",
+    "abs and conj communicate the mathematical operations directly while color retains CUDA origin.",
+    "An explicit table keeps raw expressions, overlays, types, parameters, and return movement from drifting."
+  ],
+  "alternatives": [
+    "Hide only the cuda/cu prefix and show Stream_t, Graph_t, GraphExec_t, Cabsf, and Conjf; rejected by the owner in favor of semantic spellings.",
+    "Remove CUDA provenance after shortening; rejected because the shared classify-before-strip rule treats color as retained information."
+  ],
+  "scope": ["cuda-frontend/types", "cuda-frontend/functions", "library-prefixes"],
+  "tags": ["CUDA", "stream", "complex", "abs", "conj", "semantic-alias"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-18 CUDA spelling review",
+      "note": "Owner explicitly selected cudaStream_t -> Stream, cudaGraph_t -> Graph, cudaGraphExec_t -> GraphExec, cuCabsf -> abs, and cuConjf -> conj, with CUDA color retained."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua exact CUDA alias tables and aliases.lua::cuda_idents",
+      "note": "Structured and raw rendering consume shared exact mappings before generic prefix removal."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua, tests/frontend_spec.lua, and tests/param_flip_spec.lua",
+      "claim": "Raw expressions, overlays, parameters, moved returns, CUDA highlight groups, Visual reveal, source integrity, and include exclusion are pinned."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "relates_to", "target": "DEC-004" },
+    { "type": "relates_to", "target": "DEC-005" },
+    { "type": "implemented_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "QST-006" }
+  ],
+  "retrieval": {
+    "aliases": ["cudaStream_t Stream", "cudaGraph_t Graph", "cudaGraphExec_t GraphExec", "cuCabsf abs", "cuConjf conj", "CUDA exact aliases"],
+    "questions": [
+      "How do cudaStream_t, cudaGraph_t, cudaGraphExec_t, cuCabsf, and cuConjf display?",
+      "Why is abs still CUDA green?",
+      "Are CUDA exact aliases applied inside include paths?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Owner selections implemented through shared exact tables and verified in focused static and interaction specs."
+  }
+}

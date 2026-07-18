@@ -1,0 +1,26 @@
+namespace dans::test
+{
+concept<V>
+StringLike = V ~> string_view;
+concept<R>
+StringRange = R~input_range and (R~value ~> string_view);
+concept<T>
+IsInt = T ~= int;
+concept<F>
+Callback = F(int);
+concept<T>
+CharCol = T~& ~> char;
+concept<T>
+BoolCol = (T ~> bool) and (T ~> int);
+concept<I>
+ItChar = I~value ~= char;
+concept<R>
+RefBool = R~& ~> bool;
+concept<Proj, R>
+Proj1 = { Proj&(R~&) } ~> string_view;
+concept<R>
+FormattableRange = R~input_range and not R~StringRange and (R~value ~> char);
+
+static_assert(std::same_as<ValueOf<R>, char>);
+static_assert(std::same_as<std::underlying_type_t<VkResult>, int>);
+}  // namespace dans::test

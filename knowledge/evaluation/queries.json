@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "queries": [
+    {
+      "id": "RQ-LOOKUP-001",
+      "query": "Can a presentation feature merge two source lines or change debugger line numbers?",
+      "expected": ["INV-001"]
+    },
+    {
+      "id": "RQ-LOOKUP-002",
+      "query": "Why do multiline function arguments remain raw after leaving visual block mode until j or k touches them?",
+      "expected": ["INC-001", "CMP-001"]
+    },
+    {
+      "id": "RQ-LOOKUP-003",
+      "query": "How can an agent reproduce a selection and inspect mangled display text without opening Neovide?",
+      "expected": ["CMP-003"]
+    },
+    {
+      "id": "RQ-LOOKUP-004",
+      "query": "Why does auto star keep a caret next to the inferred variable name?",
+      "expected": ["DEC-002"]
+    },
+    {
+      "id": "RQ-LOOKUP-005",
+      "query": "Which concrete reference argument style was selected and what is the current const mut spelling?",
+      "expected": ["DEC-003", "BHV-003"]
+    },
+    {
+      "id": "RQ-LOOKUP-006",
+      "query": "Do we need to archive every headless test result as an experiment with logs and hashes?",
+      "expected": ["DEC-001"]
+    },
+    {
+      "id": "RQ-LOOKUP-008",
+      "query": "How do I open actual Neovim render alternatives in a browser and record the owner's selection?",
+      "expected": ["CMP-004"]
+    },
+    {
+      "id": "RQ-LOOKUP-009",
+      "query": "Why is cf32 still CUDA green after cuFloatComplex is compacted?",
+      "expected": ["DEC-004", "DEC-005", "BHV-009"]
+    },
+    {
+      "id": "RQ-LOOKUP-010",
+      "query": "Why did the style choice save successfully but the browser report NetworkError on final submit?",
+      "expected": ["INC-003"]
+    },
+    {
+      "id": "RQ-LOOKUP-011",
+      "query": "Is a unified soft source region model approved, and which duplicated classifiers motivate it?",
+      "expected": ["QST-002"]
+    },
+    {
+      "id": "RQ-LOOKUP-012",
+      "query": "How are canonical facts, superseded decisions, embeddings, and generated documentation organized?",
+      "expected": ["CMP-005"]
+    },
+    {
+      "id": "RQ-LOOKUP-013",
+      "query": "What custom workflow modules exist besides the C++ frontend?",
+      "expected": ["CMP-008"]
+    },
+    {
+      "id": "RQ-LOOKUP-014",
+      "query": "What do cuFloatComplex cuComplex and cuDoubleComplex display as, and are there scalar cuFloat variants?",
+      "expected": ["DEC-005"]
+    },
+    {
+      "id": "RQ-LOOKUP-015",
+      "query": "Should the colons of a multiline function argument list align, and does that rewrite source spacing?",
+      "expected": ["DEC-006", "BHV-003"]
+    },
+    {
+      "id": "RQ-LOOKUP-016",
+      "query": "Why does DEFER with a reference-capturing lambda show only defer and its body?",
+      "expected": ["DEC-007", "BHV-006"]
+    },
+    {
+      "id": "RQ-LOOKUP-017",
+      "query": "Why was the closing parenthesis of a multiline CUDA_CHECK not colored green?",
+      "expected": ["INC-004"]
+    },
+    {
+      "id": "RQ-LOOKUP-018",
+      "query": "Should qnpeps namespace prefixes be hidden and why does the remaining type stay orchid?",
+      "expected": ["DEC-008", "BHV-009"]
+    },
+    {
+      "id": "RQ-LOOKUP-019",
+      "query": "Why did a Qnpeps C header show unaligned struct fields, a giant gap before ctx colon, raw packed parameters, and no moved multiline status return?",
+      "expected": ["INC-005", "BHV-003", "BHV-004", "BHV-006"]
+    },
+    {
+      "id": "RQ-LOOKUP-020",
+      "query": "Does this config still use LuaSnip, and where do I add a structured C++ template now?",
+      "expected": ["DEC-009", "CMP-009"]
+    },
+    {
+      "id": "RQ-LOOKUP-021",
+      "query": "How do assembly and function probes share compile_commands flags and prevent stale compiler results?",
+      "expected": ["CMP-010"]
+    },
+    {
+      "id": "RQ-LOOKUP-022",
+      "query": "How do I get Godbolt-like colors for one function and switch from O0 to O3?",
+      "expected": ["BHV-010"]
+    },
+    {
+      "id": "RQ-LOOKUP-023",
+      "query": "Can I run the C++ function under the cursor with arguments and inspect the temporary harness?",
+      "expected": ["BHV-011"]
+    },
+    {
+      "id": "RQ-LOOKUP-024",
+      "query": "Generate the zero-is-valid enum, validity is_valid and to_string for this config struct without overwriting my header",
+      "expected": ["BHV-012", "DEC-010"]
+    },
+    {
+      "id": "RQ-LOOKUP-025",
+      "query": "Why was the tensor and graphics debugger frontend not built, and is the function probe a debugger?",
+      "expected": ["QST-004", "BHV-011"]
+    },
+    {
+      "id": "RQ-LOOKUP-026",
+      "query": "How do I inspect C++ component ownership, CMake targets, include provenance and dependency cycles without editing the project?",
+      "expected": ["CMP-011", "BHV-013", "DEC-011"]
+    },
+    {
+      "id": "RQ-LOOKUP-027",
+      "query": "Is the John Lakos inspired synthetic module manifest already authoritative and does it mean C++20 modules?",
+      "expected": ["QST-005", "DEC-011"]
+    },
+    {
+      "id": "RQ-LOOKUP-028",
+      "query": "How do I turn off the Odin-like frontend, see exact C++ spelling, and restore ordinary syntax colors?",
+      "expected": ["BHV-014", "DEC-012"]
+    },
+    {
+      "id": "RQ-LOOKUP-029",
+      "query": "Where do I launch assembly, code generation, project inspection, and font controls without memorizing Dans colon commands?",
+      "expected": ["BHV-014"]
+    },
+    {
+      "id": "RQ-LOOKUP-030",
+      "query": "Which font sizes does the Dans menu accept and what happens to guifont when the input is outside the range?",
+      "expected": ["BHV-014", "DEC-012"]
+    },
+    {
+      "id": "RQ-LOOKUP-031",
+      "query": "Why are Markdown triple backtick code fences hidden and should emphasis or link markup be rendered or concealed?",
+      "expected": ["DEC-013", "BHV-015"]
+    },
+    {
+      "id": "RQ-LOOKUP-032",
+      "query": "How do I compile and view a LaTeX document, what provides completion, and does saving automatically build or format it?",
+      "expected": ["CMP-013", "BHV-015"]
+    }
+  ]
+}

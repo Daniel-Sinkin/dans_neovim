@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "DEC-013",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Ordinary Markdown is displayed as literal source",
+  "summary": "Markdown files retain every source delimiter and destination on screen; syntax colors may aid reading, but concealment, rendered substitutions, and automatic save-time formatting are disabled.",
+  "details": [
+    "Triple-backtick and tilde code fences remain visible, including their language identifier.",
+    "Emphasis, strong, strikeout, link, checkbox, heading, and inline-code markup remain spelled exactly as stored rather than being hidden or replaced with presentation glyphs.",
+    "The global default conceallevel is zero. Markdown syntax conceal is disabled before syntax initialization, and Markdown FileType plus BufWinEnter transitions reassert the zero window-local conceal level.",
+    "Markdown remains syntax highlighted and fenced-language injection remains available; color does not change character identity.",
+    "Conform does not format Markdown on save. Explicit future authoring tools must remain separate from passive presentation.",
+    "This decision concerns ordinary .md/.markdown/.mdx files. The separately accepted frontend rendering of triple-slash documentation blocks in C++ headers is unchanged."
+  ],
+  "rationale": [
+    "Hidden fence boundaries made document structure unreadable and made it difficult to distinguish literal Markdown from its rendered interpretation.",
+    "A source editor should expose the bytes that will be reviewed, versioned, and consumed by downstream Markdown processors.",
+    "Disabling both syntax conceal and the window option avoids a fragile fix that works only until a window carrying another buffer's conceal state is reused."
+  ],
+  "alternatives": [
+    "Hide markup only away from the cursor; rejected because document structure would still change during navigation.",
+    "Keep an Obsidian/render-markdown presentation toggle; rejected because ordinary Markdown should have one predictable literal view and no such renderer is active in the current configuration.",
+    "Disable all Markdown syntax highlighting; rejected because colors do not obscure source characters and remain useful."
+  ],
+  "scope": ["markdown", "conceal", "source-faithful-markup", "format-on-save"],
+  "tags": ["Markdown", "code-fences", "literal-source", "conceallevel", "no-autoformat"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-16 Markdown presentation request",
+      "note": "Owner reported hidden triple-backtick fences as unreadable and requested no presentation adjustments in Markdown files."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-16 current configuration audit",
+      "note": "The active cause was a stale global conceallevel=2 retained after obsidian.nvim had been removed; no current Markdown rendering plugin existed."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/markup_spec.lua",
+      "claim": "A real Markdown FileType/BufWinEnter transition resets an inherited conceal window, disables syntax conceal, shows both triple-backtick fence rows on Neovim's screen grid, retains source lines exactly, and leaves the buffer unchanged."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "BHV-015" },
+    { "type": "relates_to", "target": "INV-002" },
+    { "type": "relates_to", "target": "BHV-008" }
+  ],
+  "retrieval": {
+    "aliases": ["visible markdown fences", "do not render markdown", "literal md", "markdown conceallevel", "source-faithful prose"],
+    "questions": [
+      "Should Markdown code-fence delimiters disappear?",
+      "Why is conceallevel zero in Markdown?",
+      "May Markdown emphasis or link syntax be replaced visually?",
+      "Does the Markdown rule disable C++ triple-slash documentation rendering?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-16",
+    "revision": "worktree after 9e89ef9",
+    "method": "Owner decision, stale-option source audit, and isolated Markdown window-transition contract."
+  }
+}

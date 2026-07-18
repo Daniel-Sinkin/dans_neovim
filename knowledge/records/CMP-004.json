@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "CMP-004",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Real-render browser style selection lab",
+  "summary": "A localhost browser application compares per-buffer frontend profiles using Neovim's actual embedded UI grid and persists owner selections with exact provenance.",
+  "details": [
+    "tools/nvim_ui_capture.py implements a MessagePack-RPC Neovim UI client and consumes ext_linegrid redraw events, highlight definitions, default colors, scrolling, and flush boundaries.",
+    "Each capture loads the real init.lua, parser, frontend autocmds, conceal, virtual text, line numbers, and TokyoNight/frontend highlight groups; it is not a CSS imitation or extmark-only reconstruction.",
+    "lua/custom/dans_frontend_cpp/style.lua supplies validated buffer-local overrides so alternatives never monkey-patch global renderer functions or affect real source buffers.",
+    "style_lab/catalog.json defines questions, choices, profiles, scenes, pinned source revisions, licenses, and adaptations; arbitrary choice and scene counts are supported.",
+    "tools/style_lab.py validates the catalog, generates content-addressed real-grid captures, serves static assets and JSON APIs on loopback, atomically writes selections, and optionally waits for completion.",
+    "The browser fits a slightly overflowing code panel at the largest size between 100 and 80 percent; if it still overflows at 80 percent, it restores full size and enables horizontal scrolling.",
+    "Capture width grows per scene before browser layout so long lines are never truncated by Neovim before the fit/scroll decision.",
+    "The corpus includes synthetic semantic, CUDA/Qnpeps alignment, defer, and multiline macro controls plus pinned micro-excerpts from Dear ImGui, LLVM, NVIDIA CUDA Samples, GCC, SDL, GLFW, and Khronos Vulkan Samples."
+  ],
+  "scope": ["style-lab", "visual-regression", "owner-decisions", "headless-neovim"],
+  "tags": ["browser", "ext-linegrid", "msgpack-rpc", "profiles", "selection-provenance", "external-corpus"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 browser-based style toy request",
+      "note": "Owner selected a browser implementation and required actual visual alternatives with machine-readable feedback."
+    },
+    {
+      "kind": "code",
+      "reference": "tools/style_lab.py, tools/nvim_ui_capture.py, style_lab/web, style_lab/catalog.json",
+      "note": "These files implement capture, serving, layout, persistence, and corpus metadata."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py",
+      "claim": "Catalog provenance, profile isolation, source integrity, exact text differences, and final HTTP acknowledgement are tested."
+    },
+    {
+      "kind": "owner",
+      "reference": "style_lab/selections.json",
+      "claim": "The first real decision round-trip selected const-default with a timestamp and catalog hash."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "tests", "target": "DEC-003" },
+    { "type": "resolves", "target": "INC-003" },
+    { "type": "relates_to", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["visual choice browser", "actual Neovim screenshots", "style profiles", "wait for owner choice"],
+    "questions": [
+      "How can an agent show several frontend syntax alternatives?",
+      "Are browser examples produced by the real Neovim renderer?",
+      "Where is a style selection recorded?",
+      "How are long code lines fit or scrolled?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Real server/API exercise, Chrome screenshot inspection, RGB grid inspection, selection round-trip, and isolated tests."
+  }
+}

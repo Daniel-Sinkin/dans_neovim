@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "INC-005",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "C ABI declarations broke alignment and multiline function rendering",
+  "summary": "The frontend's width and function helpers encoded C++ formatter assumptions that failed on ordinary C structs and parameter lists with several arguments on one continuation row.",
+  "details": [
+    "Bare uninitialized scalar fields were rendered as no_init name: type but excluded from field_dims, so alignment either did not run or formed pointer-only islands inside one struct.",
+    "flip_param_line selected only the first parameter_declaration beginning on a continuation row. Later parameters stayed raw while the first colon was padded against their later source columns, producing a huge gap and a mixed grammar.",
+    "The C-style return mover measured the parameter close column against the opening declarator row. For a multiline declaration this made the injection point invalid, leaving a prefix-stripped leading status type instead of def and -> status.",
+    "field_dims now mirrors the renderer's bare member/global acceptance gate, so all displayed fields in a contiguous declaration run share one width model.",
+    "The multiline parameter path now flips every complete parameter on the row and disables vertical colon padding for an entire list if any row has more than one parameter.",
+    "C-style function layout is computed once per changedtick from Tree-sitter and indexed by the type/name/close rows; each row owns only its extmarks, preserving row-scoped cursor and Visual reveal."
+  ],
+  "scope": ["c-frontend/declarations", "cpp-frontend/parameters", "cuda-frontend/parameters", "frontend-alignment"],
+  "tags": ["C-ABI", "struct-fields", "packed-parameters", "multiline-return", "alignment", "Tree-sitter"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 qnpeps.h lines 23-112 and permute_axes overloads",
+      "note": "Owner supplied three concrete failures: unaligned Qnpeps structs, a catastrophically padded packed continuation row, and wrapped CUDA overload parameters."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/home/daniel/GitHub/tensor-network-cluster/deliverables/cuQuantumNaturalfPEPS/cuda/capi/qnpeps.h (read-only)",
+      "note": "The exact header was captured through Neovim ext_linegrid before and after the fix; no file in the thesis repository was modified."
+    },
+    {
+      "kind": "code",
+      "reference": "parse.lua::field_dims and aliases.lua::flip_param_line/c_style_facts",
+      "note": "The three formerly divergent width/ownership assumptions are corrected at their generic structured owners."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua C ABI and overflow-parameter blocks",
+      "claim": "Bare and pointer fields align together, every packed parameter flips, concrete returns move across rows, both permute_axes layouts render completely, reveal restores independently, and source bytes remain unchanged."
+    },
+    {
+      "kind": "source",
+      "reference": "real ext-linegrid capture of qnpeps.h lines 23-123",
+      "claim": "The complete affected header region renders consistently after the generic correction, including later rangefinder declarations."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "BHV-003" },
+    { "type": "relates_to", "target": "BHV-004" },
+    { "type": "relates_to", "target": "BHV-006" },
+    { "type": "relates_to", "target": "DEC-006" },
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["qnpeps C API alignment broken", "packed parameters giant gap", "multiline C return missing", "permute_axes overflow row"],
+    "questions": [
+      "Why did qnpeps_ctx_build_dlenv render with a huge gap and raw trailing parameters?",
+      "Why did bare Qnpeps C struct fields fail to align?",
+      "How are concrete return types moved when the closing parenthesis is on another row?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after e065a0e",
+    "method": "Exact read-only source capture, AST/ownership diagnosis, deterministic C/CUDA interaction fixtures, and full-header ext-linegrid inspection."
+  }
+}

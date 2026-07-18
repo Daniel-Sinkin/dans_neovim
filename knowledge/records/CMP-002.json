@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "CMP-002",
+  "kind": "component",
+  "status": "observed",
+  "title": "C, C++, and CUDA frontend rendering pipeline",
+  "summary": "The frontend is a module umbrella combining declaration overlays, raw-line decorations, alignment, highlighting, platform analysis, folding, and linting.",
+  "details": [
+    "view.lua owns full-line declaration overlays and delegates source analysis to parse.lua and chunk construction to render.lua.",
+    "aliases.lua owns keyword aliases, function-parameter movement including packed multiline rows, changedtick-keyed C-style function layout facts, function return rewriting, and raw exact CUDA symbol transforms; parse.lua supplies the same exact tables to structured renderers.",
+    "pointer.lua owns raw pointer and CString presentation outside overlay-covered rows.",
+    "designated.lua, logic.lua, macro_def.lua, special_members.lua, enum_align.lua, and arrow_align.lua own focused raw-line transforms.",
+    "markers.lua owns library-prefix conceal and window-local category highlighting; highlights.lua owns shared highlight definitions.",
+    "ppif.lua and fold.lua analyze platform branches and fold structure; scope.lua and overlay_hl.lua provide interaction highlighting; lint.lua reports frontend-specific hazards.",
+    "util.lua combines shared source facts, caches, reveal policy, cold-open gating, module state, and decoration lifecycle; its shared skipper owns whole-row exclusions including direct and continued include directives."
+  ],
+  "scope": ["cpp-frontend", "cuda-frontend", "c-frontend"],
+  "tags": ["architecture", "module-map", "rendering-pipeline", "treesitter"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/init.lua::SETUP_ORDER",
+      "note": "Umbrella setup enumerates active frontend modules."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-11 source and dependency inventory",
+      "note": "Module responsibilities were verified from setup, namespace, refresh, and test call sites rather than legacy prose."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua and tests/golden/render.lua",
+      "claim": "Static behavior and integrated multi-module output are covered by focused and golden assertions."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Representative modules share the reveal lifecycle contract, and include ownership excludes character-changing renderers across interaction transitions."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" },
+    { "type": "implemented_by", "target": "CMP-001" },
+    { "type": "tested_by", "target": "CMP-003" }
+  ],
+  "retrieval": {
+    "aliases": ["frontend module map", "who owns parameter flip", "render architecture", "include row skipper", "exact CUDA alias owner"],
+    "questions": [
+      "Which module moves multiline function parameters?",
+      "Which module hides CUDA prefixes?",
+      "How do parse, render, view, and aliases divide responsibility?",
+      "Which shared component prevents aliases from rewriting include paths?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-18",
+    "revision": "current worktree",
+    "method": "Static module/namespace audit plus focused interaction coverage of shared include ownership and exact CUDA aliases."
+  }
+}

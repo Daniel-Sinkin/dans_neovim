@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "BHV-012",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Preview-first parser-derived C++ code generation",
+  "summary": "C++ generation commands derive enums, fields, functions, namespaces, and target headers from Tree-sitter, render the result through the real frontend, and require an explicit apply action.",
+  "details": [
+    "DansCppGenerate opens a chooser; dedicated commands generate enum to_string, struct to_string, Validity/validity/is_valid/to_string, a current-function header declaration, or a sibling header draft.",
+    "Validity follows the owner's u8 zero-is-valid convention. It recursively emits checks only for syntactically inferable nested structs/configs and leaves scalar/domain predicates as an explicit comment rather than inventing them.",
+    "Enum and validity string conversion use the observed dans-vk2 with_name, include_name, using-enum, switch, and unreachable pattern; generated functions are inline so adjacent header insertion is ODR-safe.",
+    "Header declaration projection preserves the implementation signature while removing its body and constructor initializer. Qualified methods are inserted into a matching class body after an explicit public/protected/private choice; free functions are reopened in their namespace.",
+    "A header draft copies non-self includes, emits safe type forward declarations and non-static/non-template free-function declarations, and never replaces a non-empty existing header.",
+    "The preview's a mapping applies to a buffer left modified for review, y copies, and q closes. No command silently writes a project file to disk."
+  ],
+  "scope": ["cpp-tools/codegen", "headers", "validity", "to-string"],
+  "tags": ["DansCppGenerate", "Validity", "enum", "header-draft", "preview-first"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 C++ code-generation request",
+      "note": "Owner requested header projection, header creation, Validity/is_valid/to_string, and enum to_string tooling."
+    },
+    {
+      "kind": "analysis",
+      "reference": "/home/daniel/GitHub/dans-vk2/src/dans/validity.hpp and src/vk/vk_config.{hpp,cpp} (read-only review)",
+      "note": "The generator convention was reconstructed from the owner's current implementation without writing to that repository."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/cpp_codegen.lua",
+      "note": "Current parser, generators, preview, and application behavior."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/codegen_spec.lua",
+      "claim": "Field/enum extraction, compiling nested validity output, declarations, constructor projection, header drafts, member insertion/duplicate rejection, and explicit preview apply are pinned."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "CMP-010" },
+    { "type": "constrained_by", "target": "DEC-010" },
+    { "type": "relates_to", "target": "CMP-009" }
+  ],
+  "retrieval": {
+    "aliases": ["generate Validity", "enum to_string", "create header", "move declaration to header", "C++ codegen"],
+    "questions": [
+      "How do I generate validity and string conversion for a struct?",
+      "How does a function implementation get declared in its header?",
+      "Will header generation overwrite an existing file?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Read-only convention audit plus parser/generator and real preview-apply tests."
+  }
+}

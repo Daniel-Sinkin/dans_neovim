@@ -1,0 +1,9 @@
+// template-header compaction
+<V>
+class FString {};
+
+<T, usize N>
+struct Span {};
+
+<U>
+def use() -> void {}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "INV-002",
+  "kind": "invariant",
+  "status": "accepted",
+  "title": "The language frontend is presentation-only",
+  "summary": "C, C++, and CUDA source-buffer bytes are never rewritten merely to obtain the frontend spelling.",
+  "details": [
+    "Presentation is implemented with conceal, inline or overlay virtual text, highlights, folds, and window-local matches.",
+    "Compilers, formatters, LSP clients, git, and debugger source locations must continue to observe the real source.",
+    "Editing features such as snippets are separate authoring tools and are not presentation transforms."
+  ],
+  "rationale": [
+    "A visual language can be aggressive only if downstream tools retain a single authoritative source representation."
+  ],
+  "scope": ["cpp-frontend", "cuda-frontend", "c-frontend"],
+  "tags": ["view-only", "source-bytes", "conceal", "virtual-text"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-11 initial project handover",
+      "note": "Owner described the frontend as a custom Neovim presentation of real C++ code."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/*.lua",
+      "note": "Current frontend modules decorate through Neovim display APIs rather than nvim_buf_set_text or nvim_buf_set_lines."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua::Session.assert_source_unchanged",
+      "claim": "Visual reveal and restore transitions leave every source line byte-identical."
+    },
+    {
+      "kind": "source",
+      "reference": "lua/custom/dans_frontend_cpp/view.lua and decoration modules",
+      "claim": "Rendering uses namespaces, extmarks, conceal, virtual text, highlights, and folds."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "CMP-002" },
+    { "type": "relates_to", "target": "INV-001" }
+  ],
+  "retrieval": {
+    "aliases": ["do not mutate source", "display-only transform", "real C++ stays on disk"],
+    "questions": [
+      "Can the frontend rewrite buffer text?",
+      "Do clangd and git see the Odin-like spelling?",
+      "Which APIs may presentation modules use?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-11",
+    "revision": "worktree after 85417c9",
+    "method": "Static API inventory plus interaction source-integrity assertions."
+  }
+}

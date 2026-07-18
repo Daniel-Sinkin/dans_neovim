@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "DEC-010",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Execution and generated-code tools expose explicit safety boundaries",
+  "summary": "Function execution requires an explicit invocation against saved source, while generated project code is previewed and applied only by a second explicit action; neither workflow claims semantic certainty it cannot derive.",
+  "details": [
+    "Assembly and probes refuse modified source buffers rather than compiling stale on-disk bytes under a visually newer buffer.",
+    "A function probe executes user/project code only after DansRunFunction and never expands into automatic background execution.",
+    "Code generators distinguish parser-known structure from unknown domain semantics: inferred nested validity checks are generated, scalar predicates remain for the owner to define.",
+    "Preview buffers render through Neovim, and apply changes an ordinary modifiable buffer without automatically writing it.",
+    "Whole-header creation is allowed only into an empty/new target; non-empty headers require incremental declaration insertion."
+  ],
+  "rationale": [
+    "Compiler flags and syntax trees provide structure but cannot prove that a function is side-effect-free, link-complete, hardware-independent, or safe to execute.",
+    "Header ownership, public API intent, and scalar validity predicates are design knowledge rather than syntax facts.",
+    "Explicit preview/application preserves fast automation without disguising inference as correctness."
+  ],
+  "alternatives": [
+    "Automatically save source before compiling; rejected because a tooling command should not commit unrelated editor state.",
+    "Run any function after inferring default arguments; rejected because construction and side effects are not reliably inferable.",
+    "Write generated headers and validation code immediately; rejected because API placement and domain predicates require review."
+  ],
+  "scope": ["cpp-tools", "execution", "codegen", "safety"],
+  "tags": ["explicit-action", "saved-source", "preview", "no-auto-write", "inference-boundary"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-12 requested tooling and debugger deferral",
+      "note": "Owner requested aggressive utility automation while explicitly shelving the debugger project."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-12 implementation risk review",
+      "note": "Boundaries reflect what compile databases and Tree-sitter can and cannot establish."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/asm_interaction_spec.lua, runner_interaction_spec.lua, codegen_spec.lua",
+      "claim": "Saved-source checks, source integrity, explicit invocation, and preview-before-apply lifecycles are covered."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "BHV-011" },
+    { "type": "constrains", "target": "BHV-012" },
+    { "type": "relates_to", "target": "QST-004" }
+  ],
+  "retrieval": {
+    "aliases": ["codegen safety", "function execution boundary", "preview before apply", "saved source required"],
+    "questions": [
+      "Why does assembly or the function runner require saving first?",
+      "Does generated C++ get written automatically?",
+      "Why are scalar validity checks not invented?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-12",
+    "revision": "worktree after 6a3b54e",
+    "method": "Behavior audit against focused interaction tests."
+  }
+}
