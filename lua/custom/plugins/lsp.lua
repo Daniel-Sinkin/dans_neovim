@@ -320,7 +320,10 @@ return {
         },
       }
 
-      local required_mason_tools = { 'lua_ls', 'stylua', 'texlab' }
+      -- These are Mason registry package names, not nvim-lspconfig server
+      -- names. The integrations are deliberately disabled below, so aliases
+      -- such as `lua_ls` are not translated for us.
+      local required_mason_tools = { 'lua-language-server', 'stylua', 'texlab' }
       -- Package installation is explicit; LSP activation is handled below.
       require('mason-tool-installer').setup {
         ensure_installed = required_mason_tools,
