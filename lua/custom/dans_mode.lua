@@ -1,4 +1,5 @@
--- Global presentation-mode controller for C/C++/CUDA.
+-- Global presentation-mode controller for C/C++/CUDA plus the shared
+-- monochrome preference used by conventional language buffers.
 --
 -- There are deliberately two independent owner-facing choices:
 --   * frontend: the Odin/Jai-like presentation layer and its supporting views;
@@ -10,13 +11,24 @@
 --     frontend_enabled OR requested_monochrome
 --
 -- `requested_monochrome` is remembered while the frontend forces the effective
--- value on.  If the owner previously chose normal colors, disabling the frontend
--- restores that choice immediately.  State is global because highlight links
--- are global and a menu that changes meaning per buffer is misleading.
+-- value on for buffers where that frontend can actually render. C#, Python, and
+-- other non-frontend buffers follow the remembered monochrome preference
+-- directly, so the menu can restore their ordinary language colors even while
+-- the C++ frontend remains enabled elsewhere.
 
 local M = {}
 
 local CPP_FT = { c = true, cpp = true, cuda = true }
+local FRONTEND_MENU_EXT = {
+  c = true,
+  cc = true,
+  cpp = true,
+  cu = true,
+  cuh = true,
+  h = true,
+  hh = true,
+  hpp = true,
+}
 local setup_done = false
 
 local function bool_default(value, default)
@@ -34,16 +46,39 @@ function M.monochrome_requested()
   return bool_default(vim.g.dans_monochrome_requested, true)
 end
 
-function M.monochrome_effective()
-  return M.frontend_enabled() or M.monochrome_requested()
-end
-
-function M.monochrome_locked()
-  return M.frontend_enabled()
+local function normalized_bufnr(bufnr)
+  if bufnr == 0 then
+    return vim.api.nvim_get_current_buf()
+  end
+  return bufnr
 end
 
 local function is_cpp(bufnr)
+  bufnr = normalized_bufnr(bufnr)
   return vim.api.nvim_buf_is_valid(bufnr) and CPP_FT[vim.bo[bufnr].filetype] == true
+end
+
+function M.frontend_menu_available(bufnr)
+  bufnr = normalized_bufnr(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return false
+  end
+  local extension = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':e'):lower()
+  return FRONTEND_MENU_EXT[extension] == true
+end
+
+function M.monochrome_effective(bufnr)
+  if bufnr ~= nil then
+    return (is_cpp(bufnr) and M.frontend_enabled()) or M.monochrome_requested()
+  end
+  return M.frontend_enabled() or M.monochrome_requested()
+end
+
+function M.monochrome_locked(bufnr)
+  if bufnr ~= nil then
+    return is_cpp(bufnr) and M.frontend_enabled()
+  end
+  return M.frontend_enabled()
 end
 
 local function in_buffer_window(bufnr, callback)
@@ -94,7 +129,7 @@ local function apply_buffer(bufnr)
     return
   end
   set_frontend_modules(bufnr, M.frontend_enabled())
-  set_highlighter(bufnr, M.monochrome_effective())
+  set_highlighter(bufnr, M.monochrome_effective(bufnr))
 end
 M.apply_buffer = apply_buffer
 
@@ -116,12 +151,12 @@ local function repick_colorscheme()
   pcall(vim.cmd.colorscheme, name)
 end
 
-local function apply_global(previous_monochrome)
+local function apply_global(previous_monochrome, repick_required)
   local effective = M.monochrome_effective()
   -- Compatibility for older callbacks/config fragments while the old vanilla
   -- module is retired: true now means normal source colors are effective.
   vim.g.dans_vanilla = not effective
-  if previous_monochrome ~= effective then
+  if previous_monochrome ~= effective or repick_required then
     repick_colorscheme()
   end
   apply_loaded_buffers()
@@ -146,16 +181,20 @@ end
 
 function M.set_monochrome(on, options)
   options = options or {}
-  if M.monochrome_locked() then
+  if M.monochrome_locked(options.bufnr) then
     if not options.silent then
       vim.notify('monochrome is required while the dans frontend is on', vim.log.levels.INFO)
     end
     return false, 'locked'
   end
   on = on == true
+  local changed = M.monochrome_requested() ~= on
   local previous_monochrome = M.monochrome_effective()
   vim.g.dans_monochrome_requested = on
-  apply_global(previous_monochrome)
+  -- A non-frontend language can change the requested palette while the C++
+  -- frontend keeps the process-wide effective value true. Re-source the theme
+  -- anyway so language-qualified normal colors can be reconstructed.
+  apply_global(previous_monochrome, changed)
   if not options.silent then
     vim.notify('dans monochrome ' .. (on and 'on' or 'off'), vim.log.levels.INFO)
   end

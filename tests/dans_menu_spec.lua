@@ -61,6 +61,16 @@ local function row_for(label)
   return nil
 end
 
+local function row_highlight(label)
+  local wanted = assert(row_for(label), 'missing menu row: ' .. label) - 1
+  local namespace = vim.api.nvim_get_namespaces().ds_dans_menu
+  for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(menu_buf, namespace, 0, -1, { details = true })) do
+    if mark[2] == wanted then
+      return mark[4].line_hl_group
+    end
+  end
+end
+
 local function activate(label)
   local row = assert(row_for(label), 'missing menu row: ' .. label)
   vim.api.nvim_set_current_win(menu_win)
@@ -204,9 +214,48 @@ do
   vim.o.guifont = original_font
 end
 
+-- The frontend row is contextual even though its stored state is global. It is
+-- available for the owner's explicit C/C++/CUDA suffix set and visibly disabled
+-- everywhere else; monochrome remains independently interactive there.
+do
+  for _, extension in ipairs { 'c', 'cpp', 'h', 'hpp', 'hh', 'cc', 'cu', 'cuh' } do
+    local bufnr = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(bufnr, '/tmp/dans_menu_supported.' .. extension)
+    eq('frontend menu accepts .' .. extension, Mode.frontend_menu_available(bufnr), true)
+  end
+  for _, extension in ipairs { 'cs', 'py', 'lua' } do
+    local bufnr = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(bufnr, '/tmp/dans_menu_unsupported.' .. extension)
+    eq('frontend menu rejects .' .. extension, Mode.frontend_menu_available(bufnr), false)
+  end
+
+  Mode.set_monochrome(true, { silent = true, bufnr = session.buf })
+  Mode.set_frontend(true, { silent = true })
+  local python = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_name(python, '/tmp/dans_menu_language.py')
+  vim.api.nvim_buf_set_lines(python, 0, -1, false, { 'value = len([1, 2, 3])' })
+  vim.api.nvim_set_current_buf(python)
+  vim.bo[python].filetype = 'python'
+  vim.cmd 'Dans'
+  menu_buf, menu_win = vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
+
+  ok('non-frontend menu explains the unavailable row', content():find('C/C++/CUDA source files only', 1, true))
+  eq('non-frontend menu grays the frontend row', row_highlight('Frontend presentation'), 'Comment')
+  activate 'Frontend presentation'
+  eq('activating a grayed frontend row is a no-op', Mode.frontend_enabled(), true)
+  ok('Python monochrome row is not locked by C++ elsewhere', not content():find('required by frontend — locked', 1, true))
+
+  activate 'Monochrome'
+  eq('Python menu disables the shared monochrome preference', Mode.monochrome_requested(), false)
+  eq('Python menu reports normal highlighting', Mode.monochrome_effective(python), false)
+  eq('Python palette change leaves the C++ frontend enabled', Mode.frontend_enabled(), true)
+  ok('Python menu rerenders the normal-color state', content():find('normal highlighting', 1, true))
+  Menu.close()
+end
+
 -- Leave the isolated process in the production default so later teardown
 -- callbacks see the same state as startup.
-Mode.set_monochrome(true, { silent = true })
+Mode.set_monochrome(true, { silent = true, bufnr = vim.api.nvim_get_current_buf() })
 Mode.set_frontend(true, { silent = true })
 Menu.close()
 

@@ -4,13 +4,13 @@
   "kind": "component",
   "status": "accepted",
   "title": "Global DANS display controller and command-palette boundary",
-  "summary": "dans_mode owns global frontend/requested-monochrome/effective-monochrome state, while dans_menu is a declarative owner-facing inventory that dispatches tools only after restoring its captured source context.",
+  "summary": "dans_mode owns global frontend and requested-monochrome state plus buffer-context effective state, while dans_menu lets C#/Python toggle monochrome and grays frontend presentation outside supported C/C++/CUDA source suffixes.",
   "details": [
-    "dans_mode defines effective monochrome as frontend_enabled OR monochrome_requested and exposes the lock directly instead of scattering equivalent conditions across menu and colorscheme code.",
+    "dans_mode defines C/C++/CUDA effective monochrome as frontend_enabled OR monochrome_requested; non-frontend buffers expose monochrome_requested directly. Both effective and locked queries accept a source-buffer context.",
     "Applying frontend state terminates tokenizer mode first, then drives every umbrella renderer, doc markdown, discovered-macro coloring, and scope coloring through explicit idempotent per-buffer setters.",
     "Normal-color mode restarts the Tree-sitter highlighter; effective monochrome stops only highlighting while leaving parsers available to presentation and tooling. The Tree-sitter plugin's flatten/disable callbacks consult the same controller.",
-    "FileType and BufWinEnter hooks apply the current global state to future C/C++/CUDA buffers, while an explicit transition updates all loaded language buffers.",
-    "dans_menu builds one list of sections and actions, captures the originating window and buffer, and closes before invoking any workflow that expects a source context.",
+    "FileType and BufWinEnter hooks apply current state to future C/C++/CUDA buffers, while DansDisplayModeChanged lets conventional-language support update its language-qualified captures.",
+    "dans_menu captures the originating window and buffer before building items. Its frontend row uses an exact source-suffix capability gate and its monochrome row asks the controller for target-context effective and locked state.",
     "COMMAND_COVERAGE is a test-visible inventory boundary for registered Dans commands. Aggregated low-level renderer commands map to the frontend item; dedicated generators map to the generation chooser.",
     "dans_vanilla delegates to the new controller solely for compatibility and is no longer an independent state owner."
   ],
@@ -37,28 +37,31 @@
     {
       "kind": "test",
       "reference": "tests/dans_menu_spec.lua",
-      "claim": "Controller state, module aggregation, highlighting, remembered preference, locked interaction, target dispatch, font input, and command inventory are exercised through the real UI."
+      "claim": "Controller state, module aggregation, C++/Python highlighting, contextual locks, exact suffix gating, disabled activation, target dispatch, font input, and command inventory are exercised through the real UI."
     }
   ],
   "relations": [
     { "type": "constrained_by", "target": "DEC-012" },
+    { "type": "constrained_by", "target": "DEC-018" },
     { "type": "implements", "target": "BHV-014" },
     { "type": "relates_to", "target": "CMP-001" },
     { "type": "relates_to", "target": "CMP-002" },
-    { "type": "relates_to", "target": "CMP-008" }
+    { "type": "relates_to", "target": "CMP-008" },
+    { "type": "relates_to", "target": "CMP-014" }
   ],
   "retrieval": {
-    "aliases": ["display state owner", "dans_mode", "dans_menu architecture", "frontend aggregate", "command coverage"],
+    "aliases": ["display state owner", "dans_mode", "turn off monochrome for Python or C# in Dans", "Frontend presentation gray in Python", "contextual frontend gate", "command coverage"],
     "questions": [
       "Which module owns whether the frontend and monochrome are active?",
       "How is the current display choice applied to a newly opened C++ buffer?",
       "Why does the menu close before launching assembly or project inspection?",
-      "Where must a new Dans command be added so the palette exposes it?"
+      "Where must a new Dans command be added so the palette exposes it?",
+      "How does the menu know the frontend is unavailable in Python?"
     ]
   },
   "last_verified": {
-    "date": "2026-07-12",
-    "revision": "worktree after 078d352",
-    "method": "Source audit plus focused headless display-mode and command-palette interaction coverage."
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Source audit plus focused headless C++/Python display-mode, suffix-gating, and command-palette interaction coverage."
   }
 }

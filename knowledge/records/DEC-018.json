@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "DEC-018",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Dans controls conventional-language monochrome while frontend availability is contextual",
+  "summary": "C# and Python default to source-faithful monochrome but follow the shared Dans monochrome preference; the C++ frontend remains unavailable from menu contexts outside the owner's explicit C/C++/CUDA suffix set.",
+  "details": [
+    "C# and Python never participate in the C/C++/CUDA spelling frontend, but their Tree-sitter presentation follows the globally remembered dans_monochrome_requested preference rather than being permanently monochrome.",
+    "When monochrome is disabled from a C# or Python buffer, language-qualified Tree-sitter captures restore the active colorscheme's ordinary palette. Semantic tokens stay disabled so Tree-sitter remains the single coloring source and LSP attachment cannot silently change presentation.",
+    "The C++ frontend may force monochrome only in buffers where that frontend renders. Its enabled state elsewhere does not lock the Monochrome menu row for C# or Python.",
+    "The Frontend presentation row is visibly gray and activation is a no-op unless the menu was opened from a .c, .cpp, .h, .hpp, .hh, .cc, .cu, or .cuh source buffer.",
+    "Definition navigation, references, refactoring, diagnostics, completion, and source bytes are independent of either presentation choice."
+  ],
+  "rationale": [
+    "Monochrome remains the low-noise default while retaining the owner's existing palette control instead of creating a special permanent policy for two languages.",
+    "Buffer-context locking reflects the actual capability boundary: a C++ frontend enabled in another window has no presentation authority over Python or C#.",
+    "A disabled menu row communicates scope before activation and prevents a global frontend transition from an unrelated source buffer."
+  ],
+  "alternatives": [
+    "Keep C# and Python permanently monochrome and independent of Dans; superseded because the owner explicitly expects monochrome disabling through the menu to work.",
+    "Allow the frontend row to toggle globally from every filetype; rejected because the owner expects it to be unavailable outside C/C++/CUDA source contexts.",
+    "Re-enable LSP semantic-token colors with normal Tree-sitter colors; deferred because the owner requested less visual noise and one syntax-color source is deterministic."
+  ],
+  "scope": ["csharp", "python", "dans-menu", "monochrome-highlighting", "frontend-availability"],
+  "tags": ["C#", "Python", "Dans", "Tree-sitter", "monochrome", "disabled-menu", "source-faithful"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-19 monochrome/menu clarification",
+      "note": "Owner asked whether Python/C# monochrome could be disabled through Dans and specified that the frontend option must be grayed outside .c/.cpp/.h/.hpp/.hh/.cc/.cu/.cuh files."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/dans_menu_spec.lua and tests/language_support_spec.lua",
+      "claim": "Headless interaction verifies the exact enabled suffixes, disabled row appearance and no-op activation, context-sensitive monochrome control, normal palette restoration, source fidelity, and persistent semantic-token suppression."
+    }
+  ],
+  "relations": [
+    { "type": "supersedes", "target": "DEC-017" },
+    { "type": "constrains", "target": "BHV-016" },
+    { "type": "relates_to", "target": "DEC-012" },
+    { "type": "relates_to", "target": "BHV-014" },
+    { "type": "relates_to", "target": "CMP-014" }
+  ],
+  "retrieval": {
+    "aliases": ["disable Python monochrome in Dans", "C# normal syntax colors", "gray frontend menu outside C++", "contextual frontend toggle"],
+    "questions": [
+      "Can the Dans menu turn monochrome off for Python or C#?",
+      "Why is the frontend option gray in a Python buffer?",
+      "Which file extensions enable Frontend presentation in the Dans menu?",
+      "Does enabling normal C# colors also enable the C++ frontend?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Owner clarification plus deterministic menu interaction and language-qualified highlight transition coverage."
+  }
+}

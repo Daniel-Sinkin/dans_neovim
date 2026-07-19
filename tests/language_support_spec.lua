@@ -3,6 +3,7 @@
 -- mappings, and a real Python cross-file definition request.
 
 local Support = require('custom.language_support')
+local Mode = require('custom.dans_mode')
 
 local pass, fail, failures = 0, 0, {}
 
@@ -28,6 +29,10 @@ local function highlight_link(name)
   return vim.api.nvim_get_hl(0, { name = name, link = true }).link
 end
 
+local function highlight_attributes(name)
+  return vim.api.nvim_get_hl(0, { name = name, link = false })
+end
+
 local function open_scratch(name, filetype, lines, query_language)
   local bufnr = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(bufnr, name)
@@ -38,7 +43,7 @@ local function open_scratch(name, filetype, lines, query_language)
   vim.cmd('doautocmd BufWinEnter')
 
   local parser_ready = vim.wait(30000, function()
-    return Support.apply_monochrome(filetype)
+    return Support.apply_presentation(filetype)
   end, 100)
   ok(filetype .. ' Tree-sitter query becomes available', parser_ready)
   if parser_ready then
@@ -133,6 +138,33 @@ eq('Python keywords are monochrome', highlight_link('@keyword.python'), 'Normal'
 eq('Python strings are monochrome', highlight_link('@string.python'), 'Normal')
 eq('Python comments stay dim', highlight_link('@comment.python'), 'Comment')
 eq('Python docstrings stay dim', highlight_link('@string.documentation.python'), 'Comment')
+
+-- The owner-facing monochrome preference applies to these conventional
+-- languages even while the C++ frontend remains globally enabled elsewhere.
+eq(
+  'Python can disable monochrome while the C++ frontend remains enabled',
+  Mode.set_monochrome(false, { silent = true, bufnr = python }),
+  true
+)
+eq('C++ frontend state is unchanged by the Python palette choice', Mode.frontend_enabled(), true)
+eq('Python reports normal highlighting in its own context', Mode.monochrome_effective(python), false)
+eq('C# shares the requested normal palette', Mode.monochrome_effective(csharp), false)
+local normal_palette_ready = vim.wait(3000, function()
+  return not vim.deep_equal(highlight_attributes('@keyword.python'), highlight_attributes('Normal'))
+    and not vim.deep_equal(highlight_attributes('@keyword.c_sharp'), highlight_attributes('Normal'))
+end, 20)
+ok('normal C#/Python Tree-sitter colors are restored after the menu preference changes', normal_palette_ready)
+eq('C# semantic tokens remain disabled in normal syntax mode', vim.lsp.semantic_tokens.is_enabled { bufnr = csharp }, false)
+
+eq(
+  'Python can restore monochrome through the same preference',
+  Mode.set_monochrome(true, { silent = true, bufnr = python }),
+  true
+)
+local monochrome_ready = vim.wait(3000, function()
+  return highlight_link('@keyword.python') == 'Normal' and highlight_link('@keyword.c_sharp') == 'Normal'
+end, 20)
+ok('restored monochrome reaches both conventional languages', monochrome_ready)
 
 local basedpyright = vim.lsp.config.basedpyright
 ok('BasedPyright LSP config is enabled', vim.lsp.is_enabled('basedpyright'))

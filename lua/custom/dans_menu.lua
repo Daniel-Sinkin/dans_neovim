@@ -152,7 +152,7 @@ local function command_if_exists(name)
   vim.cmd(name)
 end
 
-local function build_items()
+local function build_items(target_buf)
   local perf = require 'custom.dans_perf'
   return {
     section 'Display',
@@ -161,21 +161,31 @@ local function build_items()
       M.render()
     end, {
       id = 'frontend',
+      locked = function()
+        return not mode.frontend_menu_available(target_buf)
+      end,
       detail = function()
+        if not mode.frontend_menu_available(target_buf) then
+          return 'C/C++/CUDA source files only'
+        end
         return mode.frontend_enabled() and 'Odin/Jai view' or 'source-faithful view'
       end,
     }),
-    toggle('Monochrome', mode.monochrome_effective, function()
-      mode.toggle_monochrome()
+    toggle('Monochrome', function()
+      return mode.monochrome_effective(target_buf)
+    end, function()
+      mode.toggle_monochrome { bufnr = target_buf }
       M.render()
     end, {
       id = 'monochrome',
-      locked = mode.monochrome_locked,
+      locked = function()
+        return mode.monochrome_locked(target_buf)
+      end,
       detail = function()
-        if mode.monochrome_locked() then
+        if mode.monochrome_locked(target_buf) then
           return 'required by frontend — locked'
         end
-        return mode.monochrome_effective() and 'flattened syntax' or 'normal highlighting'
+        return mode.monochrome_effective(target_buf) and 'flattened syntax' or 'normal highlighting'
       end,
     }),
     target_action('Font size', function()
@@ -260,7 +270,10 @@ end
 -- ---------------------------------------------------------------- rendering
 
 local function evaluated(value)
-  return type(value) == 'function' and value() or value
+  if type(value) == 'function' then
+    return value()
+  end
+  return value
 end
 
 local function fit_line(left, right, width)
@@ -329,7 +342,7 @@ function M.render()
     if entry.item.kind == 'toggle' and entry.item.checked() and not locked then
       group = 'DiagnosticOk'
     end
-    if index == menu.selected then
+    if index == menu.selected and not locked then
       group = 'PmenuSel'
     end
     vim.api.nvim_buf_set_extmark(menu.buf, ns, entry.row - 1, 0, {
@@ -363,7 +376,7 @@ local function activate()
   end
   if evaluated(entry.item.locked) then
     if entry.item.id == 'monochrome' then
-      mode.toggle_monochrome()
+      entry.item.activate()
     end
     M.render()
     return
@@ -398,7 +411,7 @@ function M.open()
     buf = buf,
     target_buf = target_buf,
     target_win = target_win,
-    items = build_items(),
+    items = build_items(target_buf),
     width = width,
     selected = 1,
   }

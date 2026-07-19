@@ -2,8 +2,8 @@
   "schema_version": 1,
   "id": "DEC-017",
   "kind": "decision",
-  "status": "accepted",
-  "title": "C# and Python use literal fixed-monochrome source views",
+  "status": "superseded",
+  "title": "Superseded fixed-monochrome C# and Python source views",
   "summary": "C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend.",
   "details": [
     "C# is initially a language-learning surface, so its keywords, declarations, types, operators, strings, and punctuation remain spelled exactly as written rather than being translated through the C++ visual language.",
@@ -47,7 +47,8 @@
   "relations": [
     { "type": "constrains", "target": "BHV-016" },
     { "type": "relates_to", "target": "INV-002" },
-    { "type": "relates_to", "target": "DEC-012" }
+    { "type": "relates_to", "target": "DEC-012" },
+    { "type": "superseded_by", "target": "DEC-018" }
   ],
   "retrieval": {
     "aliases": ["monochrome C#", "Python LSP support", "do not use C++ frontend for C#", "literal C sharp", "BasedPyright setup"],
@@ -61,6 +62,6 @@
   "last_verified": {
     "date": "2026-07-19",
     "revision": "current worktree",
-    "method": "Owner decision, current upstream/local configuration audit, fixed-monochrome parser checks, and real BasedPyright definition interaction."
+    "method": "Superseded by the owner's same-day clarification that C# and Python should default to monochrome but allow the Dans monochrome row to restore normal colors."
   }
 }

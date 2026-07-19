@@ -158,8 +158,13 @@
     },
     {
       "id": "RQ-LOOKUP-033",
-      "query": "Does C# use my C++ frontend, how do C# and Python stay monochrome, and which language servers provide go to definition?",
-      "expected": ["DEC-017", "BHV-016", "CMP-014"]
+      "query": "Does C# use my C++ frontend, how do C# and Python control monochrome, and which language servers provide go to definition?",
+      "expected": ["DEC-018", "BHV-016"]
+    },
+    {
+      "id": "RQ-LOOKUP-034",
+      "query": "Can I turn off monochrome for Python or C# in Dans, and why is Frontend presentation gray there?",
+      "expected": ["DEC-018", "BHV-014"]
     }
   ]
 }

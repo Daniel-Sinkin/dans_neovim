@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "cd52a96d57cd5c265bd420df941728859b60d56e570228bfe12966677ce312f2",
-  "record_count": 64,
+  "records_sha256": "eea2755b9f62e5fbe3e7deb11de7edc93627d53ed3cd64533db410c95c1307d5",
+  "record_count": 65,
   "records": [
     {
       "id": "BHV-001",
@@ -541,6 +541,10 @@
         },
         {
           "type": "constrained_by",
+          "target": "DEC-018"
+        },
+        {
+          "type": "constrained_by",
           "target": "INV-002"
         },
         {
@@ -595,8 +599,8 @@
       "id": "BHV-016",
       "kind": "behavior",
       "status": "accepted",
-      "title": "Conventional monochrome C# and Python language workflows",
-      "summary": "C# and Python buffers show literal monochrome source while Roslyn and BasedPyright provide shared LSP navigation, diagnostics, symbols, refactoring, and completion capabilities without C++ frontend transforms.",
+      "title": "Conventional C# and Python language workflows",
+      "summary": "C# and Python buffers show literal source with Dans-controlled monochrome or normal Tree-sitter colors while Roslyn and BasedPyright provide shared LSP navigation, diagnostics, symbols, refactoring, and completion without C++ frontend transforms.",
       "scope": [
         "csharp",
         "python",
@@ -614,7 +618,7 @@
       "relations": [
         {
           "type": "constrained_by",
-          "target": "DEC-017"
+          "target": "DEC-018"
         },
         {
           "type": "implemented_by",
@@ -1045,7 +1049,7 @@
       "kind": "component",
       "status": "accepted",
       "title": "Global DANS display controller and command-palette boundary",
-      "summary": "dans_mode owns global frontend/requested-monochrome/effective-monochrome state, while dans_menu is a declarative owner-facing inventory that dispatches tools only after restoring its captured source context.",
+      "summary": "dans_mode owns global frontend and requested-monochrome state plus buffer-context effective state, while dans_menu lets C#/Python toggle monochrome and grays frontend presentation outside supported C/C++/CUDA source suffixes.",
       "scope": [
         "lua/custom/dans_mode.lua",
         "lua/custom/dans_menu.lua",
@@ -1065,6 +1069,10 @@
           "target": "DEC-012"
         },
         {
+          "type": "constrained_by",
+          "target": "DEC-018"
+        },
+        {
           "type": "implements",
           "target": "BHV-014"
         },
@@ -1079,6 +1087,10 @@
         {
           "type": "relates_to",
           "target": "CMP-008"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-014"
         }
       ],
       "path": "records/CMP-012.json"
@@ -1124,8 +1136,8 @@
       "id": "CMP-014",
       "kind": "component",
       "status": "accepted",
-      "title": "Fixed-monochrome conventional language-support layer",
-      "summary": "custom.language_support owns source-faithful C#/Python presentation and semantic-color suppression, while nvim-lspconfig, Mason, and the shared LspAttach layer own their conventional language intelligence.",
+      "title": "Dans-controlled conventional language-support layer",
+      "summary": "custom.language_support owns source-faithful, Dans-selectable C#/Python presentation, while Roslyn and BasedPyright provide go-to-definition and other language intelligence through nvim-lspconfig, Mason, and the shared LspAttach layer.",
       "scope": [
         "lua/custom/language_support.lua",
         "language-plugins",
@@ -1145,6 +1157,10 @@
         {
           "type": "implements",
           "target": "BHV-016"
+        },
+        {
+          "type": "constrained_by",
+          "target": "DEC-018"
         },
         {
           "type": "relates_to",
@@ -1563,6 +1579,10 @@
         {
           "type": "constrains",
           "target": "CMP-012"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-018"
         }
       ],
       "path": "records/DEC-012.json"
@@ -1724,8 +1744,8 @@
     {
       "id": "DEC-017",
       "kind": "decision",
-      "status": "accepted",
-      "title": "C# and Python use literal fixed-monochrome source views",
+      "status": "superseded",
+      "title": "Superseded fixed-monochrome C# and Python source views",
       "summary": "C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend.",
       "scope": [
         "csharp",
@@ -1754,9 +1774,59 @@
         {
           "type": "relates_to",
           "target": "DEC-012"
+        },
+        {
+          "type": "superseded_by",
+          "target": "DEC-018"
         }
       ],
       "path": "records/DEC-017.json"
+    },
+    {
+      "id": "DEC-018",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Dans controls conventional-language monochrome while frontend availability is contextual",
+      "summary": "C# and Python default to source-faithful monochrome but follow the shared Dans monochrome preference; the C++ frontend remains unavailable from menu contexts outside the owner's explicit C/C++/CUDA suffix set.",
+      "scope": [
+        "csharp",
+        "python",
+        "dans-menu",
+        "monochrome-highlighting",
+        "frontend-availability"
+      ],
+      "tags": [
+        "C#",
+        "Python",
+        "Dans",
+        "Tree-sitter",
+        "monochrome",
+        "disabled-menu",
+        "source-faithful"
+      ],
+      "relations": [
+        {
+          "type": "supersedes",
+          "target": "DEC-017"
+        },
+        {
+          "type": "constrains",
+          "target": "BHV-016"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-012"
+        },
+        {
+          "type": "relates_to",
+          "target": "BHV-014"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-014"
+        }
+      ],
+      "path": "records/DEC-018.json"
     },
     {
       "id": "INC-001",

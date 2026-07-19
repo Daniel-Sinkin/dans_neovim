@@ -8,8 +8,9 @@ compilers, clangd, formatters, git, debuggers, and every write see the original
 bytes.
 
 C# and Python deliberately take the opposite presentation path: their ordinary
-source spelling remains visible, Tree-sitter syntax is fixed to monochrome, and
-Roslyn/BasedPyright provide conventional language intelligence.
+source spelling remains visible, Tree-sitter syntax defaults to the shared
+monochrome preference, and Roslyn/BasedPyright provide conventional language
+intelligence.
 
 The current language is const-default and exception-forward: writable borrows are
 `mut`, expensive copies are `cpy`, uninitialized members are `no_init`, pointers
@@ -54,7 +55,7 @@ python3 tools/run_tests.py
 - `lua/custom/` contains the first-party C++ authoring engine, shared compiler
   context, assembly/probe/code-generation tools, doc markdown, diagnostics, macro
   discovery, profiling, navigation, protection, the DANS display controller and
-  command palette, fixed-monochrome C#/Python language support, and Julia tools.
+  command palette, Dans-controlled C#/Python language support, and Julia tools.
   `lua/custom/plugins/vimtex.lua` owns the LaTeX compiler/viewer integration.
 - `tests/` contains deterministic Lua/Neovim and Python specs plus reviewed text
   goldens. Ordinary outputs are disposable.
@@ -76,11 +77,12 @@ Font sizes from 8 through 32 points inclusive are accepted; values outside that
 range are rejected without changing the current font.
 
 Frontend presentation and monochrome highlighting are separate global choices.
-While the frontend is on, monochrome is required and its menu row is locked. The
-requested monochrome choice is still remembered: turning the frontend off shows
-the exact C/C++/CUDA source spelling, then either keeps the source monochrome or
-restores ordinary Tree-sitter colors according to that remembered choice. No
-individual frontend-feature toggles are exposed in the palette.
+In a supported C/C++/CUDA source buffer, an enabled frontend requires
+monochrome and locks that menu row. In other buffers the frontend row is gray,
+while monochrome remains interactive. The requested choice is remembered:
+turning the frontend off shows exact C/C++/CUDA spelling, then either keeps it
+monochrome or restores ordinary colors. No individual frontend-feature toggles
+are exposed in the palette.
 
 The state contract and implementation ownership are recorded in
 [DEC-012](knowledge/records/DEC-012.json),
@@ -90,12 +92,17 @@ The state contract and implementation ownership are recorded in
 ## C# and Python
 
 `.cs`, `.py`, and `.pyi` buffers show their exact source with conceal disabled.
-Their Tree-sitter parsers remain active for structural editing, but every syntax
-capture is linked to `Normal`; comments and Python docstrings alone use the dim
-comment style. LSP semantic tokens are disabled so a server cannot layer the
-usual type/variable/function color palette back on top. This policy is fixed for
-these languages and is independent of the C++ frontend/monochrome rows in
-`:Dans`.
+Their Tree-sitter parsers remain active for structural editing. With the default
+monochrome preference, every syntax capture is linked to `Normal`; comments and
+Python docstrings alone use the dim comment style. The `Monochrome` row in
+`:Dans` can restore the colorscheme's ordinary Tree-sitter palette for both
+languages without enabling or changing the C++ frontend. LSP semantic tokens
+remain disabled so Tree-sitter is the single syntax-color source in either mode.
+
+The `Frontend presentation` menu row is gray and noninteractive unless the
+source buffer has one of the supported `.c`, `.cpp`, `.h`, `.hpp`, `.hh`, `.cc`,
+`.cu`, or `.cuh` suffixes. C# and Python never receive its character-changing
+renderers.
 
 C# uses nvim-lspconfig's official `roslyn_ls` integration. It attaches inside a
 `.sln`, `.slnx`, or `.csproj` workspace and supplies definitions, references,
@@ -120,7 +127,7 @@ The shared LSP controls include:
 - `<leader>tc`: toggle LSP-backed completion sources.
 
 The contract and ownership are recorded in
-[DEC-017](knowledge/records/DEC-017.json),
+[DEC-018](knowledge/records/DEC-018.json),
 [BHV-016](knowledge/records/BHV-016.json), and
 [CMP-014](knowledge/records/CMP-014.json).
 

@@ -14,7 +14,7 @@
     "dans_protect marks external C/C++/CUDA files and configured paths read-only; dans_mode owns the global frontend and requested/effective monochrome state while dans_vanilla remains only a compatibility facade.",
     "dans_menu is the canonical owner-facing palette for display and font controls, authoring, assembly, function probes, C++ generation, project inspection, and developer utilities.",
     "Ordinary Markdown uses literal source presentation; VimTeX, texlab, latexmk, and an available SyncTeX-capable viewer provide the LaTeX workflow without syntax conceal or save-time formatting.",
-    "language_support keeps C# and Python source-faithful and fixed-monochrome while Roslyn and BasedPyright plug into the shared LSP navigation, diagnostics, refactoring, and completion layer.",
+    "language_support keeps C# and Python source-faithful with Dans-selectable monochrome/normal Tree-sitter presentation while Roslyn and BasedPyright plug into the shared LSP navigation, diagnostics, refactoring, and completion layer.",
     "julia_scope provides keyword/end and bracket scopes plus ib/ab text objects; julia_progress replaces noisy julials progress cycles with one persistent widget.",
     "lua/custom/plugins contains lazy.nvim plugin specs; config/lazy.lua imports that directory as the single plugin-specification entry point."
   ],

@@ -3,20 +3,20 @@
   "id": "CMP-014",
   "kind": "component",
   "status": "accepted",
-  "title": "Fixed-monochrome conventional language-support layer",
-  "summary": "custom.language_support owns source-faithful C#/Python presentation and semantic-color suppression, while nvim-lspconfig, Mason, and the shared LspAttach layer own their conventional language intelligence.",
+  "title": "Dans-controlled conventional language-support layer",
+  "summary": "custom.language_support owns source-faithful, Dans-selectable C#/Python presentation, while Roslyn and BasedPyright provide go-to-definition and other language intelligence through nvim-lspconfig, Mason, and the shared LspAttach layer.",
   "details": [
     "language_support.lua declares filetype-to-Tree-sitter-language metadata for cs/c_sharp and python/python rather than widening any C++ frontend filetype set.",
-    "It reads each installed highlight query's capture inventory and installs language-qualified links: ordinary captures to Normal, comment captures and string.documentation to Comment, and spell/conceal/control captures untouched.",
+    "It reads each installed highlight query's capture inventory. Requested monochrome installs language-qualified Normal/Comment links; normal mode installs a snapshot of the colorscheme's resolved capture attributes so C#/Python colors survive the C++ palette's later global flatten.",
     "A bounded asynchronous retry covers the first buffer opened while nvim-treesitter is still compiling a newly ensured parser; normal editor startup never blocks on the presentation layer.",
-    "FileType applies monochrome, source-faithful window options, and dependency guidance; BufWinEnter repairs window-local conceal state inherited from another buffer; ColorScheme reapplies capture links.",
+    "FileType applies the selected presentation, source-faithful window options, and dependency guidance; BufWinEnter repairs inherited conceal state; ColorScheme snapshots and reapplies the ordinary palette; DansDisplayModeChanged updates loaded conventional-language buffers.",
     "A dedicated LspAttach hook disables semantic-token presentation per supported buffer. The existing central LspAttach hook remains the sole owner of shared mappings, diagnostics interaction, document highlights, and inlay-hint toggling.",
     "lsp.lua enables roslyn_ls and basedpyright through the current vim.lsp.config/vim.lsp.enable API. Mason owns BasedPyright unconditionally and owns Roslyn conditionally when dotnet can execute.",
     "treesitter.lua ensures c_sharp and python parsers but reserves its custom C/C++/CUDA disable/classic-syntax path for those three frontend languages only."
   ],
   "rationale": [
     "One small metadata-driven module prevents duplicated monochrome and source-window lifecycle logic without coupling ordinary languages to the character-changing frontend.",
-    "Language-qualified highlight links avoid flattening unrelated buffers process-wide.",
+    "Language-qualified highlight definitions let normal C#/Python colors coexist with the process-global classic-syntax flatten required by a simultaneously enabled C++ frontend.",
     "Separating presentation from LSP activation makes it explicit that disabling colors does not disable language intelligence."
   ],
   "scope": ["lua/custom/language_support.lua", "language-plugins", "highlight-lifecycle", "lsp-activation"],
@@ -30,25 +30,26 @@
     {
       "kind": "analysis",
       "reference": "2026-07-19 C#/Python integration audit",
-      "note": "Existing Julia fixed-monochrome presentation, C++ buffer gates, global highlight constraints, nvim-lspconfig defaults, and Mason prerequisites were compared before choosing this boundary."
+      "note": "Existing Julia presentation, C++ buffer gates, global highlight constraints, nvim-lspconfig defaults, Mason prerequisites, and the later Dans toggle requirement were compared before choosing this boundary."
     }
   ],
   "evidence": [
     {
       "kind": "test",
       "reference": "tests/language_support_spec.lua",
-      "claim": "The complete component boundary is exercised through real FileType/BufWinEnter/LspAttach events, language parsers, capture links, namespace inspection, server configuration, workspace discovery, and live Python navigation."
+      "claim": "The complete component boundary is exercised through real FileType/BufWinEnter/ColorScheme/LspAttach/User events, both capture palettes, namespace inspection, server configuration, workspace discovery, and live Python navigation."
     }
   ],
   "relations": [
     { "type": "implements", "target": "BHV-016" },
+    { "type": "constrained_by", "target": "DEC-018" },
     { "type": "relates_to", "target": "CMP-008" },
     { "type": "relates_to", "target": "CMP-012" }
   ],
   "retrieval": {
-    "aliases": ["language_support.lua", "ordinary language monochrome owner", "C# Python integration architecture", "semantic token color disable"],
+    "aliases": ["language_support.lua", "Roslyn and BasedPyright provide go to definition", "C# Python normal color restoration", "semantic token color disable"],
     "questions": [
-      "Which module keeps C# and Python monochrome?",
+      "Which module switches C# and Python between monochrome and normal colors?",
       "Why are C# and Python absent from dans_mode's frontend buffer set?",
       "How does a first-time C# parser install become monochrome?",
       "Which component installs and enables Roslyn or BasedPyright?"
