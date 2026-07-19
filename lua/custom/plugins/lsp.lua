@@ -1,7 +1,9 @@
--- LSP configuration. clangd is configured manually (not via mason). julials
--- uses LanguageServer.jl in ~/.julia/environments/nvim-lspconfig with a custom
--- root_dir picking the OUTERMOST Project.toml so nested layouts don't spawn
--- duplicate clients (see private/AGENTS.md).
+-- LSP configuration. clangd is configured manually (not via mason). Roslyn,
+-- basedpyright, lua_ls, and texlab use their nvim-lspconfig definitions, with
+-- Mason owning the executables it can install. julials uses LanguageServer.jl in
+-- ~/.julia/environments/nvim-lspconfig with a custom root_dir picking the
+-- OUTERMOST Project.toml so nested layouts don't spawn duplicate clients (see
+-- private/AGENTS.md).
 
 -- clangd answers documentHighlight on a control-flow keyword with the whole
 -- related flow (every return of the function, a loop plus its continues and
@@ -249,6 +251,19 @@ return {
           },
         },
 
+        -- Official Roslyn language server. nvim-lspconfig owns solution/project
+        -- discovery plus Roslyn's extended completion/code-action handlers; the
+        -- shared LspAttach callback above supplies navigation and refactoring
+        -- mappings. custom.language_support independently owns its fixed
+        -- monochrome view.
+        roslyn_ls = {},
+
+        -- Python navigation, type intelligence, completion, and refactoring.
+        -- Project-local pyproject.toml/pyrightconfig.json settings remain
+        -- authoritative; the upstream config limits default diagnostics to
+        -- open files and discovers ordinary Python project markers.
+        basedpyright = {},
+
         lua_ls = {
           settings = {
             Lua = {
@@ -323,7 +338,21 @@ return {
       -- These are Mason registry package names, not nvim-lspconfig server
       -- names. The integrations are deliberately disabled below, so aliases
       -- such as `lua_ls` are not translated for us.
-      local required_mason_tools = { 'lua-language-server', 'stylua', 'texlab' }
+      local required_mason_tools = {
+        'lua-language-server',
+        'basedpyright',
+        'stylua',
+        'texlab',
+        {
+          'roslyn-language-server',
+          -- Mason's Roslyn package is a .NET tool. Keep startup quiet on a
+          -- machine that has not installed the SDK yet; the next Neovim start
+          -- after `dotnet` becomes available installs it automatically.
+          condition = function()
+            return vim.fn.executable 'dotnet' == 1
+          end,
+        },
+      }
       -- Package installation is explicit; LSP activation is handled below.
       require('mason-tool-installer').setup {
         ensure_installed = required_mason_tools,

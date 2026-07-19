@@ -4,7 +4,7 @@
   "kind": "component",
   "status": "observed",
   "title": "First-party Neovim workflow module map",
-  "summary": "The repository is a personal Neovim system whose custom modules extend beyond the C++ frontend into authoring, diagnostics, navigation, profiling, assembly, project indexing, protection, menus, and Julia presentation.",
+  "summary": "The repository is a personal Neovim system whose custom modules extend beyond the C++ frontend into conventional language support, authoring, diagnostics, navigation, profiling, assembly, project indexing, protection, menus, and Julia presentation.",
   "details": [
     "init.lua loads config options, keymaps, autocmds, lazy.nvim plugin specs, then first-party frontend, authoring, assembly, probe, code-generation, diagnostics, profiling, protection, and Julia modules.",
     "cpp_doc_markdown renders hpp triple-slash blocks; dans_macros discovers real project defines; dans_diagmark compresses diagnostics to first-cell and line-number marks.",
@@ -14,11 +14,12 @@
     "dans_protect marks external C/C++/CUDA files and configured paths read-only; dans_mode owns the global frontend and requested/effective monochrome state while dans_vanilla remains only a compatibility facade.",
     "dans_menu is the canonical owner-facing palette for display and font controls, authoring, assembly, function probes, C++ generation, project inspection, and developer utilities.",
     "Ordinary Markdown uses literal source presentation; VimTeX, texlab, latexmk, and an available SyncTeX-capable viewer provide the LaTeX workflow without syntax conceal or save-time formatting.",
+    "language_support keeps C# and Python source-faithful and fixed-monochrome while Roslyn and BasedPyright plug into the shared LSP navigation, diagnostics, refactoring, and completion layer.",
     "julia_scope provides keyword/end and bracket scopes plus ib/ab text objects; julia_progress replaces noisy julials progress cycles with one persistent widget.",
     "lua/custom/plugins contains lazy.nvim plugin specs; config/lazy.lua imports that directory as the single plugin-specification entry point."
   ],
   "scope": ["project-layout", "neovim-config", "first-party-modules"],
-  "tags": ["module-map", "workflow", "plugins", "C++", "Julia"],
+  "tags": ["module-map", "workflow", "plugins", "C++", "C#", "Python", "Julia"],
   "provenance": [
     {
       "kind": "analysis",
@@ -34,7 +35,7 @@
   "evidence": [
     {
       "kind": "test",
-      "reference": "tests/authoring_spec.lua, cpp_tools_spec.lua, asm_interaction_spec.lua, runner_interaction_spec.lua, codegen_spec.lua, project_index_ui_spec.lua, protect_spec.lua, jumptrail_spec.lua, scope_spec.lua",
+      "reference": "tests/authoring_spec.lua, cpp_tools_spec.lua, asm_interaction_spec.lua, runner_interaction_spec.lua, codegen_spec.lua, project_index_ui_spec.lua, protect_spec.lua, jumptrail_spec.lua, scope_spec.lua, language_support_spec.lua",
       "claim": "Representative authoring, C++ tooling, project inspection, and non-core modules have isolated behavioral coverage."
     }
   ],
@@ -44,7 +45,8 @@
     { "type": "relates_to", "target": "CMP-010" },
     { "type": "relates_to", "target": "CMP-011" },
     { "type": "relates_to", "target": "CMP-012" },
-    { "type": "relates_to", "target": "CMP-013" }
+    { "type": "relates_to", "target": "CMP-013" },
+    { "type": "relates_to", "target": "CMP-014" }
   ],
   "retrieval": {
     "aliases": ["project lay of the land", "custom module map", "what remains besides frontend"],
@@ -55,8 +57,8 @@
     ]
   },
   "last_verified": {
-    "date": "2026-07-16",
-    "revision": "worktree after 9e89ef9",
-    "method": "Current source tree, setup calls, central palette, display controller, markup policy, language tooling, public APIs, and interaction specs inventoried."
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Current source tree, setup calls, central palette, display controller, markup policy, C#/Python/Julia language tooling, public APIs, and interaction specs inventoried."
   }
 }

@@ -155,6 +155,11 @@
       "id": "RQ-LOOKUP-032",
       "query": "How do I compile and view a LaTeX document, what provides completion, and does saving automatically build or format it?",
       "expected": ["CMP-013", "BHV-015"]
+    },
+    {
+      "id": "RQ-LOOKUP-033",
+      "query": "Does C# use my C++ frontend, how do C# and Python stay monochrome, and which language servers provide go to definition?",
+      "expected": ["DEC-017", "BHV-016", "CMP-014"]
     }
   ]
 }

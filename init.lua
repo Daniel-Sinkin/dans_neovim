@@ -7,6 +7,7 @@ require 'config.keymaps'
 require 'config.autocmds'
 require 'config.lazy'
 
+require('custom.language_support').setup()
 require('custom.julia_scope').setup()
 require('custom.julia_progress').setup()
 require('custom.dans_frontend_cpp').setup()

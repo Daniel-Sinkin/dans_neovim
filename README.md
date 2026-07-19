@@ -7,6 +7,10 @@ reads real C, C++, and CUDA as a compact Odin/Jai-like visual language while
 compilers, clangd, formatters, git, debuggers, and every write see the original
 bytes.
 
+C# and Python deliberately take the opposite presentation path: their ordinary
+source spelling remains visible, Tree-sitter syntax is fixed to monochrome, and
+Roslyn/BasedPyright provide conventional language intelligence.
+
 The current language is const-default and exception-forward: writable borrows are
 `mut`, expensive copies are `cpy`, uninitialized members are `no_init`, pointers
 use `^` in type positions, inferred and explicit declarations stay visibly
@@ -50,8 +54,8 @@ python3 tools/run_tests.py
 - `lua/custom/` contains the first-party C++ authoring engine, shared compiler
   context, assembly/probe/code-generation tools, doc markdown, diagnostics, macro
   discovery, profiling, navigation, protection, the DANS display controller and
-  command palette, and Julia tools. `lua/custom/plugins/vimtex.lua` owns the
-  LaTeX compiler/viewer integration.
+  command palette, fixed-monochrome C#/Python language support, and Julia tools.
+  `lua/custom/plugins/vimtex.lua` owns the LaTeX compiler/viewer integration.
 - `tests/` contains deterministic Lua/Neovim and Python specs plus reviewed text
   goldens. Ordinary outputs are disposable.
 - `style_lab/` and `tools/style_lab` provide real-render visual decision rounds.
@@ -82,6 +86,43 @@ The state contract and implementation ownership are recorded in
 [DEC-012](knowledge/records/DEC-012.json),
 [BHV-014](knowledge/records/BHV-014.json), and
 [CMP-012](knowledge/records/CMP-012.json).
+
+## C# and Python
+
+`.cs`, `.py`, and `.pyi` buffers show their exact source with conceal disabled.
+Their Tree-sitter parsers remain active for structural editing, but every syntax
+capture is linked to `Normal`; comments and Python docstrings alone use the dim
+comment style. LSP semantic tokens are disabled so a server cannot layer the
+usual type/variable/function color palette back on top. This policy is fixed for
+these languages and is independent of the C++ frontend/monochrome rows in
+`:Dans`.
+
+C# uses nvim-lspconfig's official `roslyn_ls` integration. It attaches inside a
+`.sln`, `.slnx`, or `.csproj` workspace and supplies definitions, references,
+implementations, completion, diagnostics, symbols, rename, code actions, and
+optional inlay hints. Install a .NET SDK so `dotnet` is on `PATH`; Mason then
+installs `roslyn-language-server` automatically on the next Neovim start. Until
+then C# filetype, parsing, indentation, and monochrome presentation still work,
+and an interactive C# buffer gives one clear prerequisite warning.
+
+Python uses BasedPyright, installed through Mason. Its upstream project discovery
+recognizes `pyproject.toml`, `pyrightconfig.json`, setup/requirements files,
+Pipfiles, and Git roots; project-local configuration remains authoritative.
+Default diagnostics are limited to open files.
+
+The shared LSP controls include:
+
+- `gd`: definition, or references when already on the only definition.
+- `gr`, `gI`, `gD`: references, implementations, and declarations.
+- `<leader>rn`, `<leader>ca`: rename and code actions.
+- `<leader>ds`, `<leader>ws`: document and workspace symbols.
+- `<leader>th`: toggle inlay hints when the server supports them.
+- `<leader>tc`: toggle LSP-backed completion sources.
+
+The contract and ownership are recorded in
+[DEC-017](knowledge/records/DEC-017.json),
+[BHV-016](knowledge/records/BHV-016.json), and
+[CMP-014](knowledge/records/CMP-014.json).
 
 ## Markdown and LaTeX
 
@@ -192,10 +233,14 @@ in [CMP-004](knowledge/records/CMP-004.json).
 
 ## Requirements
 
-- Neovim 0.12-era APIs and installed C/C++/CUDA Tree-sitter parsers.
+- Neovim 0.12-era APIs and the configured Tree-sitter parsers (including C# and
+  Python; nvim-treesitter installs missing parsers automatically).
 - Git and a C compiler for lazy.nvim/Tree-sitter installation.
 - A local C/C++ compiler for assembly and function probes; project flags are read
   from `compile_commands.json` when available.
+- A .NET SDK with `dotnet` on `PATH` for the Roslyn C# language server. Mason
+  manages Roslyn itself after that prerequisite is present.
+- Python 3; Mason manages BasedPyright in its isolated package environment.
 - A TeX distribution with `latexmk` for compilation and `latexindent` for manual
   formatting. VimTeX can fall back to the system PDF opener; Okular is preferred
   on this host, and texlab is managed by Mason.

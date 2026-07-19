@@ -42,7 +42,7 @@
     { "type": "relates_to", "target": "CMP-008" }
   ],
   "retrieval": {
-    "aliases": ["Dans command palette", "disable frontend", "restore syntax colors", "all Dans tools menu", "frontend state transition"],
+    "aliases": ["Dans command palette", "disable Odin-like C++ frontend", "exact C++ spelling", "restore ordinary C++ syntax colors", "all Dans tools menu", "frontend state transition"],
     "questions": [
       "How do I show unmangled C++ with ordinary highlighting?",
       "Where can I launch assembly and code generation without remembering commands?",

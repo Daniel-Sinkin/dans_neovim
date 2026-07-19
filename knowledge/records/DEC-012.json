@@ -59,7 +59,7 @@
     { "type": "constrains", "target": "CMP-012" }
   ],
   "retrieval": {
-    "aliases": ["turn frontend off", "normal C++ colors", "monochrome lock", "central Dans menu", "raw source mode"],
+    "aliases": ["turn Odin-like C++ frontend off", "exact C++ source spelling", "restore normal C++ syntax colors", "monochrome lock", "central Dans menu", "raw source mode"],
     "questions": [
       "Why can monochrome not be toggled while the frontend is on?",
       "Does turning the frontend off restore normal C++ source and colors?",

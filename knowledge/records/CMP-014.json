@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "CMP-014",
+  "kind": "component",
+  "status": "accepted",
+  "title": "Fixed-monochrome conventional language-support layer",
+  "summary": "custom.language_support owns source-faithful C#/Python presentation and semantic-color suppression, while nvim-lspconfig, Mason, and the shared LspAttach layer own their conventional language intelligence.",
+  "details": [
+    "language_support.lua declares filetype-to-Tree-sitter-language metadata for cs/c_sharp and python/python rather than widening any C++ frontend filetype set.",
+    "It reads each installed highlight query's capture inventory and installs language-qualified links: ordinary captures to Normal, comment captures and string.documentation to Comment, and spell/conceal/control captures untouched.",
+    "A bounded asynchronous retry covers the first buffer opened while nvim-treesitter is still compiling a newly ensured parser; normal editor startup never blocks on the presentation layer.",
+    "FileType applies monochrome, source-faithful window options, and dependency guidance; BufWinEnter repairs window-local conceal state inherited from another buffer; ColorScheme reapplies capture links.",
+    "A dedicated LspAttach hook disables semantic-token presentation per supported buffer. The existing central LspAttach hook remains the sole owner of shared mappings, diagnostics interaction, document highlights, and inlay-hint toggling.",
+    "lsp.lua enables roslyn_ls and basedpyright through the current vim.lsp.config/vim.lsp.enable API. Mason owns BasedPyright unconditionally and owns Roslyn conditionally when dotnet can execute.",
+    "treesitter.lua ensures c_sharp and python parsers but reserves its custom C/C++/CUDA disable/classic-syntax path for those three frontend languages only."
+  ],
+  "rationale": [
+    "One small metadata-driven module prevents duplicated monochrome and source-window lifecycle logic without coupling ordinary languages to the character-changing frontend.",
+    "Language-qualified highlight links avoid flattening unrelated buffers process-wide.",
+    "Separating presentation from LSP activation makes it explicit that disabling colors does not disable language intelligence."
+  ],
+  "scope": ["lua/custom/language_support.lua", "language-plugins", "highlight-lifecycle", "lsp-activation"],
+  "tags": ["component-boundary", "C#", "Python", "Tree-sitter", "LSP", "Mason", "monochrome"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "init.lua, lua/custom/language_support.lua, lua/custom/plugins/lsp.lua, lua/custom/plugins/treesitter.lua",
+      "note": "Entry point and current division between language presentation, parser provisioning, executable provisioning, and server behavior."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-19 C#/Python integration audit",
+      "note": "Existing Julia fixed-monochrome presentation, C++ buffer gates, global highlight constraints, nvim-lspconfig defaults, and Mason prerequisites were compared before choosing this boundary."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/language_support_spec.lua",
+      "claim": "The complete component boundary is exercised through real FileType/BufWinEnter/LspAttach events, language parsers, capture links, namespace inspection, server configuration, workspace discovery, and live Python navigation."
+    }
+  ],
+  "relations": [
+    { "type": "implements", "target": "BHV-016" },
+    { "type": "relates_to", "target": "CMP-008" },
+    { "type": "relates_to", "target": "CMP-012" }
+  ],
+  "retrieval": {
+    "aliases": ["language_support.lua", "ordinary language monochrome owner", "C# Python integration architecture", "semantic token color disable"],
+    "questions": [
+      "Which module keeps C# and Python monochrome?",
+      "Why are C# and Python absent from dans_mode's frontend buffer set?",
+      "How does a first-time C# parser install become monochrome?",
+      "Which component installs and enables Roslyn or BasedPyright?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Static ownership audit and focused real-Neovim parser, presentation, LSP configuration, and navigation coverage."
+  }
+}

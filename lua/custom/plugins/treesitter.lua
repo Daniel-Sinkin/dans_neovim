@@ -1,4 +1,6 @@
--- Treesitter + the C/C++/CUDA enclosing-brace highlighter and monochrome theme.
+-- Treesitter parsers plus the C/C++/CUDA enclosing-brace highlighter and
+-- monochrome theme. C# and Python use ordinary Tree-sitter parsing with a fixed
+-- source-faithful monochrome policy owned by custom.language_support.
 --
 -- For C/C++/CUDA we DISABLE treesitter highlighting and instead:
 --   1. Use the bundled classic vim syntax (re-enabled per FileType below).
@@ -44,6 +46,7 @@ return {
       ensure_installed = {
         'bash',
         'c',
+        'c_sharp',
         'cpp',
         'cuda',
         'diff',
@@ -52,6 +55,7 @@ return {
         'luadoc',
         'markdown',
         'markdown_inline',
+        'python',
         'query',
         'vim',
         'vimdoc',

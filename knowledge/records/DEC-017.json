@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "DEC-017",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "C# and Python use literal fixed-monochrome source views",
+  "summary": "C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend.",
+  "details": [
+    "C# is initially a language-learning surface, so its keywords, declarations, types, operators, strings, and punctuation remain spelled exactly as written rather than being translated through the C++ visual language.",
+    "Python follows the same ordinary-source policy. Both languages use Tree-sitter for structural parsing while language-specific highlight captures link to Normal; comments and Python docstrings remain dim.",
+    "LSP semantic tokens are disabled per C# and Python buffer because they are presentation metadata that would otherwise reintroduce the type/function/variable color categories the owner considers noise.",
+    "Roslyn owns C# language intelligence inside solution/project workspaces. BasedPyright owns Python language intelligence and defers project-specific type-checking policy to pyproject.toml or pyrightconfig.json.",
+    "The shared LspAttach layer supplies definition/reference/implementation/declaration navigation, rename, code actions, symbols, diagnostics, completion capability, document highlights, and optional inlay hints.",
+    "The C++ frontend and its Dans display controller remain scoped only to C, C++, and CUDA. Their state and character-changing renderers never apply to C# or Python."
+  ],
+  "rationale": [
+    "Seeing the real C# grammar consistently is more useful while learning the language than immediately imposing a familiar but different C++ presentation vocabulary.",
+    "Flattening syntax categories preserves structural parsing and language intelligence without turning every token role into a competing visual signal.",
+    "A buffer-local semantic-token opt-out preserves every LSP request while making the monochrome promise robust after a server attaches."
+  ],
+  "alternatives": [
+    "Reuse or adapt the C++ frontend for C#; deferred because C# has different syntax and semantics, and the owner explicitly wants to learn its native language first.",
+    "Use the colorscheme's default Tree-sitter and semantic-token palette; rejected because the owner considers the category coloring noise.",
+    "Disable Tree-sitter and language servers entirely to obtain monochrome text; rejected because parsing, navigation, diagnostics, refactoring, and completion are independently useful."
+  ],
+  "scope": ["csharp", "python", "monochrome-highlighting", "language-intelligence"],
+  "tags": ["C#", "Python", "Roslyn", "BasedPyright", "Tree-sitter", "monochrome", "literal-source"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-19 C# and Python support request",
+      "note": "Owner requested C# language/LSP support while learning native C#, explicitly declined using the C++ frontend for now, selected monochrome over default coloring, and extended the same integration work to Python."
+    },
+    {
+      "kind": "analysis",
+      "reference": "2026-07-19 installed-plugin and language-server audit",
+      "note": "The pinned nvim-lspconfig supplies current roslyn_ls and basedpyright definitions; Mason registry names, Tree-sitter parser/query names, dependency requirements, and shared LspAttach behavior were verified before implementation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/language_support_spec.lua",
+      "claim": "Real C# and Python parsers retain source bytes, flatten language captures, dim comments/docstrings, avoid every sampled C++ frontend namespace, disable semantic-token colors, and receive the shared navigation mappings."
+    }
+  ],
+  "relations": [
+    { "type": "constrains", "target": "BHV-016" },
+    { "type": "relates_to", "target": "INV-002" },
+    { "type": "relates_to", "target": "DEC-012" }
+  ],
+  "retrieval": {
+    "aliases": ["monochrome C#", "Python LSP support", "do not use C++ frontend for C#", "literal C sharp", "BasedPyright setup"],
+    "questions": [
+      "Does C# use the Odin-like C++ frontend?",
+      "Why are C# and Python syntax colors flattened?",
+      "Can Roslyn and BasedPyright still navigate when semantic tokens are disabled?",
+      "Does the Dans monochrome toggle change Python presentation?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Owner decision, current upstream/local configuration audit, fixed-monochrome parser checks, and real BasedPyright definition interaction."
+  }
+}

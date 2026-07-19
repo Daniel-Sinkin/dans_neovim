@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "1c22a2b11312d70de0e6f2d577560a18817996395721fb6f4c201d88ae87254c",
-  "record_count": 61,
+  "records_sha256": "cd52a96d57cd5c265bd420df941728859b60d56e570228bfe12966677ce312f2",
+  "record_count": 64,
   "records": [
     {
       "id": "BHV-001",
@@ -592,6 +592,42 @@
       "path": "records/BHV-015.json"
     },
     {
+      "id": "BHV-016",
+      "kind": "behavior",
+      "status": "accepted",
+      "title": "Conventional monochrome C# and Python language workflows",
+      "summary": "C# and Python buffers show literal monochrome source while Roslyn and BasedPyright provide shared LSP navigation, diagnostics, symbols, refactoring, and completion capabilities without C++ frontend transforms.",
+      "scope": [
+        "csharp",
+        "python",
+        "lsp-navigation",
+        "monochrome-source"
+      ],
+      "tags": [
+        "roslyn_ls",
+        "basedpyright",
+        "gd",
+        "semantic-tokens",
+        "source-faithful",
+        "Mason"
+      ],
+      "relations": [
+        {
+          "type": "constrained_by",
+          "target": "DEC-017"
+        },
+        {
+          "type": "implemented_by",
+          "target": "CMP-014"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        }
+      ],
+      "path": "records/BHV-016.json"
+    },
+    {
       "id": "CMP-001",
       "kind": "component",
       "status": "accepted",
@@ -838,7 +874,7 @@
       "kind": "component",
       "status": "observed",
       "title": "First-party Neovim workflow module map",
-      "summary": "The repository is a personal Neovim system whose custom modules extend beyond the C++ frontend into authoring, diagnostics, navigation, profiling, assembly, project indexing, protection, menus, and Julia presentation.",
+      "summary": "The repository is a personal Neovim system whose custom modules extend beyond the C++ frontend into conventional language support, authoring, diagnostics, navigation, profiling, assembly, project indexing, protection, menus, and Julia presentation.",
       "scope": [
         "project-layout",
         "neovim-config",
@@ -849,6 +885,8 @@
         "workflow",
         "plugins",
         "C++",
+        "C#",
+        "Python",
         "Julia"
       ],
       "relations": [
@@ -875,6 +913,10 @@
         {
           "type": "relates_to",
           "target": "CMP-013"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-014"
         }
       ],
       "path": "records/CMP-008.json"
@@ -1077,6 +1119,43 @@
         }
       ],
       "path": "records/CMP-013.json"
+    },
+    {
+      "id": "CMP-014",
+      "kind": "component",
+      "status": "accepted",
+      "title": "Fixed-monochrome conventional language-support layer",
+      "summary": "custom.language_support owns source-faithful C#/Python presentation and semantic-color suppression, while nvim-lspconfig, Mason, and the shared LspAttach layer own their conventional language intelligence.",
+      "scope": [
+        "lua/custom/language_support.lua",
+        "language-plugins",
+        "highlight-lifecycle",
+        "lsp-activation"
+      ],
+      "tags": [
+        "component-boundary",
+        "C#",
+        "Python",
+        "Tree-sitter",
+        "LSP",
+        "Mason",
+        "monochrome"
+      ],
+      "relations": [
+        {
+          "type": "implements",
+          "target": "BHV-016"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-008"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-012"
+        }
+      ],
+      "path": "records/CMP-014.json"
     },
     {
       "id": "DEC-001",
@@ -1641,6 +1720,43 @@
         }
       ],
       "path": "records/DEC-016.json"
+    },
+    {
+      "id": "DEC-017",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "C# and Python use literal fixed-monochrome source views",
+      "summary": "C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend.",
+      "scope": [
+        "csharp",
+        "python",
+        "monochrome-highlighting",
+        "language-intelligence"
+      ],
+      "tags": [
+        "C#",
+        "Python",
+        "Roslyn",
+        "BasedPyright",
+        "Tree-sitter",
+        "monochrome",
+        "literal-source"
+      ],
+      "relations": [
+        {
+          "type": "constrains",
+          "target": "BHV-016"
+        },
+        {
+          "type": "relates_to",
+          "target": "INV-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-012"
+        }
+      ],
+      "path": "records/DEC-017.json"
     },
     {
       "id": "INC-001",

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "BHV-016",
+  "kind": "behavior",
+  "status": "accepted",
+  "title": "Conventional monochrome C# and Python language workflows",
+  "summary": "C# and Python buffers show literal monochrome source while Roslyn and BasedPyright provide shared LSP navigation, diagnostics, symbols, refactoring, and completion capabilities without C++ frontend transforms.",
+  "details": [
+    "The c_sharp and python Tree-sitter parsers are ensured automatically. Their language-specific captures link to Normal except C#/Python comments and Python documentation strings, which link to Comment.",
+    "FileType and BufWinEnter reset conceallevel to zero for C# and Python, including when a window previously displayed the concealing C++ frontend.",
+    "Roslyn is enabled for cs buffers and discovers .sln, .slnx, and .csproj roots through nvim-lspconfig. Mason installs roslyn-language-server only after a dotnet SDK is available; an interactive C# buffer otherwise gives one prerequisite warning.",
+    "BasedPyright is enabled for Python and installed through Mason. Its upstream configuration discovers ordinary Python project markers, searches common import roots, and reports default diagnostics for open files only while respecting project configuration.",
+    "On either LSP attachment, gd navigates to definitions or references when already on the sole definition; gr, gI, gD, leader-rn, leader-ca, leader-ds, leader-ws, and leader-th expose references, implementations, declarations, rename, code actions, symbols, and inlay hints.",
+    "Semantic-token highlighting is disabled for both languages without deleting server capabilities. Diagnostics, document highlights, requests, edits, and source-buffer bytes remain intact.",
+    "Python's focused integration test starts the real Mason BasedPyright server in a temporary pyproject workspace and resolves a call to a definition in a sibling module."
+  ],
+  "scope": ["csharp", "python", "lsp-navigation", "monochrome-source"],
+  "tags": ["roslyn_ls", "basedpyright", "gd", "semantic-tokens", "source-faithful", "Mason"],
+  "provenance": [
+    {
+      "kind": "code",
+      "reference": "lua/custom/language_support.lua, lua/custom/plugins/lsp.lua, and lua/custom/plugins/treesitter.lua",
+      "note": "Current fixed-monochrome presentation, parser installation, server activation, dependency gate, and shared LSP mapping paths."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/language_support_spec.lua",
+      "claim": "Headless Neovim checks both filetypes, real parser/highlight state, inherited-window reset, unchanged source, absence of C++ frontend extmarks, Roslyn project-root discovery, shared mappings, semantic-token opt-out, BasedPyright attachment, and a real cross-file definition result."
+    },
+    {
+      "kind": "source",
+      "reference": "nvim-lspconfig roslyn_ls/basedpyright definitions and Mason registry inspected 2026-07-19",
+      "claim": "The configured names, commands, filetypes, workspace markers, handlers, package names, and dotnet prerequisite match the installed current integrations."
+    }
+  ],
+  "relations": [
+    { "type": "constrained_by", "target": "DEC-017" },
+    { "type": "implemented_by", "target": "CMP-014" },
+    { "type": "relates_to", "target": "CMP-008" }
+  ],
+  "retrieval": {
+    "aliases": ["C# gd", "Python go to definition", "Roslyn Neovim", "BasedPyright Neovim", "fixed monochrome languages"],
+    "questions": [
+      "How do I jump to a C# or Python definition?",
+      "What must be installed before Roslyn attaches?",
+      "Which Python language server is enabled?",
+      "Do semantic tokens recolor C# after the LSP starts?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-19",
+    "revision": "current worktree",
+    "method": "Focused source/presentation assertions, Roslyn configuration/root checks, and live BasedPyright cross-file navigation."
+  }
+}
