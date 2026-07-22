@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "eea2755b9f62e5fbe3e7deb11de7edc93627d53ed3cd64533db410c95c1307d5",
-  "record_count": 65,
+  "records_sha256": "a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c45ea836d458913d5",
+  "record_count": 66,
   "records": [
     {
       "id": "BHV-001",
@@ -2079,6 +2079,44 @@
         }
       ],
       "path": "records/INC-007.json"
+    },
+    {
+      "id": "INC-008",
+      "kind": "incident",
+      "status": "resolved",
+      "title": "Incomplete namespace types crashed cursor repaint",
+      "summary": "Leaving a CUDA source row containing a temporarily incomplete namespace-qualified template argument caused the presentation frontend to index a nil display name during CursorMoved.",
+      "scope": [
+        "cpp-frontend/types",
+        "cuda-frontend/types",
+        "frontend-lifecycle"
+      ],
+      "tags": [
+        "partial-syntax",
+        "namespace",
+        "cursor-moved",
+        "live-edit",
+        "regression"
+      ],
+      "relations": [
+        {
+          "type": "resolved_by",
+          "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "INC-007"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/INC-008.json"
     },
     {
       "id": "INV-001",

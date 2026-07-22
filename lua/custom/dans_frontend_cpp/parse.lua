@@ -390,7 +390,11 @@ local function display_name(name)
   if shown:sub(1, 7) == '::std::' then
     return shown:sub(8)
   elseif shown:sub(1, 5) == 'std::' or shown:sub(1, 6) == 'dans::' then
-    return shown:match '^[^:]+::(.+)$'
+    -- A live edit can leave a namespace qualifier without an identifier (for
+    -- example `std::vector<std::>`). Tree-sitter still exposes that fragment as
+    -- a type, so keep it verbatim until the name is complete instead of letting
+    -- the namespace-shortening match return nil into the renderer.
+    return shown:match('^[^:]+::(.+)$') or shown
   end
   return shown
 end

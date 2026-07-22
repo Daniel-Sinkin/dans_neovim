@@ -2,7 +2,7 @@
 
 Generated from canonical JSON records by `tools/knowledge.py build`; do not edit manually.
 
-Records: 65 · source digest: `eea2755b9f62e5fbe3e7deb11de7edc93627d53ed3cd64533db410c95c1307d5`
+Records: 66 · source digest: `a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c45ea836d458913d5`
 
 | id | kind | status | title | summary |
 |---|---|---|---|---|
@@ -61,6 +61,7 @@ Records: 65 · source digest: `eea2755b9f62e5fbe3e7deb11de7edc93627d53ed3cd64533
 | [INC-005](records/INC-005.json) | incident | resolved | C ABI declarations broke alignment and multiline function rendering | The frontend's width and function helpers encoded C++ formatter assumptions that failed on ordinary C structs and parameter lists with several arguments on one continuation row. |
 | [INC-006](records/INC-006.json) | incident | resolved | CUDA aliases rewrote identifiers inside include paths | The raw exact-alias pass treated angle-bracket header names as code, causing #include <cuComplex.h> to display incorrectly as #include <cf32.h>. |
 | [INC-007](records/INC-007.json) | incident | resolved | Smart-pointer aliases overlapped flipped constructor parameters | Generic $up/$sp aliases and whole-parameter movement both decorated std::unique_ptr and std::shared_ptr constructor parameters, producing broken mixed spellings instead of the compact ownership type. |
+| [INC-008](records/INC-008.json) | incident | resolved | Incomplete namespace types crashed cursor repaint | Leaving a CUDA source row containing a temporarily incomplete namespace-qualified template argument caused the presentation frontend to index a nil display name during CursorMoved. |
 | [INV-001](records/INV-001.json) | invariant | accepted | Non-folding transforms preserve source-row identity | Only folding may change which source rows are displayed; every other frontend transform preserves one displayed row per source row. |
 | [INV-002](records/INV-002.json) | invariant | accepted | The language frontend is presentation-only | C, C++, and CUDA source-buffer bytes are never rewritten merely to obtain the frontend spelling. |
 | [QST-001](records/QST-001.json) | question | resolved | Should concrete parameter constness adopt the compact const-default model? | Resolved in favor of const-default concrete lvalue references; pointer pointee and pointer-object constness remain explicit and independent. |

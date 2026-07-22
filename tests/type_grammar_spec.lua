@@ -61,6 +61,7 @@ local grammar_cases = {
   { 'fixed width nesting', 'std::expected<std::uint32_t, std::int64_t>', 'u32?i64' },
   { 'exact mystd namespace', 'mystd::optional<T>', 'mystd::optional<T>' },
   { 'exact other namespace', 'foo::optional<T>', 'foo::optional<T>' },
+  { 'incomplete standard namespace', 'std::', 'std::' },
   { 'exact longer identifier', 'my_optional<T>', 'my_optional<T>' },
   { 'exact smart identifier', 'myunique_ptr<T>', 'myunique_ptr<T>' },
   { 'unknown container recurses', 'Box<std::unique_ptr<T>, foo::optional<E>>', 'Box<T^, foo::optional<E>>' },
@@ -68,6 +69,36 @@ local grammar_cases = {
 
 for _, case in ipairs(grammar_cases) do
   eq('grammar: ' .. case[1], P.strip_type(case[2]), case[3])
+end
+
+-- Reproduce the reported editing transition rather than only checking the pure
+-- parser. The cursor row is raw while `std::` is incomplete; pressing j makes
+-- the pointer pass reconsider the row, which must be safe for partial syntax.
+do
+  local incomplete_source = 'auto incomplete() -> std::vector<std::>;'
+  local session = H.open {
+    lines = {
+      'auto incomplete() -> std::vector<Widget>;',
+      'auto parking() -> void;',
+    },
+    cursor = 1,
+    filetype = 'cuda',
+    name = '/tmp/dans_frontend_incomplete_template.cu',
+  }
+  vim.api.nvim_buf_set_lines(session.buf, 0, 1, false, { incomplete_source })
+  local edit_ok, edit_err = pcall(vim.cmd, 'doautocmd TextChanged')
+  check('incomplete namespace edit is safe on the revealed row', edit_ok, edit_err)
+
+  local move_ok, move_err = pcall(function()
+    vim.cmd 'normal! j'
+    -- Headless :normal completes before the production CursorMoved delivery.
+    vim.cmd 'doautocmd CursorMoved'
+    vim.wait(30)
+  end)
+  check('pressing j safely repaints an incomplete namespace type', move_ok, move_err)
+  eq('j reaches the following row', vim.api.nvim_win_get_cursor(0)[1], 2)
+  eq('incomplete namespace interaction preserves source bytes', session:source(1), incomplete_source)
+  eq('incomplete namespace interaction preserves row count', vim.api.nvim_buf_line_count(session.buf), 2)
 end
 
 -- Every pair of semantic wrappers is represented in the generated source

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "INC-008",
+  "kind": "incident",
+  "status": "resolved",
+  "title": "Incomplete namespace types crashed cursor repaint",
+  "summary": "Leaving a CUDA source row containing a temporarily incomplete namespace-qualified template argument caused the presentation frontend to index a nil display name during CursorMoved.",
+  "details": [
+    "The reported entry.cu failure appeared when j moved the cursor away from an edited row and the pointer module repainted the newly hidden source.",
+    "The failure was independent of the CUDA toolkit: it occurred entirely inside the Lua presentation pipeline after Tree-sitter supplied a partial type fragment.",
+    "The recursive type renderer shortened std:: and dans:: names with a pattern that required at least one character after the namespace separator.",
+    "For an incomplete fragment such as std:: inside std::vector<std::>, that pattern returned nil and the later alias pass called gsub on the nil value.",
+    "The correction preserves namespace-only fragments verbatim until an identifier is present, keeping the pure type parser safe throughout live editing.",
+    "A headless interaction regression edits a valid CUDA signature into the partial form while its row is revealed, presses j, delivers CursorMoved, and verifies both source bytes and source-row count."
+  ],
+  "scope": ["cpp-frontend/types", "cuda-frontend/types", "frontend-lifecycle"],
+  "tags": ["partial-syntax", "namespace", "cursor-moved", "live-edit", "regression"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-07-23 entry.cu CursorMoved report and Screenshot_20260723_011545.png",
+      "note": "Owner reported the parse.lua:554 failure after pressing j in cuda/sampler/entry.cu on a machine without CUDA installed."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/parse.lua::display_name and pointer.lua::changed_template",
+      "note": "A minimized std::vector<std::> live-edit transition reproduced the exact stack independently of CUDA installation."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/type_grammar_spec.lua incomplete standard namespace cases",
+      "claim": "The pure grammar preserves a namespace-only fragment, and a real j/CursorMoved transition over partial CUDA syntax completes without an error while preserving bytes and rows."
+    }
+  ],
+  "relations": [
+    { "type": "resolved_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "INC-007" },
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["parse.lua shown nil", "pressing j in CUDA file crashes", "std namespace partial edit", "CUDA missing CursorMoved error"],
+    "questions": [
+      "Why did pressing j after editing a CUDA template type raise parse.lua:554?",
+      "Does the CUDA frontend require an installed CUDA toolkit to navigate .cu files?",
+      "How does the type renderer handle an incomplete std:: fragment?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-07-23",
+    "revision": "current worktree",
+    "method": "Exact screenshot stack traced to the recursive type renderer, reproduced with a partial std:: template argument, and covered by pure-parser plus deterministic cursor interaction assertions."
+  }
+}
