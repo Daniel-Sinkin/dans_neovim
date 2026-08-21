@@ -18,6 +18,31 @@ local P = require 'custom.dans_frontend_cpp.parse'
 
 local DESIG_QUERY = [[(field_designator) @fd]]
 
+-- Rows whose first token is an operator belonging to a multiline binary value.
+-- Only these rows track the rendered value column. Re-indenting every row in the
+-- value also catches nested aggregates/calls, and each enclosing designated pair
+-- then adds another indentation extmark to the same structural rows.
+local function leading_binary_operator_rows(value, first_row)
+  local rows = {}
+  local function walk(node)
+    if not node or node:type() ~= 'binary_expression' then
+      return
+    end
+    for child, field in node:iter_children() do
+      if field == 'operator' then
+        local row, col = child:range()
+        if row > first_row then
+          rows[row] = col
+        end
+      elseif child:type() == 'binary_expression' then
+        walk(child)
+      end
+    end
+  end
+  walk(value)
+  return rows
+end
+
 -- VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO -> InstanceCreateInfo. Each _-word is
 -- Capitalized; a trailing vendor tag (EXT/KHR/NV/...) stays all-caps to match the
 -- real Vk type name (VkDebugUtilsMessengerCreateInfoEXT).
@@ -151,22 +176,29 @@ local function refresh(bufnr)
               -- single-line: tighten the space after `=` too -> `field=value`.
               pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, sr, eqcol + 1, { end_col = valstart, conceal = '' })
             end
-            -- multi-line value: re-indent its continuation lines to the (now
-            -- constant) value column, so an operator-aligned-under-value layout
-            -- (`a\n | b`) stays aligned after the dot / prefix / `=` shifts.
+            -- A leading operator in a multiline binary value tracks the (now
+            -- constant) value column, so `a\n | b` remains aligned after the dot
+            -- and `=` shifts. Nested aggregates and calls keep their own structural
+            -- indentation; rewriting all of their rows compounds at every nesting
+            -- level and can also reorder inline transforms such as `static_cast`.
             if not single and meta.multiline then
               local valcol = sc + meta.maxw + 3 -- indent + padded field + ` = `
+              local values = pair:field 'value'
+              local operator_rows = leading_binary_operator_rows(values and values[1], sr)
               for cl = sr + 1, per do
-                if not skip.skip(cl) then
+                local operator_col = operator_rows[cl]
+                if operator_col and not skip.skip(cl) then
                   local cline = vim.api.nvim_buf_get_lines(bufnr, cl, cl + 1, false)[1] or ''
                   local lead = #(cline:match '^%s*' or '')
-                  if lead > 0 then
-                    pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, cl, 0, { end_col = lead, conceal = '' })
+                  if lead == operator_col then
+                    if lead > 0 then
+                      pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, cl, 0, { end_col = lead, conceal = '' })
+                    end
+                    pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, cl, lead, {
+                      virt_text = { { string.rep(' ', valcol), 'Normal' } },
+                      virt_text_pos = 'inline',
+                    })
                   end
-                  pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, cl, lead, {
-                    virt_text = { { string.rep(' ', valcol), 'Normal' } },
-                    virt_text_pos = 'inline',
-                  })
                 end
               end
             end

@@ -438,6 +438,35 @@ local roundtrips = {
     target = 3,
   },
   {
+    name = 'nested designated aggregate and call indentation',
+    lines = {
+      '// park',
+      'void f() {',
+      '    const auto workspace = Workspace{',
+      '        .short_name = short_name,',
+      '        .nested = Nested{',
+      '            .leaf = leaf,',
+      '            .shape = make_shape({',
+      '                static_cast<i64>(rank),',
+      '                dimension',
+      '            })',
+      '        },',
+      '    };',
+      '}',
+    },
+    target = 5,
+    selection_end = 11,
+    expect_display = {
+      { line = 5, text = '        nested     = Nested{' },
+      { line = 6, text = '            leaf,' },
+      { line = 7, text = '            shape = make_shape({' },
+      { line = 8, text = '                $scast<i64>(rank),' },
+      { line = 9, text = '                dimension' },
+      { line = 10, text = '            })' },
+      { line = 11, text = '        },' },
+    },
+  },
+  {
     name = 'enum alignment',
     lines = { '// park', 'enum class E {', '    a = 1,', '    much_longer = 2,', '};' },
     target = 3,
@@ -487,6 +516,13 @@ for index, case in ipairs(roundtrips) do
   local decorated = session:display(case.target)
   local raw = case.lines[case.target]
   check(case.name .. ': fixture is actually transformed', decorated ~= raw, 'both were: ' .. raw)
+  for _, expectation in ipairs(case.expect_display or {}) do
+    check_equal(
+      string.format('%s: rendered row %d preserves structure', case.name, expectation.line),
+      session:display(expectation.line),
+      expectation.text
+    )
+  end
   if case.name == 'named constant raw prefix' then
     check_equal('named constant prefix is hidden at a raw use', decorated, '    consume(limit);')
     check_equal('k_ inside strings and comments stays visible', session:display(5), case.lines[5])
@@ -507,10 +543,27 @@ for index, case in ipairs(roundtrips) do
     end
     check('constexpr inferred constant tail starts amber', constant_chunk_present())
   end
-  session:select('line', case.target, case.target + 1)
+  local selection_end = case.selection_end or (case.target + 1)
+  session:select('line', case.target, selection_end)
   check_equal(case.name .. ': visual selection reveals source', session:display(case.target), raw)
+  for _, expectation in ipairs(case.expect_display or {}) do
+    if expectation.line >= case.target and expectation.line <= selection_end then
+      check_equal(
+        string.format('%s: selected row %d reveals source', case.name, expectation.line),
+        session:display(expectation.line),
+        case.lines[expectation.line]
+      )
+    end
+  end
   session:escape()
   check_equal(case.name .. ': escape restores exact prior presentation', session:display(case.target), decorated)
+  for _, expectation in ipairs(case.expect_display or {}) do
+    check_equal(
+      string.format('%s: escape restores row %d presentation', case.name, expectation.line),
+      session:display(expectation.line),
+      expectation.text
+    )
+  end
   if case.name == 'constexpr inferred constant' then
     local restored = false
     local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
