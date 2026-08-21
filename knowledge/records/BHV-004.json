@@ -8,7 +8,8 @@
   "details": [
     "A mutable local int x{7} becomes mut x: int = 7; a const local becomes x: int = 7.",
     "An inferred mutable local auto x = value becomes mut x := value; const auto becomes x := value.",
-    "Explicit type initialization uses equals, inferred type initialization uses colon-equals, and constexpr replaces equals with a second colon.",
+    "Explicit type initialization uses equals and inferred runtime initialization uses colon-equals. constexpr auto omits the redundant placeholder and uses name :: value, while an explicit constexpr type uses name: Type : value.",
+    "Compile-time binding names use the DansConstant role; k_ carries the same constant identity to uses outside the declaration overlay.",
     "Members do not receive mut merely for being assignable object state; mutable reference members do receive mut because they expose a mutable borrow.",
     "Uninitialized members and arrays use a red no_init prefix; uninitialized scalar locals remain raw because deferred initialization is a common local idiom.",
     "Structured bindings and range-for bindings retain reference/pointer sigils on the binding names and surface mutability.",
@@ -16,7 +17,7 @@
     "Ambiguous or unsupported forms such as multi-declarators, function pointers, incomplete multiline right-hand sides, and most-vexing-parse function declarations remain raw."
   ],
   "scope": ["cpp-frontend/declarations", "cuda-frontend/declarations", "visual-grammar"],
-  "tags": ["bindings", "mut", "no_init", "alignment", "explicit-vs-inferred"],
+  "tags": ["bindings", "mut", "no_init", "alignment", "explicit-vs-inferred", "constexpr", "double-colon"],
   "provenance": [
     {
       "kind": "code",
@@ -40,21 +41,23 @@
     { "type": "constrained_by", "target": "INV-001" },
     { "type": "constrained_by", "target": "INV-002" },
     { "type": "implemented_by", "target": "CMP-002" },
+    { "type": "relates_to", "target": "DEC-019" },
     { "type": "relates_to", "target": "DEC-002" },
     { "type": "relates_to", "target": "INC-005" }
   ],
   "retrieval": {
-    "aliases": ["binding syntax", "name colon type", "mut locals", "no_init", "colon equals", "align C struct fields"],
+    "aliases": ["binding syntax", "name colon type", "mut locals", "no_init", "colon equals", "constexpr double colon", "align C struct fields"],
     "questions": [
       "How are explicit and inferred declarations distinguished?",
+      "How does constexpr auto display?",
       "Why do members and locals receive different mut markers?",
       "Which declarations deliberately stay raw?",
       "Do bare scalar and pointer fields align in one C struct block?"
     ]
   },
   "last_verified": {
-    "date": "2026-07-11",
-    "revision": "worktree after e065a0e",
-    "method": "Current parse/render/view code matched against focused, C ABI interaction, and golden declaration tests."
+    "date": "2026-08-21",
+    "revision": "current worktree",
+    "method": "Current parse/render/view/style code matched against focused declaration/color assertions, Visual round-trips, golden composition, and real-grid profile captures."
   }
 }

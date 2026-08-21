@@ -13,7 +13,7 @@
     "tools/style_lab.py validates the catalog, generates content-addressed real-grid captures, serves static assets and JSON APIs on loopback, atomically writes selections, and optionally waits for completion.",
     "The browser fits a slightly overflowing code panel at the largest size between 100 and 80 percent; if it still overflows at 80 percent, it restores full size and enables horizontal scrolling.",
     "Capture width grows per scene before browser layout so long lines are never truncated by Neovim before the fit/scroll decision.",
-    "The corpus includes synthetic semantic, CUDA/Qnpeps alignment, defer, and multiline macro controls plus pinned micro-excerpts from Dear ImGui, LLVM, NVIDIA CUDA Samples, GCC, SDL, GLFW, and Khronos Vulkan Samples."
+    "The corpus includes synthetic reference, optional, ownership, inferred-constexpr, CUDA/Qnpeps alignment, defer, and multiline macro controls plus pinned micro-excerpts from Dear ImGui, LLVM, NVIDIA CUDA Samples, GCC, SDL, GLFW, and Khronos Vulkan Samples."
   ],
   "scope": ["style-lab", "visual-regression", "owner-decisions", "headless-neovim"],
   "tags": ["browser", "ext-linegrid", "msgpack-rpc", "profiles", "selection-provenance", "external-corpus"],
@@ -33,18 +33,19 @@
     {
       "kind": "test",
       "reference": "tests/style_lab_spec.py",
-      "claim": "Catalog provenance, profile isolation, source integrity, exact text differences, and final HTTP acknowledgement are tested."
+      "claim": "Catalog provenance, profile isolation, source integrity, exact text and RGB differences, and final HTTP acknowledgement are tested."
     },
     {
       "kind": "owner",
       "reference": "style_lab/selections.json",
-      "claim": "The first real decision round-trip selected const-default with a timestamp and catalog hash."
+      "claim": "Resolved owner choices, including inferred constexpr double colon, are persisted with timestamps, notes, and catalog hashes."
     }
   ],
   "relations": [
     { "type": "constrained_by", "target": "INV-001" },
     { "type": "constrained_by", "target": "INV-002" },
     { "type": "tests", "target": "DEC-003" },
+    { "type": "tests", "target": "DEC-019" },
     { "type": "resolves", "target": "INC-003" },
     { "type": "relates_to", "target": "CMP-003" }
   ],
@@ -58,8 +59,8 @@
     ]
   },
   "last_verified": {
-    "date": "2026-07-11",
-    "revision": "worktree after 85417c9",
-    "method": "Real server/API exercise, Chrome screenshot inspection, RGB grid inspection, selection round-trip, and isolated tests."
+    "date": "2026-08-21",
+    "revision": "current worktree",
+    "method": "Catalog validation, buffer-local profile comparisons, RGB grid inspection, persisted owner selections, server acknowledgement, and isolated tests."
   }
 }

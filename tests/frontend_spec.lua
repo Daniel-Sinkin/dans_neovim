@@ -67,6 +67,23 @@ run('local const', 'fn', { 'const int x{7};' }, { 'x: int = 7;' })
 run('local constexpr', 'fn', { 'constexpr int x{7};' }, { 'x: int : 7;' })
 run('local static constexpr', 'fn', { 'static constexpr usize n{4};' }, { 'n: usize : 4;' })
 run('local inline constexpr', 'fn', { 'inline constexpr f32 k{2.0f};' }, { 'k: f32 : 2.0f;' })
+run('local constexpr auto brace', 'fn', {
+  'constexpr auto k_max_int{numeric_limits<int>::max()};',
+}, {
+  'k_max_int :: numeric_limits<int>::max();',
+})
+run('local constexpr auto equals', 'fn', { 'constexpr auto k_limit = compute_limit();' }, { 'k_limit :: compute_limit();' })
+run('constexpr auto alignment split from runtime auto', 'fn', {
+  '    constexpr auto k_short = 1;',
+  '    constexpr auto k_long_name = 2;',
+  '    const auto runtime = read();',
+  '    const auto longer_runtime = read_more();',
+}, {
+  'k_short' .. (' '):rep(4) .. ' :: 1;',
+  'k_long_name :: 2;',
+  'runtime' .. (' '):rep(7) .. ' := read();',
+  'longer_runtime := read_more();',
+})
 
 -- ===================== auto bindings =====================
 run('auto local', 'fn', { 'auto a = foo();' }, { 'mut a := foo();' })
@@ -488,6 +505,61 @@ do
     fail = fail + 1
     fails[#fails + 1] = 'FAIL  std::move color: move hl = ' .. tostring(hl)
   end
+end
+
+-- constexpr declaration names and the owner's k_* convention share a dedicated
+-- compile-time color. Parsing identifies legacy/unprefixed declarations; k_*
+-- carries the same color to raw and overlaid use sites, including array extents.
+do
+  local b = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(b, 0, -1, false, {
+    '// park',
+    'constexpr auto k_max_int{numeric_limits<int>::max()};',
+    'constexpr int legacy_limit{7};',
+    'const auto next = k_max_int + legacy_limit;',
+    'std::array<int, k_max_int> values{};',
+    'const auto label = "k_max_int";',
+  })
+  vim.bo[b].filetype = 'cpp'
+  vim.api.nvim_set_current_buf(b)
+  pcall(function() vim.treesitter.get_parser(b, 'cpp'):parse() end)
+  vim.api.nvim_win_set_cursor(0, { 1, 0 })
+  vim.cmd 'doautocmd FileType'
+  vim.cmd 'doautocmd BufEnter'
+
+  local function chunk_hl(row0, text)
+    local marks = vim.api.nvim_buf_get_extmarks(b, jns, { row0, 0 }, { row0, -1 }, { details = true })
+    for _, chunk in ipairs(marks[1] and marks[1][4].virt_text or {}) do
+      if chunk[1] == text then
+        return chunk[2]
+      end
+    end
+  end
+  local function chk(desc, actual, expected)
+    if actual == expected then
+      pass = pass + 1
+    else
+      fail = fail + 1
+      fails[#fails + 1] = string.format('FAIL  %s: expected %s, got %s', desc, tostring(expected), tostring(actual))
+    end
+  end
+
+  chk('constexpr auto declaration color', chunk_hl(1, 'k_max_int'), 'DansConstant')
+  chk('unprefixed constexpr declaration color', chunk_hl(2, 'legacy_limit'), 'DansConstant')
+  chk('k_* overlay expression color', chunk_hl(3, 'k_max_int'), 'DansConstant')
+  chk('k_* non-type template argument color', chunk_hl(4, 'k_max_int'), 'DansConstant')
+  chk('k_* inside a string stays string-colored', chunk_hl(5, '"k_max_int"'), 'DansString')
+
+  local raw_match = false
+  for _, match in ipairs(vim.fn.getmatches()) do
+    if match.group == 'DansConstant' and tostring(match.pattern):find('k_', 1, true) then
+      raw_match = true
+      break
+    end
+  end
+  chk('raw k_* constant match exists', raw_match, true)
+  local attrs = vim.api.nvim_get_hl(0, { name = 'DansConstant', link = false })
+  chk('constant group uses compile-time purple', attrs.fg, tonumber('bb9af7', 16))
 end
 
 -- BLAS/LAPACK identifiers carry the DansBLAS yellow-green in the overlay: the

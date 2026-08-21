@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c45ea836d458913d5",
-  "record_count": 66,
+  "records_sha256": "d9c8fc4a3c80b232019b4c2a0b632276ff0000c1b6797da59c3733ddb97dce81",
+  "record_count": 67,
   "records": [
     {
       "id": "BHV-001",
@@ -129,7 +129,9 @@
         "mut",
         "no_init",
         "alignment",
-        "explicit-vs-inferred"
+        "explicit-vs-inferred",
+        "constexpr",
+        "double-colon"
       ],
       "relations": [
         {
@@ -143,6 +145,10 @@
         {
           "type": "implemented_by",
           "target": "CMP-002"
+        },
+        {
+          "type": "relates_to",
+          "target": "DEC-019"
         },
         {
           "type": "relates_to",
@@ -326,11 +332,12 @@
       "id": "BHV-009",
       "kind": "behavior",
       "status": "observed",
-      "title": "Library prefix conceal and semantic color families",
-      "summary": "Configured third-party identifier families use stable semantic colors, and selected high-noise prefixes are concealed only after their category has been determined.",
+      "title": "Semantic color families and library prefix conceal",
+      "summary": "Configured semantic identifier families use stable colors, and selected high-noise library prefixes are concealed only after their category has been determined.",
       "scope": [
         "frontend-highlighting",
         "library-identifiers",
+        "named-constants",
         "prefix-conceal"
       ],
       "tags": [
@@ -340,7 +347,9 @@
         "GLFW",
         "SDL",
         "ImGui",
-        "prefixes"
+        "prefixes",
+        "constexpr",
+        "k-prefix"
       ],
       "relations": [
         {
@@ -358,6 +367,10 @@
         {
           "type": "implements",
           "target": "DEC-014"
+        },
+        {
+          "type": "implements",
+          "target": "DEC-019"
         },
         {
           "type": "opens",
@@ -765,6 +778,10 @@
         {
           "type": "tests",
           "target": "DEC-003"
+        },
+        {
+          "type": "tests",
+          "target": "DEC-019"
         },
         {
           "type": "resolves",
@@ -1827,6 +1844,50 @@
         }
       ],
       "path": "records/DEC-018.json"
+    },
+    {
+      "id": "DEC-019",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Inferred constexpr bindings use double colon and named constants use compile-time purple",
+      "summary": "constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role.",
+      "scope": [
+        "cpp-frontend/declarations",
+        "cuda-frontend/declarations",
+        "frontend-highlighting",
+        "style-lab"
+      ],
+      "tags": [
+        "constexpr",
+        "auto",
+        "double-colon",
+        "k-prefix",
+        "named-constants",
+        "purple"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "BHV-004"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/DEC-019.json"
     },
     {
       "id": "INC-001",

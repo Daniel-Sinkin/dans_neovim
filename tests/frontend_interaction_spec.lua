@@ -69,6 +69,32 @@ do
   check('style profile does not change source bytes', explicit:assert_source_unchanged())
 end
 
+-- The three constexpr-auto spellings compared by the owner remain validated
+-- buffer-local profiles. The accepted double colon is the ordinary-buffer
+-- default; opening either comparison beside it cannot mutate that buffer.
+do
+  local lines = {
+    '// park',
+    'constexpr auto k_max_int{numeric_limits<int>::max()};',
+  }
+  local selected = H.open { lines = lines, cursor = 1 }
+  local colon_equals = H.open {
+    lines = lines,
+    cursor = 1,
+    style_profile = { constexpr_auto_binding = 'colon_equals' },
+  }
+  local typed = H.open {
+    lines = lines,
+    cursor = 1,
+    style_profile = { constexpr_auto_binding = 'typed_double_colon' },
+  }
+  check_equal('selected constexpr-auto profile uses double colon', selected:display(2), 'k_max_int :: numeric_limits<int>::max();')
+  check_equal('constexpr-auto comparison can use colon equals', colon_equals:display(2), 'k_max_int := numeric_limits<int>::max();')
+  check_equal('constexpr-auto comparison preserves prior typed form', typed:display(2), 'k_max_int: auto : numeric_limits<int>::max();')
+  check_equal('comparison buffers do not mutate selected constexpr spelling', selected:display(2), 'k_max_int :: numeric_limits<int>::max();')
+  check('constexpr-auto profiles preserve source bytes', selected:assert_source_unchanged() and colon_equals:assert_source_unchanged() and typed:assert_source_unchanged())
+end
+
 -- A multiline parameter list is one horizontal layout unit even though every
 -- source row remains independent. Concrete parameter colons share an absolute
 -- display column; the longest binding name determines it. Namespace/prefix
@@ -360,6 +386,17 @@ local roundtrips = {
     target = 3,
   },
   {
+    name = 'constexpr inferred constant',
+    lines = {
+      '// park',
+      'void f() {',
+      '    constexpr auto k_max_int{numeric_limits<int>::max()};',
+      '    consume(k_max_int);',
+      '}',
+    },
+    target = 3,
+  },
+  {
     name = 'pointer and function aliases',
     lines = { '// park', 'auto pointer_result() -> int*;', 'auto other() -> void;' },
     target = 2,
@@ -437,10 +474,35 @@ for index, case in ipairs(roundtrips) do
   local decorated = session:display(case.target)
   local raw = case.lines[case.target]
   check(case.name .. ': fixture is actually transformed', decorated ~= raw, 'both were: ' .. raw)
+  if case.name == 'constexpr inferred constant' then
+    check_equal('constexpr inferred constant uses compact double colon', decorated, '    k_max_int :: numeric_limits<int>::max();')
+    local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
+    local function constant_chunk_present()
+      for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(session.buf, view_ns, { case.target - 1, 0 }, { case.target - 1, -1 }, { details = true })) do
+        for _, chunk in ipairs(mark[4].virt_text or {}) do
+          if chunk[1] == 'k_max_int' and chunk[2] == 'DansConstant' then
+            return true
+          end
+        end
+      end
+      return false
+    end
+    check('constexpr inferred constant name starts purple', constant_chunk_present())
+  end
   session:select('line', case.target, case.target + 1)
   check_equal(case.name .. ': visual selection reveals source', session:display(case.target), raw)
   session:escape()
   check_equal(case.name .. ': escape restores exact prior presentation', session:display(case.target), decorated)
+  if case.name == 'constexpr inferred constant' then
+    local restored = false
+    local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
+    for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(session.buf, view_ns, { case.target - 1, 0 }, { case.target - 1, -1 }, { details = true })) do
+      for _, chunk in ipairs(mark[4].virt_text or {}) do
+        restored = restored or (chunk[1] == 'k_max_int' and chunk[2] == 'DansConstant')
+      end
+    end
+    check('constexpr inferred constant purple restores after Visual exit', restored)
+  end
   check(case.name .. ': source bytes remain unchanged', session:assert_source_unchanged())
 end
 

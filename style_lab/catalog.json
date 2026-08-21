@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-07-18-i",
+  "catalog_revision": "2026-08-21-a",
   "title": "Dans C/C++ frontend style lab",
   "description": "Choose presentation rules from captures produced by the real Neovim frontend. Source bytes are never changed.",
   "questions": [
@@ -431,6 +431,67 @@
             "std::weak_ptr<std::optional<Widget>> maybe_observer{};",
             "std::array<std::weak_ptr<Widget>, 4> observers{};",
             "std::unique_ptr<Widget, Deleter> custom_owner{};"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "constexpr-auto-binding",
+      "factbase_record": "DEC-019",
+      "status": "resolved",
+      "title": "Inferred constexpr binding",
+      "prompt": "How should constexpr auto distinguish an inferred compile-time binding from an ordinary inferred assignment?",
+      "constraints": [
+        "Ordinary auto assignments retain name := value.",
+        "An explicit constexpr type retains name: Type : value.",
+        "The binding name keeps the named-constant color in every candidate, and cursor or Visual reveal remains exact C++."
+      ],
+      "choices": [
+        {
+          "id": "double-colon",
+          "label": "Double colon",
+          "tag": "selected",
+          "summary": "Drop redundant auto and use name :: value exclusively for inferred compile-time bindings.",
+          "profile": {
+            "constexpr_auto_binding": "double_colon"
+          }
+        },
+        {
+          "id": "colon-equals",
+          "label": "Colon equals",
+          "tag": "rejected-overlap",
+          "summary": "Drop auto but reuse the ordinary inferred-assignment operator, making runtime and compile-time bindings textually identical.",
+          "profile": {
+            "constexpr_auto_binding": "colon_equals"
+          }
+        },
+        {
+          "id": "typed-double-colon",
+          "label": "Visible auto",
+          "tag": "previous",
+          "summary": "Keep the placeholder type visible as name: auto : value.",
+          "profile": {
+            "constexpr_auto_binding": "typed_double_colon"
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "id": "numeric-limits",
+          "title": "Compile-time and runtime binding controls",
+          "filetype": "cpp",
+          "provenance": {
+            "kind": "synthetic",
+            "label": "Owner-reported numeric_limits declaration with binding controls"
+          },
+          "lines": [
+            "auto limits() -> void {",
+            "    constexpr auto k_max_int{numeric_limits<int>::max()};",
+            "    constexpr auto k_min_int = numeric_limits<int>::min();",
+            "    const auto value = read_value();",
+            "    constexpr int k_retry_count{3};",
+            "    consume(k_max_int, k_min_int, k_retry_count, value);",
+            "}"
           ]
         }
       ]

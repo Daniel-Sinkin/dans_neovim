@@ -53,6 +53,13 @@ local EXPR_MARKERS = {
   mut_unchecked = 'DansMarkerMut',
 }
 
+local function constant_hl(name, is_constexpr)
+  if is_constexpr or name:match '^k_' then
+    return 'DansConstant'
+  end
+  return nil
+end
+
 -- All-caps stdlib tokens that aren't user macros worth coloring -- left normal.
 local MACRO_DENY = { FILE = true, SEEK_SET = true, SEEK_CUR = true, SEEK_END = true, EOF = true, NULL = true }
 
@@ -228,6 +235,8 @@ local function colorize(text, bufnr)
           out[#out + 1] = { word, 'DansLLDB' } -- LLDB_*/SB*/StateType, matches markers
         elseif word:match '^qnpeps_' or word:match '^QNPEPS_' or word:match '^Qnpeps' or word:match '^qn_' then
           out[#out + 1] = { P.strip_glfw(word), 'DansQnpeps' }
+        elseif word:match '^k_' then
+          out[#out + 1] = { word, 'DansConstant' }
         elseif word:match '^[A-Z][A-Z0-9_]+$' and not MACRO_DENY[word] then
           out[#out + 1] = { word, 'DansMacro' } -- other all-caps macro
         else
@@ -390,13 +399,12 @@ local function is_string_type(w)
     or w:match '^%u*[ZF]String$' ~= nil
 end
 
--- Split a (caret-free) type segment so each whole-word string-type token is green
--- (DansString) and the rest keeps `base_hl`: a nested `std::string` / `string_view`
--- / `const char*` inside a template (`vector<string>`, `span<czstring>`) reads as a
--- string just like a standalone one, mirroring the raw-line matchadds. When
--- `base_hl` is already DansString (the whole type IS the string, e.g. `string&`)
--- the segment is returned whole -- splitting would fracture an already-right chunk.
-local function string_token_chunks(text, base_hl)
+-- Split a (caret-free) type segment so semantic value tokens retain their own
+-- colors inside templates. Whole-word string types stay green, while k_* array
+-- extents/non-type arguments use the named-constant purple. When `base_hl` is
+-- already DansString (the whole type IS the string, e.g. `string&`) the segment
+-- is returned whole -- splitting would fracture an already-right chunk.
+local function semantic_token_chunks(text, base_hl)
   if base_hl == 'DansString' then
     return { { text, base_hl } }
   end
@@ -420,7 +428,10 @@ local function string_token_chunks(text, base_hl)
       run[#run + 1] = text:sub(i, s - 1)
     end
     local word = text:sub(s, e)
-    if is_string_type(word) then
+    if word:match '^k_' then
+      flush()
+      out[#out + 1] = { word, 'DansConstant' }
+    elseif is_string_type(word) then
       flush()
       out[#out + 1] = { word, 'DansString' }
     else
@@ -435,8 +446,8 @@ end
 -- Render a type string into { text, hl } chunks for virt_text *outside* the
 -- overlay (the trailing-return reorder): strip_type cleans it (std::/dans::,
 -- optional->?, *->^), semantic optional markers use the selected buffer-local
--- accent, and type_hl colors the rest. A nested whole-word `string` is greened via
--- string_token_chunks (same as the overlay's add_type). Exposed for the pointer
+-- accent, and type_hl colors the rest. Nested string and k_* tokens are split via
+-- semantic_token_chunks (same as the overlay's add_type). Exposed for the pointer
 -- module.
 function M.type_chunks(t, bufnr)
   local segments, semantic = P.type_segments(t)
@@ -454,7 +465,7 @@ function M.type_chunks(t, bufnr)
   for _, item in ipairs(segments) do
     if item.role == 'type' then
       active_hl = type_hl(item.source or item.text)
-      for _, chunk in ipairs(string_token_chunks(P.strip_glfw(item.text), active_hl)) do
+      for _, chunk in ipairs(semantic_token_chunks(P.strip_glfw(item.text), active_hl)) do
         push(chunk[1], chunk[2])
       end
     elseif item.role == 'const' then
@@ -869,12 +880,13 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
       if is_local() and not was_const then
         add('mut ', 'DansMarkerMut')
       end
-      add(name .. ': ')
+      add(name, constant_hl(name, is_constexpr))
+      add ': '
       add_type(rettype)
       add ' ='
     elseif lambda_render and cap ~= nil then
       add(LAMBDA_KEYWORD .. ' ', 'DansLambda')
-      add(name)
+      add(name, constant_hl(name, is_constexpr))
       add '('
       local cap_chunks = lambda_capture_chunks(cap, bufnr)
       local param_chunks = lambda_param_chunks(params, bufnr)
@@ -903,16 +915,36 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
       return nil -- incomplete RHS (multi-line opener), leave raw
     else
       -- non-const local -> inferred mut. A run of consecutive auto bindings aligns
-      -- its `:=` (compute_align): the binding's mut sits in a left column, blank-
-      -- reserved on a const line when a sibling is mut, and the name is padded to the
-      -- run's widest.
+      -- its `:=` (or constexpr `::`; compute_align): the binding's mut sits in a
+      -- left column, blank-reserved on a const line when a sibling is mut, and the
+      -- name is padded to the run's widest. constexpr auto is an inferred
+      -- compile-time binding, so its redundant `auto`/type hint is omitted.
       if is_local() and not was_const then
         add('mut ', 'DansMarkerMut')
       elseif align and align.auto and align.has_mut then
         add '    ' -- blank mut column, so names align under their mut siblings
       end
-      if type_hint and name ~= '_' then
-        add(name .. ': ')
+      if is_constexpr then
+        local binding_style = style.get(bufnr, 'constexpr_auto_binding')
+        add(name, 'DansConstant')
+        if sigil ~= '' then
+          add(P.ptr(sigil))
+        end
+        if align and align.auto then
+          add(string.rep(' ', math.max(0, align.nw - (vim.fn.strwidth(name) + (sigil ~= '' and 1 or 0)))))
+        end
+        if binding_style == 'typed_double_colon' then
+          add ': '
+          add_type 'auto'
+          add ' : '
+        else
+          add(binding_style == 'colon_equals' and ' := ' or ' :: ')
+        end
+        add_value(expr)
+        add(semi)
+      elseif type_hint and name ~= '_' then
+        add(name, constant_hl(name, is_constexpr))
+        add ': '
         add_type(P.ptr(type_hint))
         add ' = '
         add_value(expr)
@@ -922,7 +954,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
         -- `^` for `auto*` -- P.ptr maps `*`->`^`), matching the range-for `v&` /
         -- `p^` style rather than a `ref` keyword or gluing it to the value. A
         -- plain `auto` value binding has no sigil.
-        add(name)
+        add(name, constant_hl(name, is_constexpr))
         if sigil ~= '' then
           add(P.ptr(sigil))
         end
@@ -937,9 +969,11 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
   else
     -- Explicit type: colored the same blue as the deduced hints (DansInlayType);
     -- written and deduced types are treated alike. std:: stripped. `constexpr`
-    -- becomes Odin's constant binding -- `name: T : value` (a `:` in place of the
-    -- `=`), since `::` / `: T :` is how frontend spells a compile-time constant.
+    -- becomes a constant binding: inferred `auto` uses compact `name :: value`,
+    -- while a concrete type keeps `name: T : value`.
     local shown_typ = P.strip_type(typ)
+    local inferred_constexpr = is_constexpr and vim.trim(shown_typ) == 'auto'
+    local constexpr_auto_binding = inferred_constexpr and style.get(bufnr, 'constexpr_auto_binding') or nil
     -- `const char*` is an immutable C string: render it as a single green
     -- `CString` token, dropping the const, the `^` caret, and any mut marker.
     -- split_markers already peeled the leading const (was_const) so the type
@@ -955,6 +989,21 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     else
       disp_typ = shown_typ
     end
+    if inferred_constexpr and constexpr_auto_binding ~= 'typed_double_colon' then
+      add(nm, 'DansConstant')
+      if align then
+        add(string.rep(' ', math.max(0, align.nw - vim.fn.strwidth(nm))))
+      end
+      add(constexpr_auto_binding == 'colon_equals' and ' := ' or ' :: ')
+      if paren then
+        add_value(paren)
+      elseif init ~= '' then
+        add_value(init)
+      end
+      add(semi)
+      return chunks
+    end
+
     -- The binding's own mutability sits in a left `mut` column, before the name --
     -- a non-const local value, a non-const reference anywhere, or a non-const
     -- pointer OUTSIDE a struct is `mut`; a pointer MEMBER is plain data, so it
@@ -975,7 +1024,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     elseif align and align.has_mut then
       add '    ' -- blank mut column, so names align under their mut siblings
     end
-    add(nm)
+    add(nm, constant_hl(nm, is_constexpr))
     if align then
       add(string.rep(' ', math.max(0, align.nw - vim.fn.strwidth(nm))))
     end

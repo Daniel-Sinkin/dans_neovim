@@ -26,6 +26,11 @@ def display_text(result: dict) -> list[str]:
 def main() -> None:
     catalog = read_json(ROOT / "style_lab" / "catalog.json")
     validate_catalog(catalog)
+    selections = read_json(ROOT / "style_lab" / "selections.json")
+    assert selections["catalog_revision"] == catalog["catalog_revision"]
+    constexpr_selection = selections["selections"]["constexpr-auto-binding"]
+    assert constexpr_selection["choice_id"] == "double-colon"
+    assert constexpr_selection["catalog_hash"] == catalog_hash(catalog)
     app_source = (ROOT / "style_lab" / "web" / "app.js").read_text(encoding="utf-8")
     assert "openQuestions.forEach" in app_source
     assert "state.catalog.questions.forEach" not in app_source
@@ -169,6 +174,46 @@ def main() -> None:
 
     row_widths = zip(*(map(len, weak_text_by_profile[marker]) for marker in weak_expectations))
     assert all(len(set(widths)) == 1 for widths in row_widths)
+
+    # Inferred constexpr bindings preserve every spelling the owner compared as
+    # a real buffer-local renderer profile. Runtime inference and explicit
+    # constexpr types are controls; the selected binding name is compile-time
+    # purple in the actual ext_linegrid output.
+    constexpr_source = [
+        "auto limits() -> void {",
+        "    constexpr auto k_max_int{numeric_limits<int>::max()};",
+        "    constexpr auto k_min_int = numeric_limits<int>::min();",
+        "    const auto value = read_value();",
+        "    constexpr int k_retry_count{3};",
+        "    consume(k_max_int, k_min_int, k_retry_count, value);",
+        "}",
+    ]
+    constexpr_expectations = {
+        "double_colon": ("k_max_int ::", "k_min_int ::"),
+        "colon_equals": ("k_max_int :=", "k_min_int :="),
+        "typed_double_colon": ("k_max_int: auto :", "k_min_int: auto :"),
+    }
+    for binding, expected in constexpr_expectations.items():
+        rendered = capture(
+            constexpr_source,
+            profile={"constexpr_auto_binding": binding},
+            width=120,
+        )
+        text_rows = display_text(rendered)
+        assert rendered["source_lines"] == constexpr_source
+        assert expected[0] in text_rows[1] and expected[1] in text_rows[2]
+        assert "value := read_value();" in text_rows[3]
+        assert "k_retry_count: int : 3;" in text_rows[4]
+
+    selected_constexpr = capture(
+        constexpr_source,
+        profile={"constexpr_auto_binding": "double_colon"},
+        width=120,
+    )
+    assert any(
+        run["style"].get("fg") == "#bb9af7" and "k_max_int" in run["text"]
+        for run in selected_constexpr["rows"][1]["runs"]
+    )
 
     # Cross-path visual oracle for the accepted CUDA/Qnpeps/layout/defer rules.
     # This consumes RGB ext_linegrid runs, so it pins semantic colors and not only

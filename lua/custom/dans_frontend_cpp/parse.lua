@@ -1050,8 +1050,9 @@ function M.field_is_mut(line, bufnr, row0)
 end
 
 -- Rendered width of the name (plus a `&`/`^` sigil) for a plain `auto name = value`
--- binding the view renders as `name := value`, and whether it renders a leading
--- `mut`; nil if the line isn't such a binding (an explicit-type decl, a lambda, a
+-- binding the view renders as `name := value` (or constexpr `name :: value`),
+-- whether it renders a leading `mut`, and whether it is constexpr; nil if the
+-- line isn't such a binding (an explicit-type decl, a lambda, a
 -- structured binding, an incomplete multi-line opener, a cpy/thread_local prefix,
 -- ...). Mirrors the exact conditions the `name :=` path in build_chunks uses, so a
 -- run of them can align the `:=` and the measured width matches what renders. The
@@ -1063,7 +1064,7 @@ function M.auto_bind_dims(line, bufnr, row0)
   if not code:match ';%s*$' then
     return nil
   end
-  local prefix, core, was_const = M.split_markers((code:gsub(';%s*$', '')))
+  local prefix, core, was_const, is_constexpr = M.split_markers((code:gsub(';%s*$', '')))
   if prefix ~= '' then
     return nil -- a cpy/thread_local prefix shifts the name; keep the width model exact
   end
@@ -1076,13 +1077,13 @@ function M.auto_bind_dims(line, bufnr, row0)
   end
   local nw = vim.fn.strwidth(name) + (sigil ~= '' and 1 or 0)
   local is_mut = not was_const and M.decl_kind(bufnr, row0) == 'local'
-  return nw, is_mut
+  return nw, is_mut, is_constexpr
 end
 
 -- Map row0 -> an align entry so a run of consecutive declarations lines up. Two
 -- kinds: displayed explicit-type declarations -> { nw, tw, has_mut }, aligning the `:`
 -- (after the name) and `=`/`;` (after the type); and plain `auto` bindings ->
--- { auto = true, nw, has_mut }, aligning the `:=` by padding the name. Both reserve
+-- { auto = true, nw, has_mut }, aligning `:=` or `::` by padding the name. Both reserve
 -- the left mut column ONLY when a binding in the run actually renders mut. constexpr
 -- declarations (`name: T : value` constant bindings) never mix with normal vars: a
 -- constexpr-ness flip ends an explicit run, so a constant block aligns among itself
@@ -1122,12 +1123,18 @@ function M.compute_align(lines, offset, bufnr)
         end
       end
     elseif M.auto_bind_dims(lines[i], bufnr, offset + i - 1) then
-      -- Plain `auto name = value` bindings (rendered `name := value`): a run pads
-      -- each name to the widest so the `:=` lines up.
-      local block = {}
+      -- Plain `auto name = value` bindings: a run pads each name to the widest
+      -- so `:=` (runtime) or `::` (constexpr) lines up. A constexpr-ness flip
+      -- starts a new run so the two operators never imply one mixed category.
+      local block, block_cx = {}, nil
       while i <= n do
-        local aw, amut = M.auto_bind_dims(lines[i], bufnr, offset + i - 1)
+        local aw, amut, acx = M.auto_bind_dims(lines[i], bufnr, offset + i - 1)
         if not aw then
+          break
+        end
+        if block_cx == nil then
+          block_cx = acx
+        elseif acx ~= block_cx then
           break
         end
         block[#block + 1] = { row0 = offset + i - 1, nw = aw, mut = amut }

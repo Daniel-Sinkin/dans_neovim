@@ -55,6 +55,11 @@ function M.apply()
   -- Other all-caps macros / preprocessor constants -- purple. The hue alone
   -- carries the category (no bold), since these are dense in API-heavy code.
   hi('DansMacro', { fg = '#bb9af7' })
+  -- Named compile-time constants -- the same purple family as preprocessor
+  -- constants, but a distinct group so the k_ convention can be rethemed
+  -- independently later.  constexpr declarations also use this group for the
+  -- displayed binding name, even before they have been renamed to k_*.
+  hi('DansConstant', { fg = '#bb9af7' })
   -- GLFW / SDL identifiers (GLFW*, SDL_*) -- a darker teal, so the brighter STB
   -- cyan below reads as a distinct, louder library.
   hi('DansSDL', { fg = '#1f93a8' })

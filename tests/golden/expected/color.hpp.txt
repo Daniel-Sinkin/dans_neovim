@@ -103,7 +103,7 @@ $nd constexpr def to_color(value: Vec4) $ne -> Color
 
 $nd constexpr def to_color(color: ColorU8) $ne -> Color
 {
-    inv_255 := 1.0f / 255.0f;
+    inv_255 :: 1.0f / 255.0f;
     return Color{
         $scast<f32>(color.r()) * inv_255,
         $scast<f32>(color.g()) * inv_255,

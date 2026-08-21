@@ -6,6 +6,7 @@
 --   int x{}         ->  x: int
 --   T name{init}    ->  name: T = init
 --   auto x = e      ->  x := e          (or x: <deduced> = e when clangd has it)
+--   constexpr auto k = e -> k :: e
 --   auto& x = e     ->  mut x& := e
 --   const auto& x=e ->  x& := e
 --   auto* x = e     ->  x^ := e         (the pointer deduction constraint stays visible)

@@ -25,6 +25,10 @@ local DEFAULTS = {
   -- compact default shows both facts; the style lab can compare equal-width
   -- marker variants without disturbing alignment.
   weak_pointer_marker = 'caret_optional',
+  -- Inferred compile-time bindings use the Jai-style double-colon form. The
+  -- alternatives preserve the two spellings the owner compared before choosing
+  -- this default, without changing ordinary buffers.
+  constexpr_auto_binding = 'double_colon',
 }
 
 local VALID = {
@@ -46,6 +50,11 @@ local VALID = {
     caret_optional = true,
     tilde_optional = true,
     caret_weak = true,
+  },
+  constexpr_auto_binding = {
+    double_colon = true,
+    colon_equals = true,
+    typed_double_colon = true,
   },
 }
 

@@ -165,6 +165,11 @@
       "id": "RQ-LOOKUP-034",
       "query": "Can I turn off monochrome for Python or C# in Dans, and why is Frontend presentation gray there?",
       "expected": ["DEC-018", "BHV-014"]
+    },
+    {
+      "id": "RQ-LOOKUP-035",
+      "query": "How does constexpr auto display, why is it double colon instead of colon equals, and what color are k_ constants?",
+      "expected": ["DEC-019", "BHV-004", "BHV-009"]
     }
   ]
 }

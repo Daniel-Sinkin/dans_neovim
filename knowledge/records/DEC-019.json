@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "DEC-019",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Inferred constexpr bindings use double colon and named constants use compile-time purple",
+  "summary": "constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role.",
+  "details": [
+    "Both constexpr auto k_limit{value}; and constexpr auto k_limit = value; display as k_limit :: value; the redundant auto placeholder is omitted.",
+    "Ordinary inferred assignments retain name := value, while an explicit compile-time type retains name: Type : value.",
+    "A recognized constexpr declaration colors its displayed binding name with DansConstant even when the source name has not yet adopted the convention.",
+    "The owner's k_ prefix identifies named constants at every raw and overlaid use site, including expressions and non-type template arguments where declaration-local constexpr parsing cannot propagate identity.",
+    "DansConstant is a distinct rethemable role using the existing compile-time purple #bb9af7; strings, comments, includes, and gray static assertions retain their higher-priority context colors.",
+    "Cursor and Visual reveal show exact C++ source, source bytes and row identity remain unchanged, and the selected profile is the production default.",
+    "The compared double-colon, colon-equals, and visible-auto spellings remain validated buffer-local profiles; the selected style-lab catalog hash is 83410ae5b51c219861a4b0b62be4308dc21dea0697f9bd3c4901f362dac58c51."
+  ],
+  "rationale": [
+    "Double colon makes an inferred compile-time binding textually distinct from the established colon-equals runtime assignment.",
+    "Displaying auto adds no type information, while a concrete written type remains useful and therefore stays visible.",
+    "The k_ convention carries constant identity to references without depending on LSP semantic-token coloring, which the frontend deliberately disables.",
+    "Reusing the macro/compile-time purple keeps the palette small, while a separate highlight group preserves future retheming freedom."
+  ],
+  "alternatives": [
+    "Use name := value for constexpr auto; rejected because := already denotes ordinary inferred assignments.",
+    "Keep name: auto : value; rejected because the placeholder is redundant and visually noisy.",
+    "Color only declaration sites discovered through constexpr parsing; rejected because uses would lose constant identity, while the established k_ convention supplies it directly."
+  ],
+  "scope": ["cpp-frontend/declarations", "cuda-frontend/declarations", "frontend-highlighting", "style-lab"],
+  "tags": ["constexpr", "auto", "double-colon", "k-prefix", "named-constants", "purple"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-08-21 and style_lab/selections.json constexpr-auto-binding selection",
+      "note": "Owner chose double colon after noting that colon-equals already serves ordinary assignments, and identified k_ as the constant-name prefix."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/render.lua, parse.lua, markers.lua, highlights.lua, and style.lua",
+      "note": "Structured rendering, alignment classification, raw matches, palette definition, and buffer-local comparison profiles implement the choice."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua and tests/golden/expected/color.hpp.txt",
+      "claim": "Brace/equal spelling, concrete-type control, declaration/use/template/string colors, raw match registration, exact RGB value, and integrated output are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Real Visual reveal/restore, source integrity, selected spelling, constant color restoration, and simultaneous buffer-local alternatives are deterministic."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py",
+      "claim": "Embedded Neovim ext_linegrid captures validate all three profiles, unchanged controls and source, and the selected purple constant run."
+    }
+  ],
+  "relations": [
+    { "type": "implemented_by", "target": "BHV-004" },
+    { "type": "implemented_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "CMP-004" },
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["constexpr auto double colon", "k_ constant color", "named constant purple", "max_int auto placeholder", "compile-time binding syntax"],
+    "questions": [
+      "How does constexpr auto display?",
+      "Why does constexpr use double colon instead of colon equals?",
+      "What color are k_ constants and their uses?",
+      "Does an unprefixed constexpr declaration still receive the constant color?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-08-21",
+    "revision": "current worktree",
+    "method": "Owner choice preserved in the style catalog, then verified through focused chunks, real interaction round-trips, integrated golden output, and ext_linegrid RGB captures."
+  }
+}

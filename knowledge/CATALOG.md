@@ -2,7 +2,7 @@
 
 Generated from canonical JSON records by `tools/knowledge.py build`; do not edit manually.
 
-Records: 66 · source digest: `a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c45ea836d458913d5`
+Records: 67 · source digest: `d9c8fc4a3c80b232019b4c2a0b632276ff0000c1b6797da59c3733ddb97dce81`
 
 | id | kind | status | title | summary |
 |---|---|---|---|---|
@@ -14,7 +14,7 @@ Records: 66 · source digest: `a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c4
 | [BHV-006](records/BHV-006.json) | behavior | observed | Function, member, lambda, IIFE, and defer grammar | Functions read with def and trailing returns, member receiver mutability is explicit, lambdas read as nested functions, and immediately invoked lambdas remain distinct result-producing constructs. |
 | [BHV-007](records/BHV-007.json) | behavior | observed | Structural sugar, alignment, platform branches, and folds | Focused modules reduce repetitive structural syntax while folds are the only feature allowed to collapse vertical source rows. |
 | [BHV-008](records/BHV-008.json) | behavior | accepted | Rows that remain raw or suspend presentation | Cursor/Visual rows, comments, static assertions, clang-format-off regions, macro-recording sessions, unsupported syntax, and cold large-buffer first paint deliberately avoid character-changing sugar. |
-| [BHV-009](records/BHV-009.json) | behavior | observed | Library prefix conceal and semantic color families | Configured third-party identifier families use stable semantic colors, and selected high-noise prefixes are concealed only after their category has been determined. |
+| [BHV-009](records/BHV-009.json) | behavior | observed | Semantic color families and library prefix conceal | Configured semantic identifier families use stable colors, and selected high-noise library prefixes are concealed only after their category has been determined. |
 | [BHV-010](records/BHV-010.json) | behavior | accepted | Function assembly view with persistent source color matching | DansAsm compiles the saved function under the cursor and pairs every mapped source row with its assembly rows using stable Godbolt-style colors plus active cursor synchronization. |
 | [BHV-011](records/BHV-011.json) | behavior | accepted | Constrained interactive C++ function probes | DansRunFunction executes an explicit C++ invocation expression for the saved function under the cursor in a generated temporary harness and shows compile/runtime output in a reusable result window. |
 | [BHV-012](records/BHV-012.json) | behavior | accepted | Preview-first parser-derived C++ code generation | C++ generation commands derive enums, fields, functions, namespaces, and target headers from Tree-sitter, render the result through the real frontend, and require an explicit apply action. |
@@ -54,6 +54,7 @@ Records: 66 · source digest: `a9f1c9600109090e8668102c4556d9235ba7330e655e8f0c4
 | [DEC-016](records/DEC-016.json) | decision | accepted | Weak pointers use a color-disambiguated caret-question suffix | std::weak_ptr<T> displays as T^?, using a neutral caret for non-owning pointer identity and a bold gold question mark for possible absence. |
 | [DEC-017](records/DEC-017.json) | decision | superseded | Superseded fixed-monochrome C# and Python source views | C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend. |
 | [DEC-018](records/DEC-018.json) | decision | accepted | Dans controls conventional-language monochrome while frontend availability is contextual | C# and Python default to source-faithful monochrome but follow the shared Dans monochrome preference; the C++ frontend remains unavailable from menu contexts outside the owner's explicit C/C++/CUDA suffix set. |
+| [DEC-019](records/DEC-019.json) | decision | accepted | Inferred constexpr bindings use double colon and named constants use compile-time purple | constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role. |
 | [INC-001](records/INC-001.json) | incident | resolved | Visual exit left multiline parameter rows raw until cursor contact | After a Visual selection ended, std and library-prefix presentation recovered but multiline function-parameter movement remained absent on formerly selected rows until j or k touched them. |
 | [INC-002](records/INC-002.json) | incident | resolved | Pointer-object const parameters received overlapping transformations | T* const and const T* const parameters could display duplicated or misplaced const because raw-line reordering and parameter flipping both owned the same bytes. |
 | [INC-003](records/INC-003.json) | incident | resolved | Final style-lab selection reported NetworkError after persisting | The final POST was written successfully, but --wait shut down the HTTP server before the browser finished consuming its response. |

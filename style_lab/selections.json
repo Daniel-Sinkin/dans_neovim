@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-07-18-i",
-  "updated_at": "2026-07-18T13:39:32.868765+00:00",
+  "catalog_revision": "2026-08-21-a",
+  "updated_at": "2026-08-21T08:46:32+02:00",
   "selections": {
     "concrete-parameter-const": {
       "choice_id": "const-default",
@@ -21,6 +21,12 @@
       "selected_at": "2026-07-18T13:39:32.868765+00:00",
       "note": "symbol overlap is fine, that's why we use different colors, color information encodes semantic differences",
       "catalog_hash": "d590b72d38e937964e3ccd006dfcf12cd65b841705d3c3174e9c38d3b353eead"
+    },
+    "constexpr-auto-binding": {
+      "choice_id": "double-colon",
+      "selected_at": "2026-08-21T08:46:32+02:00",
+      "note": "Use :: for constexpr auto because := already denotes ordinary inferred assignments; k_ is the constant-name convention.",
+      "catalog_hash": "83410ae5b51c219861a4b0b62be4308dc21dea0697f9bd3c4901f362dac58c51"
     }
   }
 }
