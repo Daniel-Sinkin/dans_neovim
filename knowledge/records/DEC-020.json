@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "DEC-020",
+  "kind": "decision",
+  "status": "accepted",
+  "title": "Named constants conceal k_ and use muted amber",
+  "summary": "The frontend hides a source k_ prefix and colors the visible constant name in restrained yellow-orange, while retaining double-colon constexpr syntax and exact source reveal.",
+  "details": [
+    "A source identifier such as k_max_int displays as max_int wherever the C/C++/CUDA frontend owns presentation; source-buffer bytes are unchanged.",
+    "The renderer classifies the original k_ identifier before stripping its prefix, then applies DansConstant to the visible tail using muted amber #d6a35f without bold emphasis.",
+    "Recognized unprefixed constexpr declaration names receive the same constant color without any text change.",
+    "Prefix concealment applies to declarations, raw use sites, overlay expressions, array dimensions, and non-type template arguments, and alignment widths are measured after removal.",
+    "Strings, comments, includes, and gray static_assert contexts remain protected; cursor and Visual reveal show the exact C++ source spelling, including k_.",
+    "The double-colon constexpr auto choice from DEC-019 remains selected, and the double-colon, colon-equals, and visible-auto alternatives remain validated buffer-local profiles; the selected style-lab catalog hash is 39e6f0aec27c93a2f1e3d4e9ad9fc5d176716c8bf8eb66eee437f7408cdfef9a."
+  ],
+  "rationale": [
+    "Once a dedicated color conveys constant identity, displaying the naming prefix is redundant and adds visual noise.",
+    "A muted yellow-orange is warm enough to distinguish constants without competing aggressively with errors, strings, or brighter library categories.",
+    "Classifying before conceal preserves semantic styling at both declaration and use sites without relying on LSP semantic-token coloring."
+  ],
+  "alternatives": [
+    "Keep the k_ prefix visible in compile-time purple; superseded because the owner clarified that remove means hide and requested a restrained yellow-orange.",
+    "Hide k_ without a distinct semantic color; rejected because constant identity would disappear with the prefix.",
+    "Use a bright gold or saturated orange; rejected because it would be too visually aggressive."
+  ],
+  "scope": ["cpp-frontend/declarations", "cuda-frontend/declarations", "frontend-highlighting", "prefix-conceal", "style-lab"],
+  "tags": ["constexpr", "double-colon", "k-prefix", "named-constants", "conceal", "amber"],
+  "provenance": [
+    {
+      "kind": "owner",
+      "reference": "conversation 2026-08-21 clarification and style_lab/selections.json constexpr-auto-binding selection",
+      "note": "Owner clarified that removing k_ means hiding it in the presentation and requested a not-too-aggressive yellow-orange constant color."
+    },
+    {
+      "kind": "code",
+      "reference": "lua/custom/dans_frontend_cpp/render.lua, parse.lua, markers.lua, and highlights.lua",
+      "note": "Structured rendering, post-classification prefix removal, raw conceal matches, alignment measurement, and the palette role implement the choice."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/frontend_spec.lua and tests/golden/expected/*.txt",
+      "claim": "Declarations, uses, expressions, dimensions, templates, protected contexts, exact RGB, and integrated output are pinned."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/frontend_interaction_spec.lua",
+      "claim": "Raw and overlaid k_ spellings reveal and restore exactly under cursor and Visual interaction without changing source bytes."
+    },
+    {
+      "kind": "test",
+      "reference": "tests/style_lab_spec.py",
+      "claim": "Embedded Neovim ext_linegrid captures validate all three constexpr profiles, concealed prefixes, unchanged controls and source, and the selected amber RGB run."
+    }
+  ],
+  "relations": [
+    { "type": "supersedes", "target": "DEC-019" },
+    { "type": "implemented_by", "target": "BHV-004" },
+    { "type": "implemented_by", "target": "BHV-009" },
+    { "type": "relates_to", "target": "CMP-004" },
+    { "type": "constrained_by", "target": "INV-001" },
+    { "type": "constrained_by", "target": "INV-002" }
+  ],
+  "retrieval": {
+    "aliases": ["hide k_ prefix", "k_ conceal", "named constant amber", "constexpr constant color", "constexpr auto double colon", "max_int without k prefix"],
+    "questions": [
+      "Does the frontend display the k_ prefix?",
+      "What color are named constants and constexpr declarations?",
+      "Does cursor or Visual reveal restore k_?",
+      "How does constexpr auto display after the constant style change?"
+    ]
+  },
+  "last_verified": {
+    "date": "2026-08-21",
+    "revision": "current worktree",
+    "method": "Owner clarification captured in the style catalog, then verified through focused chunks, raw and overlaid interaction round-trips, integrated golden output, and ext_linegrid RGB captures."
+  }
+}

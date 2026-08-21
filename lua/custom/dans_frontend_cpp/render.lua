@@ -60,6 +60,10 @@ local function constant_hl(name, is_constexpr)
   return nil
 end
 
+local function binding_width(name)
+  return vim.fn.strwidth(P.strip_constant_prefix(name))
+end
+
 -- All-caps stdlib tokens that aren't user macros worth coloring -- left normal.
 local MACRO_DENY = { FILE = true, SEEK_SET = true, SEEK_CUR = true, SEEK_END = true, EOF = true, NULL = true }
 
@@ -236,7 +240,7 @@ local function colorize(text, bufnr)
         elseif word:match '^qnpeps_' or word:match '^QNPEPS_' or word:match '^Qnpeps' or word:match '^qn_' then
           out[#out + 1] = { P.strip_glfw(word), 'DansQnpeps' }
         elseif word:match '^k_' then
-          out[#out + 1] = { word, 'DansConstant' }
+          out[#out + 1] = { P.strip_constant_prefix(word), 'DansConstant' }
         elseif word:match '^[A-Z][A-Z0-9_]+$' and not MACRO_DENY[word] then
           out[#out + 1] = { word, 'DansMacro' } -- other all-caps macro
         else
@@ -430,7 +434,7 @@ local function semantic_token_chunks(text, base_hl)
     local word = text:sub(s, e)
     if word:match '^k_' then
       flush()
-      out[#out + 1] = { word, 'DansConstant' }
+      out[#out + 1] = { P.strip_constant_prefix(word), 'DansConstant' }
     elseif is_string_type(word) then
       flush()
       out[#out + 1] = { word, 'DansString' }
@@ -465,7 +469,9 @@ function M.type_chunks(t, bufnr)
   for _, item in ipairs(segments) do
     if item.role == 'type' then
       active_hl = type_hl(item.source or item.text)
-      for _, chunk in ipairs(semantic_token_chunks(P.strip_glfw(item.text), active_hl)) do
+      -- Library prefixes can be stripped before token splitting, but k_ must
+      -- survive until semantic_token_chunks classifies its tail as a constant.
+      for _, chunk in ipairs(semantic_token_chunks(P.strip_glfw(item.text, true), active_hl)) do
         push(chunk[1], chunk[2])
       end
     elseif item.role == 'const' then
@@ -786,6 +792,13 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
 
   local chunks = {}
   local function add(text, hl)
+    if hl ~= 'DansString' and hl ~= 'Comment' then
+      local stripped = P.strip_constant_prefix(text)
+      if stripped ~= text and text:match '^k_[A-Za-z0-9_]+$' then
+        hl = 'DansConstant'
+      end
+      text = stripped
+    end
     if text ~= '' then
       chunks[#chunks + 1] = { text, hl or 'Normal' }
     end
@@ -931,7 +944,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
           add(P.ptr(sigil))
         end
         if align and align.auto then
-          add(string.rep(' ', math.max(0, align.nw - (vim.fn.strwidth(name) + (sigil ~= '' and 1 or 0)))))
+          add(string.rep(' ', math.max(0, align.nw - (binding_width(name) + (sigil ~= '' and 1 or 0)))))
         end
         if binding_style == 'typed_double_colon' then
           add ': '
@@ -959,7 +972,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
           add(P.ptr(sigil))
         end
         if align and align.auto then
-          add(string.rep(' ', math.max(0, align.nw - (vim.fn.strwidth(name) + (sigil ~= '' and 1 or 0)))))
+          add(string.rep(' ', math.max(0, align.nw - (binding_width(name) + (sigil ~= '' and 1 or 0)))))
         end
         add(' := ')
         add_value(expr)
@@ -992,7 +1005,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     if inferred_constexpr and constexpr_auto_binding ~= 'typed_double_colon' then
       add(nm, 'DansConstant')
       if align then
-        add(string.rep(' ', math.max(0, align.nw - vim.fn.strwidth(nm))))
+        add(string.rep(' ', math.max(0, align.nw - binding_width(nm))))
       end
       add(constexpr_auto_binding == 'colon_equals' and ' := ' or ' :: ')
       if paren then
@@ -1026,7 +1039,7 @@ local function build_chunks(prefix, core, had_semi, type_hint, align, was_const,
     end
     add(nm, constant_hl(nm, is_constexpr))
     if align then
-      add(string.rep(' ', math.max(0, align.nw - vim.fn.strwidth(nm))))
+      add(string.rep(' ', math.max(0, align.nw - binding_width(nm))))
     end
     add ': '
     if is_cstring then

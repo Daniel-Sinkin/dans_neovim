@@ -45,7 +45,7 @@
     { "type": "constrained_by", "target": "INV-001" },
     { "type": "constrained_by", "target": "INV-002" },
     { "type": "tests", "target": "DEC-003" },
-    { "type": "tests", "target": "DEC-019" },
+    { "type": "tests", "target": "DEC-020" },
     { "type": "resolves", "target": "INC-003" },
     { "type": "relates_to", "target": "CMP-003" }
   ],

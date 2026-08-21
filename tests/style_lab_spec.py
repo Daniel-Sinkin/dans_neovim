@@ -177,8 +177,8 @@ def main() -> None:
 
     # Inferred constexpr bindings preserve every spelling the owner compared as
     # a real buffer-local renderer profile. Runtime inference and explicit
-    # constexpr types are controls; the selected binding name is compile-time
-    # purple in the actual ext_linegrid output.
+    # constexpr types are controls; k_ is concealed and the selected binding tail
+    # is muted yellow-orange in the actual ext_linegrid output.
     constexpr_source = [
         "auto limits() -> void {",
         "    constexpr auto k_max_int{numeric_limits<int>::max()};",
@@ -189,9 +189,9 @@ def main() -> None:
         "}",
     ]
     constexpr_expectations = {
-        "double_colon": ("k_max_int ::", "k_min_int ::"),
-        "colon_equals": ("k_max_int :=", "k_min_int :="),
-        "typed_double_colon": ("k_max_int: auto :", "k_min_int: auto :"),
+        "double_colon": ("max_int ::", "min_int ::"),
+        "colon_equals": ("max_int :=", "min_int :="),
+        "typed_double_colon": ("max_int: auto :", "min_int: auto :"),
     }
     for binding, expected in constexpr_expectations.items():
         rendered = capture(
@@ -203,7 +203,8 @@ def main() -> None:
         assert rendered["source_lines"] == constexpr_source
         assert expected[0] in text_rows[1] and expected[1] in text_rows[2]
         assert "value := read_value();" in text_rows[3]
-        assert "k_retry_count: int : 3;" in text_rows[4]
+        assert "retry_count: int : 3;" in text_rows[4]
+        assert "consume(max_int, min_int, retry_count, value);" in text_rows[5]
 
     selected_constexpr = capture(
         constexpr_source,
@@ -211,8 +212,12 @@ def main() -> None:
         width=120,
     )
     assert any(
-        run["style"].get("fg") == "#bb9af7" and "k_max_int" in run["text"]
+        run["style"].get("fg") == "#d6a35f" and "max_int" in run["text"]
         for run in selected_constexpr["rows"][1]["runs"]
+    )
+    assert any(
+        run["style"].get("fg") == "#d6a35f" and "max_int" in run["text"]
+        for run in selected_constexpr["rows"][5]["runs"]
     )
 
     # Cross-path visual oracle for the accepted CUDA/Qnpeps/layout/defer rules.

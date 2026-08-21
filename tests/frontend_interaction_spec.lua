@@ -88,10 +88,10 @@ do
     cursor = 1,
     style_profile = { constexpr_auto_binding = 'typed_double_colon' },
   }
-  check_equal('selected constexpr-auto profile uses double colon', selected:display(2), 'k_max_int :: numeric_limits<int>::max();')
-  check_equal('constexpr-auto comparison can use colon equals', colon_equals:display(2), 'k_max_int := numeric_limits<int>::max();')
-  check_equal('constexpr-auto comparison preserves prior typed form', typed:display(2), 'k_max_int: auto : numeric_limits<int>::max();')
-  check_equal('comparison buffers do not mutate selected constexpr spelling', selected:display(2), 'k_max_int :: numeric_limits<int>::max();')
+  check_equal('selected constexpr-auto profile uses double colon', selected:display(2), 'max_int :: numeric_limits<int>::max();')
+  check_equal('constexpr-auto comparison can use colon equals', colon_equals:display(2), 'max_int := numeric_limits<int>::max();')
+  check_equal('constexpr-auto comparison preserves prior typed form', typed:display(2), 'max_int: auto : numeric_limits<int>::max();')
+  check_equal('comparison buffers do not mutate selected constexpr spelling', selected:display(2), 'max_int :: numeric_limits<int>::max();')
   check('constexpr-auto profiles preserve source bytes', selected:assert_source_unchanged() and colon_equals:assert_source_unchanged() and typed:assert_source_unchanged())
 end
 
@@ -397,6 +397,19 @@ local roundtrips = {
     target = 3,
   },
   {
+    name = 'named constant raw prefix',
+    lines = {
+      '// park',
+      'void f() {',
+      '    constexpr int k_limit{7};',
+      '    consume(k_limit);',
+      '    consume("k_limit"); // k_limit remains source text',
+      '    static_assert(k_limit == 7);',
+      '}',
+    },
+    target = 4,
+  },
+  {
     name = 'pointer and function aliases',
     lines = { '// park', 'auto pointer_result() -> int*;', 'auto other() -> void;' },
     target = 2,
@@ -474,20 +487,25 @@ for index, case in ipairs(roundtrips) do
   local decorated = session:display(case.target)
   local raw = case.lines[case.target]
   check(case.name .. ': fixture is actually transformed', decorated ~= raw, 'both were: ' .. raw)
+  if case.name == 'named constant raw prefix' then
+    check_equal('named constant prefix is hidden at a raw use', decorated, '    consume(limit);')
+    check_equal('k_ inside strings and comments stays visible', session:display(5), case.lines[5])
+    check_equal('k_ inside static_assert stays fully verbatim', session:display(6), case.lines[6])
+  end
   if case.name == 'constexpr inferred constant' then
-    check_equal('constexpr inferred constant uses compact double colon', decorated, '    k_max_int :: numeric_limits<int>::max();')
+    check_equal('constexpr inferred constant uses compact double colon', decorated, '    max_int :: numeric_limits<int>::max();')
     local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
     local function constant_chunk_present()
       for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(session.buf, view_ns, { case.target - 1, 0 }, { case.target - 1, -1 }, { details = true })) do
         for _, chunk in ipairs(mark[4].virt_text or {}) do
-          if chunk[1] == 'k_max_int' and chunk[2] == 'DansConstant' then
+          if chunk[1] == 'max_int' and chunk[2] == 'DansConstant' then
             return true
           end
         end
       end
       return false
     end
-    check('constexpr inferred constant name starts purple', constant_chunk_present())
+    check('constexpr inferred constant tail starts amber', constant_chunk_present())
   end
   session:select('line', case.target, case.target + 1)
   check_equal(case.name .. ': visual selection reveals source', session:display(case.target), raw)
@@ -498,10 +516,10 @@ for index, case in ipairs(roundtrips) do
     local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
     for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(session.buf, view_ns, { case.target - 1, 0 }, { case.target - 1, -1 }, { details = true })) do
       for _, chunk in ipairs(mark[4].virt_text or {}) do
-        restored = restored or (chunk[1] == 'k_max_int' and chunk[2] == 'DansConstant')
+        restored = restored or (chunk[1] == 'max_int' and chunk[2] == 'DansConstant')
       end
     end
-    check('constexpr inferred constant purple restores after Visual exit', restored)
+    check('constexpr inferred constant amber restores after Visual exit', restored)
   end
   check(case.name .. ': source bytes remain unchanged', session:assert_source_unchanged())
 end

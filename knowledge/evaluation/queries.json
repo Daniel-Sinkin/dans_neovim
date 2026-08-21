@@ -168,8 +168,13 @@
     },
     {
       "id": "RQ-LOOKUP-035",
-      "query": "How does constexpr auto display, why is it double colon instead of colon equals, and what color are k_ constants?",
-      "expected": ["DEC-019", "BHV-004", "BHV-009"]
+      "query": "How does constexpr auto display, why is it double colon instead of colon equals, and how do k_ constants appear?",
+      "expected": ["DEC-020", "BHV-004", "BHV-009"]
+    },
+    {
+      "id": "RQ-LOOKUP-036",
+      "query": "Does the k_ prefix remain visible, what color is the remaining constant name, and does cursor reveal restore the source?",
+      "expected": ["DEC-020", "BHV-009"]
     }
   ]
 }

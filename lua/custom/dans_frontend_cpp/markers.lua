@@ -66,12 +66,13 @@ local in_literal = vu.in_literal -- treesitter string/char/comment/include guard
 -- the prefix is hidden; `\<` keeps `_` a word char (PFN_vkCreateX keeps its vk).
 -- No `code_only` wrapper -- in_literal (treesitter) does the comment/string skip,
 -- which also covers block comments and char literals the `//` guard missed.
---   inline / dans_ noise; glfw/GLFW/GLFW_ (function/type/macro); the Vulkan
+--   inline / dans_ / k_ noise; glfw/GLFW/GLFW_ (function/type/macro); the Vulkan
 --   Vk/VK_/vk plus the longer DebugUtils sub-prefix. std::/dans:: are cpp-only.
 local PREFIX_PATTERNS = {
   [==[\<inline\>\s*]==],
   [==[\<static\>\s*]==], -- \> stops it matching static_assert (the `_` is a word char)
   [==[\<dans_]==],
+  [==[\<k_\ze[A-Za-z0-9]]==], -- named constant; amber tail preserves the hidden category
   [==[\<glfw\ze[A-Z]]==],
   [==[\<GLFW\ze[a-z]]==],
   [==[\<GLFW_\ze[A-Z0-9]]==],
@@ -284,10 +285,10 @@ local function apply(ev)
   -- project's actual #define names (scanned with rg), falling back to the all-caps
   -- heuristic only when no scan is available. The library-prefixed macros
   -- (VK_/SDL_/GLFW/stb/LLDB_) are still colored by the matchadds below.
-  -- k_* is the owner's source-level constant convention.  Unlike constexpr
-  -- syntax, the prefix remains available at every use site, so raw/revealed
-  -- lines can carry the same compile-time purple as declaration overlays.
-  vim.fn.matchadd('DansConstant', code_only [[\<k_[A-Za-z0-9_]*\>]], 24)
+  -- k_* is the owner's source-level constant convention. Classify the complete
+  -- source token before its prefix conceal so the remaining tail stays amber at
+  -- raw use sites. Cursor/Visual reveal restores the exact prefixed source.
+  vim.fn.matchadd('DansConstant', code_only [[\<k_[A-Za-z0-9_]\+\>]], 24)
   -- Vulkan identifiers -> purple, at a higher priority so VK_* overrides the
   -- generic macro color above. Vk* (types) and vk* (functions) are mixed-case so
   -- they never hit the macro match anyway.

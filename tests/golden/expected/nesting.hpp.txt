@@ -16,8 +16,8 @@ namespace vk {
 
 struct FrameResources
 {
-    k_max_frames: u32 : 2;
-    k_max_sets  : u32 : 16;
+    max_frames: u32 : 2;
+    max_sets  : u32 : 16;
         transform     : [4][4]f32;
         family_indices: [8]u32?;
         positions     : vector<[3]f32>;
@@ -32,8 +32,8 @@ struct FrameResources
 
 def build_lut() -> void
 {
-    k_w: usize : 4;
-    k_h: usize : 2;
+    w: usize : 4;
+    h: usize : 2;
     mut lut: [2][4]Color;
         first := lut[0][0];
     mut row&  := lut[0];

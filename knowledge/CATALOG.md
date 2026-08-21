@@ -2,7 +2,7 @@
 
 Generated from canonical JSON records by `tools/knowledge.py build`; do not edit manually.
 
-Records: 67 · source digest: `d9c8fc4a3c80b232019b4c2a0b632276ff0000c1b6797da59c3733ddb97dce81`
+Records: 68 · source digest: `23d97c669e9718098b4816a6385b06176996ef84fa213b3033a1857278b156af`
 
 | id | kind | status | title | summary |
 |---|---|---|---|---|
@@ -54,7 +54,8 @@ Records: 67 · source digest: `d9c8fc4a3c80b232019b4c2a0b632276ff0000c1b6797da59
 | [DEC-016](records/DEC-016.json) | decision | accepted | Weak pointers use a color-disambiguated caret-question suffix | std::weak_ptr<T> displays as T^?, using a neutral caret for non-owning pointer identity and a bold gold question mark for possible absence. |
 | [DEC-017](records/DEC-017.json) | decision | superseded | Superseded fixed-monochrome C# and Python source views | C# and Python retain their native source spelling and conventional language tooling while Tree-sitter and LSP semantic syntax colors are flattened; neither language participates in the C/C++/CUDA frontend. |
 | [DEC-018](records/DEC-018.json) | decision | accepted | Dans controls conventional-language monochrome while frontend availability is contextual | C# and Python default to source-faithful monochrome but follow the shared Dans monochrome preference; the C++ frontend remains unavailable from menu contexts outside the owner's explicit C/C++/CUDA suffix set. |
-| [DEC-019](records/DEC-019.json) | decision | accepted | Inferred constexpr bindings use double colon and named constants use compile-time purple | constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role. |
+| [DEC-019](records/DEC-019.json) | decision | superseded | Inferred constexpr bindings use double colon and named constants use compile-time purple | constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role. |
+| [DEC-020](records/DEC-020.json) | decision | accepted | Named constants conceal k_ and use muted amber | The frontend hides a source k_ prefix and colors the visible constant name in restrained yellow-orange, while retaining double-colon constexpr syntax and exact source reveal. |
 | [INC-001](records/INC-001.json) | incident | resolved | Visual exit left multiline parameter rows raw until cursor contact | After a Visual selection ended, std and library-prefix presentation recovered but multiline function-parameter movement remained absent on formerly selected rows until j or k touched them. |
 | [INC-002](records/INC-002.json) | incident | resolved | Pointer-object const parameters received overlapping transformations | T* const and const T* const parameters could display duplicated or misplaced const because raw-line reordering and parameter flipping both owned the same bytes. |
 | [INC-003](records/INC-003.json) | incident | resolved | Final style-lab selection reported NetworkError after persisting | The final POST was written successfully, but --wait shut down the HTTP server before the browser finished consuming its response. |

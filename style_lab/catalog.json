@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-08-21-a",
+  "catalog_revision": "2026-08-21-b",
   "title": "Dans C/C++ frontend style lab",
   "description": "Choose presentation rules from captures produced by the real Neovim frontend. Source bytes are never changed.",
   "questions": [
@@ -437,14 +437,14 @@
     },
     {
       "id": "constexpr-auto-binding",
-      "factbase_record": "DEC-019",
+      "factbase_record": "DEC-020",
       "status": "resolved",
       "title": "Inferred constexpr binding",
       "prompt": "How should constexpr auto distinguish an inferred compile-time binding from an ordinary inferred assignment?",
       "constraints": [
         "Ordinary auto assignments retain name := value.",
         "An explicit constexpr type retains name: Type : value.",
-        "The binding name keeps the named-constant color in every candidate, and cursor or Visual reveal remains exact C++."
+        "A source k_ prefix is concealed in every candidate, the visible name tail uses a restrained yellow-orange constant color, and cursor or Visual reveal remains exact C++."
       ],
       "choices": [
         {

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026-08-21-a",
-  "updated_at": "2026-08-21T08:46:32+02:00",
+  "catalog_revision": "2026-08-21-b",
+  "updated_at": "2026-08-21T13:31:08+02:00",
   "selections": {
     "concrete-parameter-const": {
       "choice_id": "const-default",
@@ -24,9 +24,9 @@
     },
     "constexpr-auto-binding": {
       "choice_id": "double-colon",
-      "selected_at": "2026-08-21T08:46:32+02:00",
-      "note": "Use :: for constexpr auto because := already denotes ordinary inferred assignments; k_ is the constant-name convention.",
-      "catalog_hash": "83410ae5b51c219861a4b0b62be4308dc21dea0697f9bd3c4901f362dac58c51"
+      "selected_at": "2026-08-21T13:31:08+02:00",
+      "note": "Use :: for constexpr auto because := already denotes ordinary inferred assignments; hide the source k_ prefix and use a restrained yellow-orange for the visible constant name.",
+      "catalog_hash": "39e6f0aec27c93a2f1e3d4e9ad9fc5d176716c8bf8eb66eee437f7408cdfef9a"
     }
   }
 }

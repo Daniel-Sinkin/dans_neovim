@@ -70,17 +70,17 @@ run('local inline constexpr', 'fn', { 'inline constexpr f32 k{2.0f};' }, { 'k: f
 run('local constexpr auto brace', 'fn', {
   'constexpr auto k_max_int{numeric_limits<int>::max()};',
 }, {
-  'k_max_int :: numeric_limits<int>::max();',
+  'max_int :: numeric_limits<int>::max();',
 })
-run('local constexpr auto equals', 'fn', { 'constexpr auto k_limit = compute_limit();' }, { 'k_limit :: compute_limit();' })
+run('local constexpr auto equals', 'fn', { 'constexpr auto k_limit = compute_limit();' }, { 'limit :: compute_limit();' })
 run('constexpr auto alignment split from runtime auto', 'fn', {
   '    constexpr auto k_short = 1;',
   '    constexpr auto k_long_name = 2;',
   '    const auto runtime = read();',
   '    const auto longer_runtime = read_more();',
 }, {
-  'k_short' .. (' '):rep(4) .. ' :: 1;',
-  'k_long_name :: 2;',
+  'short' .. (' '):rep(4) .. ' :: 1;',
+  'long_name :: 2;',
   'runtime' .. (' '):rep(7) .. ' := read();',
   'longer_runtime := read_more();',
 })
@@ -175,7 +175,7 @@ run('member const pointer', 'struct', { 'const Foo* cptr{};' }, { 'cptr: const F
 run('member array', 'struct', { 'std::array<f32, 3> arr{};' }, { 'arr: [3]f32;' })
 run('member array no-init', 'struct', { 'std::array<f32, 3> arr;' }, { 'no_init arr: [3]f32;' })
 -- nested arrays collapse fully: [outer][inner]Elem, not [outer]array<Elem, inner>
-run('member nested array', 'struct', { 'std::array<std::array<Color, k_width>, k_height> framebuffer{};' }, { 'framebuffer: [k_height][k_width]Color;' })
+run('member nested array', 'struct', { 'std::array<std::array<Color, k_width>, k_height> framebuffer{};' }, { 'framebuffer: [height][width]Color;' })
 -- uninitialized members get a red no_init marker at the start (vs `x{}` -> clean)
 run('member value no-init', 'struct', { 'GLFWbool x;' }, { 'no_init x: bool;' })
 run('member value default-init', 'struct', { 'GLFWbool x{};' }, { 'x: bool;' })
@@ -294,8 +294,8 @@ run('mixed const/mut block', 'fn', {
   '    const Vec2 origin{0.0f, 0.0f};',
   '    Vec2 cursor{};',
 }, {
-  'k_scale: f32 : 2.0f;',
-  'k_bias : f32 : 0.5f;',
+  'scale: f32 : 2.0f;',
+  'bias : f32 : 0.5f;',
   '    origin: Vec2 = 0.0f, 0.0f;',
   'mut cursor: Vec2;',
 })
@@ -307,8 +307,8 @@ run('struct constants split from fields', 'struct', {
   '    Vec2 pos{};',
   '    Vec2 vel{};',
 }, {
-  'k_width : u32 : 800;',
-  'k_height: u32 : 600;',
+  'width : u32 : 800;',
+  'height: u32 : 600;',
   'pos: Vec2;',
   'vel: Vec2;',
 })
@@ -508,8 +508,9 @@ do
 end
 
 -- constexpr declaration names and the owner's k_* convention share a dedicated
--- compile-time color. Parsing identifies legacy/unprefixed declarations; k_*
--- carries the same color to raw and overlaid use sites, including array extents.
+-- compile-time color. Parsing identifies legacy/unprefixed declarations; k_* is
+-- classified before conceal so its visible tail stays amber at raw and overlaid
+-- use sites, including array extents.
 do
   local b = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(b, 0, -1, false, {
@@ -544,10 +545,10 @@ do
     end
   end
 
-  chk('constexpr auto declaration color', chunk_hl(1, 'k_max_int'), 'DansConstant')
+  chk('constexpr auto declaration color', chunk_hl(1, 'max_int'), 'DansConstant')
   chk('unprefixed constexpr declaration color', chunk_hl(2, 'legacy_limit'), 'DansConstant')
-  chk('k_* overlay expression color', chunk_hl(3, 'k_max_int'), 'DansConstant')
-  chk('k_* non-type template argument color', chunk_hl(4, 'k_max_int'), 'DansConstant')
+  chk('concealed k_* overlay expression color', chunk_hl(3, 'max_int'), 'DansConstant')
+  chk('concealed k_* non-type template argument color', chunk_hl(4, 'max_int'), 'DansConstant')
   chk('k_* inside a string stays string-colored', chunk_hl(5, '"k_max_int"'), 'DansString')
 
   local raw_match = false
@@ -559,7 +560,7 @@ do
   end
   chk('raw k_* constant match exists', raw_match, true)
   local attrs = vim.api.nvim_get_hl(0, { name = 'DansConstant', link = false })
-  chk('constant group uses compile-time purple', attrs.fg, tonumber('bb9af7', 16))
+  chk('constant group uses muted yellow-orange', attrs.fg, tonumber('d6a35f', 16))
 end
 
 -- BLAS/LAPACK identifiers carry the DansBLAS yellow-green in the overlay: the

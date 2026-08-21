@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "records_sha256": "d9c8fc4a3c80b232019b4c2a0b632276ff0000c1b6797da59c3733ddb97dce81",
-  "record_count": 67,
+  "records_sha256": "23d97c669e9718098b4816a6385b06176996ef84fa213b3033a1857278b156af",
+  "record_count": 68,
   "records": [
     {
       "id": "BHV-001",
@@ -148,7 +148,7 @@
         },
         {
           "type": "relates_to",
-          "target": "DEC-019"
+          "target": "DEC-020"
         },
         {
           "type": "relates_to",
@@ -370,7 +370,7 @@
         },
         {
           "type": "implements",
-          "target": "DEC-019"
+          "target": "DEC-020"
         },
         {
           "type": "opens",
@@ -781,7 +781,7 @@
         },
         {
           "type": "tests",
-          "target": "DEC-019"
+          "target": "DEC-020"
         },
         {
           "type": "resolves",
@@ -1848,7 +1848,7 @@
     {
       "id": "DEC-019",
       "kind": "decision",
-      "status": "accepted",
+      "status": "superseded",
       "title": "Inferred constexpr bindings use double colon and named constants use compile-time purple",
       "summary": "constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role.",
       "scope": [
@@ -1866,6 +1866,10 @@
         "purple"
       ],
       "relations": [
+        {
+          "type": "superseded_by",
+          "target": "DEC-020"
+        },
         {
           "type": "implemented_by",
           "target": "BHV-004"
@@ -1888,6 +1892,55 @@
         }
       ],
       "path": "records/DEC-019.json"
+    },
+    {
+      "id": "DEC-020",
+      "kind": "decision",
+      "status": "accepted",
+      "title": "Named constants conceal k_ and use muted amber",
+      "summary": "The frontend hides a source k_ prefix and colors the visible constant name in restrained yellow-orange, while retaining double-colon constexpr syntax and exact source reveal.",
+      "scope": [
+        "cpp-frontend/declarations",
+        "cuda-frontend/declarations",
+        "frontend-highlighting",
+        "prefix-conceal",
+        "style-lab"
+      ],
+      "tags": [
+        "constexpr",
+        "double-colon",
+        "k-prefix",
+        "named-constants",
+        "conceal",
+        "amber"
+      ],
+      "relations": [
+        {
+          "type": "supersedes",
+          "target": "DEC-019"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-004"
+        },
+        {
+          "type": "implemented_by",
+          "target": "BHV-009"
+        },
+        {
+          "type": "relates_to",
+          "target": "CMP-004"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-001"
+        },
+        {
+          "type": "constrained_by",
+          "target": "INV-002"
+        }
+      ],
+      "path": "records/DEC-020.json"
     },
     {
       "id": "INC-001",

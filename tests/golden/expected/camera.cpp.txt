@@ -11,9 +11,9 @@
 namespace camera
 {
 using linalg::Vec4;
-using linalg::k_axis_x;
-using linalg::k_axis_y;
-using linalg::k_axis_z;
+using linalg::axis_x;
+using linalg::axis_y;
+using linalg::axis_z;
 using linalg::normalize_or;
 
 def Camera::configure(config: CameraConfig&) $ne -> mut Camera&
@@ -176,7 +176,7 @@ def Camera::position() const $ne -> Vec3
 
 def Camera::view_matrix() const $ne -> Mat4
 {
-    return glm::lookAt(position(), pivot_, k_axis_z);
+    return glm::lookAt(position(), pivot_, axis_z);
 }
 
 def Camera::projection_matrix(aspect: f32) const $ne -> Mat4
@@ -211,14 +211,14 @@ def Camera::view_projection_matrix(aspect: f32) const $ne -> Mat4
 
 def Camera::right() const $ne -> Vec3
 {
-    forward := normalize_or(pivot_ - position(), -k_axis_y);
-    return normalize_or(glm::cross(forward, k_axis_z), k_axis_x);
+    forward := normalize_or(pivot_ - position(), -axis_y);
+    return normalize_or(glm::cross(forward, axis_z), axis_x);
 }
 
 def Camera::up() const $ne -> Vec3
 {
-    forward := normalize_or(pivot_ - position(), -k_axis_y);
-    return normalize_or(glm::cross(right(), forward), k_axis_z);
+    forward := normalize_or(pivot_ - position(), -axis_y);
+    return normalize_or(glm::cross(right(), forward), axis_z);
 }
 
 def Camera::view_height() const $ne -> f32
@@ -254,7 +254,7 @@ def make_camera_ray(camera: Camera&, cursor_logical_px: Vec2, viewport_logical_p
     origin: Vec3 = near_world;
     return Ray{
         origin,
-        direction = normalize_or(Vec3{far_world - near_world}, -k_axis_z),
+        direction = normalize_or(Vec3{far_world - near_world}, -axis_z),
     };
 }
 

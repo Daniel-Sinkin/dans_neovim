@@ -605,12 +605,20 @@ function M.cuda_function_aliases()
   return vim.deepcopy(CUDA_FUNCTION_ALIASES)
 end
 
+-- k_ is the owner's named-constant source convention. Presentation hides only
+-- that prefix after classification; the identifier tail and source bytes remain
+-- intact. Requiring an alphanumeric first tail character leaves a bare `k_` or
+-- unrelated underscore shape untouched.
+function M.strip_constant_prefix(t)
+  return (t:gsub('%f[%w_]k_([A-Za-z0-9])', '%1'))
+end
+
 -- Drop or compact a configured library prefix from a displayed token, matching
 -- the raw-line transforms in markers.lua/aliases.lua. Only presentation changes;
 -- the caller computes the library color BEFORE calling this so provenance
 -- survives. `%f[%w_]` anchors to a C/C++ identifier start so embedded prefixes
 -- are untouched.
-function M.strip_glfw(t)
+function M.strip_glfw(t, keep_constant_prefix)
   -- internal glfw first (leading underscore: _GLFWwindow -> window), so the
   -- GLFW-without-underscore rules below don't strip the GLFW and strand the `_`.
   -- NOT the _GLFW_X build macros (a letter must follow). `[%w_]` frontier so `_`
@@ -664,7 +672,7 @@ function M.strip_glfw(t)
   t = t:gsub('%f[%w_]QNPEPS_([A-Z0-9])', '%1')
   t = t:gsub('%f[%w_]Qnpeps([A-Za-z0-9])', '%1')
   t = t:gsub('%f[%w_]qn_([A-Za-z0-9])', '%1')
-  return t
+  return keep_constant_prefix and t or M.strip_constant_prefix(t)
 end
 
 -- Trailing identifier of a *pure* member-access chain (`cfg.center` -> "center",
@@ -988,7 +996,7 @@ function M.field_dims(line, bufnr, row0)
     -- what's shown, not the stripped `char^`.
     disp = 'CString' .. (disp:gsub('^char%^', ''))
   end
-  return nm, disp, is_constexpr
+  return M.strip_constant_prefix(nm), disp, is_constexpr
 end
 
 -- Whether the declaration on `line` would render a `mut ` prefix -- the EXACT
@@ -1075,7 +1083,7 @@ function M.auto_bind_dims(line, bufnr, row0)
   if M.parse_lambda(expr) or not M.is_balanced(expr) then
     return nil -- a lambda / IIFE and multi-line openers don't render `name := value`
   end
-  local nw = vim.fn.strwidth(name) + (sigil ~= '' and 1 or 0)
+  local nw = vim.fn.strwidth(M.strip_constant_prefix(name)) + (sigil ~= '' and 1 or 0)
   local is_mut = not was_const and M.decl_kind(bufnr, row0) == 'local'
   return nw, is_mut, is_constexpr
 end

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "DEC-019",
   "kind": "decision",
-  "status": "accepted",
+  "status": "superseded",
   "title": "Inferred constexpr bindings use double colon and named constants use compile-time purple",
   "summary": "constexpr auto displays as name :: value, while constexpr declaration names and k_ identifiers carry a dedicated purple constant role.",
   "details": [
@@ -57,6 +57,7 @@
     }
   ],
   "relations": [
+    { "type": "superseded_by", "target": "DEC-020" },
     { "type": "implemented_by", "target": "BHV-004" },
     { "type": "implemented_by", "target": "BHV-009" },
     { "type": "relates_to", "target": "CMP-004" },
@@ -75,6 +76,6 @@
   "last_verified": {
     "date": "2026-08-21",
     "revision": "current worktree",
-    "method": "Owner choice preserved in the style catalog, then verified through focused chunks, real interaction round-trips, integrated golden output, and ext_linegrid RGB captures."
+    "method": "Superseded by the owner's same-day clarification that k_ should be concealed and its visible name tail should use a restrained yellow-orange; DEC-020 retains the double-colon portion of this choice."
   }
 }
