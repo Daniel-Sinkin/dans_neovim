@@ -563,11 +563,21 @@ do
   chk('constant group uses muted yellow-orange', attrs.fg, tonumber('d6a35f', 16))
 end
 
--- BLAS/LAPACK identifiers carry the DansBLAS yellow-green in the overlay: the
--- blasint type and a cblas_ call in the value.
+-- BLAS/LAPACK and CUDA math-library identifiers retain their semantic colors in
+-- overlay values. A std::string construction does too after its namespace is
+-- hidden; these source-side matches otherwise disappear beneath the overlay.
 do
   local b = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(b, 0, -1, false, { 'auto fn() -> void', '{', '    constexpr blasint m{2};', '    auto s = cblas_dsdot(n, x, 1, y, 1);', '}' })
+  vim.api.nvim_buf_set_lines(b, 0, -1, false, {
+    'auto fn() -> void',
+    '{',
+    '    constexpr blasint m{2};',
+    '    auto s = cblas_dsdot(n, x, 1, y, 1);',
+    '    auto result = cublasCtrsm(handle, side, uplo, trans, diag, m, n, alpha, A, lda, B, ldb);',
+    '    auto owned = std::string{"value"};',
+    '    auto borrowed = std::string_view{"value"};',
+    '}',
+  })
   vim.bo[b].filetype = 'cpp'
   vim.api.nvim_set_current_buf(b)
   pcall(function() vim.treesitter.get_parser(b, 'cpp'):parse() end)
@@ -582,14 +592,19 @@ do
       end
     end
   end
-  local t_hl = hl_of(2, 'blasint')
-  local v_hl = hl_of(3, 'cblas_dsdot')
-  if t_hl == 'DansBLAS' and v_hl == 'DansBLAS' then
-    pass = pass + 1
-  else
-    fail = fail + 1
-    fails[#fails + 1] = string.format('FAIL  BLAS colors: blasint=%s cblas_dsdot=%s', tostring(t_hl), tostring(v_hl))
+  local function chk(desc, got, expected)
+    if got == expected then
+      pass = pass + 1
+    else
+      fail = fail + 1
+      fails[#fails + 1] = string.format('FAIL  %s: expected %s, got %s', desc, tostring(expected), tostring(got))
+    end
   end
+  chk('BLAS type color', hl_of(2, 'blasint'), 'DansBLAS')
+  chk('BLAS value color', hl_of(3, 'cblas_dsdot'), 'DansBLAS')
+  chk('cuBLAS value color after prefix conceal', hl_of(4, 'Ctrsm'), 'DansCUBLAS')
+  chk('std::string value color after namespace conceal', hl_of(5, 'string'), 'DansString')
+  chk('std::string_view value color after namespace conceal', hl_of(6, 'string_view'), 'DansString')
 end
 
 -- ===================== designated init (conceal + inline pad) =====================

@@ -374,6 +374,62 @@ do
   check('overflow parameter rendering preserves source bytes', session:assert_source_unchanged())
 end
 
+-- Source match colors are hidden beneath a declaration overlay, so its value
+-- chunks must carry the same semantic groups. Cursor reveal removes the overlay;
+-- leaving either row must restore both its compact spelling and its color.
+do
+  local lines = {
+    '// park',
+    'void f() {',
+    '    auto result = cublasCtrsm(handle, side, uplo, trans, diag, m, n, alpha, A, lda, B, ldb);',
+    '    auto owned = std::string{"value"};',
+    '}',
+  }
+  local session = H.open {
+    lines = lines,
+    cursor = 1,
+    filetype = 'cuda',
+    language = 'cpp',
+    name = '/tmp/dans_frontend_overlay_value_colors.cu',
+  }
+  local view_ns = vim.api.nvim_get_namespaces()['ds_frontend_view']
+  local function chunk_hl(line_number, text)
+    local row0 = line_number - 1
+    for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(session.buf, view_ns, { row0, 0 }, { row0, -1 }, { details = true })) do
+      for _, chunk in ipairs(mark[4].virt_text or {}) do
+        if chunk[1] == text then
+          return chunk[2]
+        end
+      end
+    end
+  end
+  local function move_cursor(line_number)
+    vim.api.nvim_win_set_cursor(0, { line_number, 0 })
+    vim.cmd 'doautocmd CursorMoved'
+    vim.cmd 'redraw'
+    vim.wait(10)
+  end
+
+  local cublas_display = '    mut result := Ctrsm(handle, side, uplo, trans, diag, m, n, alpha, A, lda, B, ldb);'
+  local string_display = '    mut owned  := string{"value"};'
+  check_equal('cuBLAS overlay compacts the library prefix', session:display(3), cublas_display)
+  check_equal('cuBLAS overlay retains math-library color', chunk_hl(3, 'Ctrsm'), 'DansCUBLAS')
+  check_equal('std::string value overlay hides its namespace', session:display(4), string_display)
+  check_equal('std::string value overlay retains string color', chunk_hl(4, 'string'), 'DansString')
+
+  move_cursor(3)
+  check_equal('cuBLAS cursor reveal restores exact source', session:display(3), lines[3])
+  check_equal('neighboring string overlay stays colored', chunk_hl(4, 'string'), 'DansString')
+  move_cursor(4)
+  check_equal('leaving cuBLAS row restores compact spelling', session:display(3), cublas_display)
+  check_equal('leaving cuBLAS row restores its color', chunk_hl(3, 'Ctrsm'), 'DansCUBLAS')
+  check_equal('std::string cursor reveal restores exact source', session:display(4), lines[4])
+  move_cursor(1)
+  check_equal('leaving string row restores compact spelling', session:display(4), string_display)
+  check_equal('leaving string row restores its color', chunk_hl(4, 'string'), 'DansString')
+  check('overlay value color interaction preserves source bytes', session:assert_source_unchanged())
+end
+
 -- Every character-changing renderer must obey the same reveal round-trip. These
 -- cases intentionally assert the lifecycle contract rather than duplicating each
 -- feature's exact rendering spec: the focused feature tests own spelling, while

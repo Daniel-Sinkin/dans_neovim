@@ -16,6 +16,7 @@
     "SDL_ currently receives the SDL color but remains textual in parameter overlay types; whether it should be hidden like GLFW is an open cross-library policy question.",
     "String, char, comment, and static_assert contexts are protected from prefix removal or category leakage by Tree-sitter gates and masking priorities; complete include/include_next directives and their continuation rows are excluded by the shared row skipper.",
     "Overlay rendering classifies the original type before prefix stripping and splits visible const/volatile qualifiers into gray chunks.",
+    "Declaration-overlay value expressions preserve the same semantic categories as raw source: cuBLAS/cuSOLVER/cuSPARSE/cuFFT calls keep math-library orange after prefix conceal, while std::string and std::string_view constructions keep the visible type token string-green after std:: conceal.",
     "The CUDA color expresses API/type provenance; it does not claim that a value itself resides in device memory."
   ],
   "scope": ["frontend-highlighting", "library-identifiers", "named-constants", "prefix-conceal"],
@@ -30,8 +31,8 @@
   "evidence": [
     {
       "kind": "test",
-      "reference": "tests/cuda_raw_spec.lua, frontend_interaction_spec.lua, frontend_spec.lua, comment_color_spec.lua, frontend_leak_spec.lua, param_flip_spec.lua, and style_lab real-grid captures",
-      "claim": "CUDA and named-constant color, include/string exclusion, interaction round-trips, context isolation, cross-buffer leak prevention, exact RGB, and classify-before-strip behavior are covered."
+      "reference": "tests/cuda_raw_spec.lua, frontend_interaction_spec.lua overlay value color/reveal cases, frontend_spec.lua semantic value chunks, comment_color_spec.lua, frontend_leak_spec.lua, param_flip_spec.lua, and style_lab real-grid captures",
+      "claim": "CUDA math and string value colors, named-constant color, include/string exclusion, cursor interaction round-trips, context isolation, cross-buffer leak prevention, exact RGB, and classify-before-strip behavior are covered."
     }
   ],
   "relations": [
@@ -55,8 +56,8 @@
     ]
   },
   "last_verified": {
-    "date": "2026-08-21",
+    "date": "2026-08-22",
     "revision": "current worktree",
-    "method": "Palette/matcher/stripper audit, exact CUDA and constant-color tests, include/string interaction regression, chunk-level assertions, and actual RGB ext-linegrid inspection."
+    "method": "Palette/matcher/stripper audit, exact CUDA math and std::string overlay-value interaction tests, chunk-level assertions, and actual RGB ext-linegrid inspection."
   }
 }

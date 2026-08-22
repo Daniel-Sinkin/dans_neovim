@@ -647,8 +647,17 @@ function M.strip_glfw(t, keep_constant_prefix)
   for _, alias in ipairs(CUDA_FUNCTION_ALIASES) do
     t = t:gsub('%f[%w_]' .. alias.source .. '%f[^%w_]', alias.shown)
   end
-  -- Remaining CUDA runtime/driver types and calls lose only their prefix.
-  -- cu* math-library names such as cublasHandle do not match these case shapes.
+  -- CUDA math-library names lose their longer family prefix before the generic
+  -- runtime/driver shapes below. This mirrors markers.lua's raw-line conceals.
+  t = t:gsub('%f[%w_]cublas([A-Za-z0-9])', '%1')
+  t = t:gsub('%f[%w_]CUBLAS_([A-Z0-9])', '%1')
+  t = t:gsub('%f[%w_]cusolver([A-Za-z0-9])', '%1')
+  t = t:gsub('%f[%w_]CUSOLVER_([A-Z0-9])', '%1')
+  t = t:gsub('%f[%w_]cusparse([A-Za-z0-9])', '%1')
+  t = t:gsub('%f[%w_]CUSPARSE_([A-Z0-9])', '%1')
+  t = t:gsub('%f[%w_]cufft([A-Za-z0-9])', '%1')
+  t = t:gsub('%f[%w_]CUFFT_([A-Z0-9])', '%1')
+  -- Remaining CUDA runtime/driver types and calls lose only their short prefix.
   t = t:gsub('%f[%w_]cu([A-Z])', '%1')
   t = t:gsub('%f[%w_]CU([a-z])', '%1')
   -- vulkan memory allocator

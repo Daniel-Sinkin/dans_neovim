@@ -113,6 +113,17 @@ local function match_angle(s, open)
   return nil
 end
 
+local function is_cuda_math_identifier(word)
+  return word:match '^cublas'
+    or word:match '^cusolver'
+    or word:match '^cusparse'
+    or word:match '^cufft'
+    or word:match '^CUBLAS_'
+    or word:match '^CUSOLVER_'
+    or word:match '^CUSPARSE_'
+    or word:match '^CUFFT_'
+end
+
 -- Forward declaration: colorize (below) colors a CamelCase `Type::` qualifier by
 -- its type color, and type_hl is defined further down.
 local type_hl
@@ -158,10 +169,19 @@ local function colorize(text, bufnr)
       local word = text:sub(s, e)
       if text:sub(e + 1, e + 2) == '::' then
         if word == 'std' or word == 'dans' then
+          local namespace_tail = text:sub(e + 3)
+          local string_type = word == 'std'
+            and (namespace_tail:match '^(string_view)%f[%W]' or namespace_tail:match '^(string)%f[%W]')
           -- std::/dans:: hidden; std::move / std::forward keep a red flag (the
           -- ownership-transfer points -- the source is left moved-from).
-          local mv = word == 'std' and (text:match('^move%f[%W]', e + 3) or text:match('^forward%f[%W]', e + 3))
-          if mv then
+          local mv = word == 'std' and (namespace_tail:match '^move%f[%W]' or namespace_tail:match '^forward%f[%W]')
+          if string_type then
+            -- The overlay owns this source row, so the raw std::string match is
+            -- hidden with it. Consume the namespace and type together to retain
+            -- the same semantic green on the visible `string` spelling.
+            out[#out + 1] = { string_type, 'DansString' }
+            i = e + 3 + #string_type
+          elseif mv then
             out[#out + 1] = { mv, 'DansMarkerMut' }
             i = e + 3 + #mv
           else
@@ -229,6 +249,10 @@ local function colorize(text, bufnr)
           out[#out + 1] = { word, 'DansSTB' } -- stb*/STB*, matches markers (not stripped)
         elseif word:match '^cblas_' or word:match '^CBLAS_' or word:match '^Cblas%u' or word:match '^openblas_' or word:match '^OPENBLAS_' or word:match '^lapacke?_' or word:match '^LAPACKE?_' or word == 'blasint' then
           out[#out + 1] = { word, 'DansBLAS' } -- BLAS/LAPACK family, full name kept
+        elseif is_cuda_math_identifier(word) then
+          -- cuBLAS/cuSOLVER/cuSPARSE/cuFFT prefix text is hidden, so its orange
+          -- family color must carry that provenance in declaration overlays.
+          out[#out + 1] = { P.strip_glfw(word), 'DansCUBLAS' }
         elseif word:match '^cu%u' or word:match '^CU%l' or word:match '^CUDA_' then
           out[#out + 1] = { P.strip_glfw(word), 'DansCUDA' }
         elseif word:match '^Im%u' or word:match '^IM_' then
@@ -359,20 +383,11 @@ function type_hl(t)
   if t:match '^stb' or t:match '^STB' then
     return 'DansSTB'
   end
+  if is_cuda_math_identifier(t) then
+    return 'DansCUBLAS'
+  end
   if t:match '^cu%u' or t:match '^CU%l' or t:match '^cuda%u' or t:match '^CUDA_' then
     return 'DansCUDA'
-  end
-  if
-    t:match '^cublas'
-    or t:match '^cusolver'
-    or t:match '^cusparse'
-    or t:match '^cufft'
-    or t:match '^CUBLAS_'
-    or t:match '^CUSOLVER_'
-    or t:match '^CUSPARSE_'
-    or t:match '^CUFFT_'
-  then
-    return 'DansCUBLAS'
   end
   if t:match '^cblas_' or t:match '^CBLAS_' or t:match '^Cblas%u' or t:match '^openblas_' or t:match '^OPENBLAS_' or t:match '^lapacke?_' or t:match '^LAPACKE?_' or t:match '^blasint' then
     return 'DansBLAS'
